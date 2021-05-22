@@ -9,22 +9,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanChange;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.BeanChange;
+import de.protubero.beanstore.base.Compagnon;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.base.Compagnon;
-import de.protubero.beanstore.base.StoreSnapshot;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.ReadableBeanStore;
+import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.store.Store;
+import de.protubero.beanstore.txmanager.BeanStoreWriter;
 import de.protubero.beanstore.writer.Transaction.TransactionPhase;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
-public class StoreWriter {
+public class StoreWriter implements BeanStoreWriter {
 
 	public static final Logger log = LoggerFactory.getLogger(StoreWriter.class);
 	
@@ -51,15 +49,18 @@ public class StoreWriter {
 		});		
 	}
 	
-	public void addVerifyTransactionListener(Consumer<BeanStoreChange> consumer) {
+	@Override
+	public void verify(Consumer<BeanStoreChange> consumer) {
 		registerSyncTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
-	public void addSyncTransactionListener(Consumer<BeanStoreChange> consumer) {
+	@Override
+	public void onChange(Consumer<BeanStoreChange> consumer) {
 		registerSyncTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
-	public void addAsyncTransactionListener(Consumer<BeanStoreChange> consumer) {
+	@Override
+	public void onChangeAsync(Consumer<BeanStoreChange> consumer) {
 		transactionSubject
 			.subscribeOn(Schedulers.single())				
 			.subscribe(tx -> {
@@ -68,15 +69,18 @@ public class StoreWriter {
 			});
 	}
 
-	public void addVerifyInstanceTransactionListener(Consumer<BeanChange<?>> consumer) {
+	@Override
+	public void verifyInstance(Consumer<BeanChange<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
-	public void addSyncInstanceTransactionListener(Consumer<BeanChange<?>> consumer) {
+	@Override
+	public void onChangeInstance(Consumer<BeanChange<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
-	public void addAsyncInstanceTransactionListener(Consumer<BeanChange<?>> consumer) {
+	@Override
+	public void onChangeInstanceAsync(Consumer<BeanChange<?>> consumer) {
 		instanceTransactionSubject
 			.subscribeOn(Schedulers.single())		
 			.subscribe(itx -> {
@@ -128,7 +132,7 @@ public class StoreWriter {
 		}
 	}
 	
-	public synchronized StoreSnapshot snapshot() {
+	public synchronized BeanStoreReader snapshot() {
 		return store.snapshot();
 	}
 	

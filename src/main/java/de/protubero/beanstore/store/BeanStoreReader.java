@@ -9,9 +9,8 @@ import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.InstanceRef;
-import de.protubero.beanstore.base.StoreSnapshot;
 
-public interface ReadableBeanStore {
+public interface BeanStoreReader {
 
 			
 	Optional<BeanStoreEntity<?>> entity(String alias);
@@ -45,6 +44,7 @@ public interface ReadableBeanStore {
 	
 	List<AbstractPersistentObject> resolve(Iterable<? extends InstanceRef> refList);
 	
-	StoreSnapshot snapshot();
+	BeanStoreReader snapshot();
+
 	
 }

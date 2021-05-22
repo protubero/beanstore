@@ -24,10 +24,9 @@ import de.protubero.beanstore.base.EntityCompagnon;
 import de.protubero.beanstore.base.EntityMap;
 import de.protubero.beanstore.base.EntityMapCompagnon;
 import de.protubero.beanstore.base.InstanceRef;
-import de.protubero.beanstore.base.StoreSnapshot;
 import de.protubero.beanstore.writer.Transaction;
 
-public class Store implements InstanceFactory, ReadableBeanStore {
+public class Store implements InstanceFactory, BeanStoreReader {
 
 
 	
@@ -266,12 +265,12 @@ public class Store implements InstanceFactory, ReadableBeanStore {
 	}
 
 	@SuppressWarnings("unchecked")
-	public StoreSnapshot snapshot() {
-		Map<String, Collection<AbstractPersistentObject>> storeSnapshot = new HashMap<>();
+	public BeanStoreReader snapshot() {
+		Map<String, Collection<? extends AbstractPersistentObject>> storeSnapshot = new HashMap<>();
 		for (EntityStore<?> es : entityStores()) {
 			storeSnapshot.put(es.getCompagnon().alias(), (Collection<AbstractPersistentObject>) es.values());
 		}
-		return new StoreSnapshot(storeSnapshot);
+		return new StoreSnapshot(this, storeSnapshot);
 	}
 
 

@@ -14,7 +14,7 @@ public class BeanStoreTransactionLogPlugin implements BeanStorePlugin {
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreTransactionLogPlugin.class);
 	
 	@Override
-	public void usedFile(File file) {
+	public void onOpenFile(File file) {
 		log.info("use file " + file);
 	}
 

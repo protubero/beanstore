@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.store.ReadableBeanStore;
+import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.writer.BeanStoreChange;
 import de.protubero.beanstore.writer.Transaction;
 
@@ -39,7 +39,7 @@ public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
 	}
 
 	@Override
-	public ReadableBeanStore dataStore() {
+	public BeanStoreReader dataStore() {
 		return transaction.dataStore();
 	}
 

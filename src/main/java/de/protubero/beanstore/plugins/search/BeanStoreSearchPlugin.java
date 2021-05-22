@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.BeanStoreEntity;
-import de.protubero.beanstore.base.StoreSnapshot;
 import de.protubero.beanstore.init.BeanStore;
 import de.protubero.beanstore.init.BeanStorePlugin;
+import de.protubero.beanstore.store.BeanStoreReader;
 
 public class BeanStoreSearchPlugin implements BeanStorePlugin {
 
@@ -31,30 +31,32 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}	
 	
 	public List<AbstractPersistentObject> search(String queryString) {
-		List<AbstractPersistentObject> searchResult = beanStore.resolve(searchEngine.query(queryString));
+		List<AbstractPersistentObject> searchResult = beanStore.reader().resolve(searchEngine.query(queryString));
 		return searchResult;
 	}
 
 	@Override
-	public void onEndCreate(BeanStore beanStore, StoreSnapshot snapshot) {
+	public void onEndCreate(BeanStore beanStore, BeanStoreReader snapshot) {
 		this.beanStore = beanStore;
 		
 		// init search
 		searchEngine = new SearchEngine();
 		SearchEngineAdapter searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap);
 		
-		beanStore.onChangeInstanceAsync(searchAdapter);
+		beanStore.writer().onChangeInstanceAsync(searchAdapter);
 						
 		// index asynchcronically
 		new Thread(() -> {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
-			snapshot.getSnapshotMap().forEach((alias, coll) -> {
-				coll.forEach(apo -> {
+			
+			snapshot.entities().forEach(bse -> {
+				snapshot.objects(bse.alias()).forEach(apo -> {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);
 				});
 			});
+			
 			log.info("Stop initial indexing (" + counter.get() + ")");
 			
 			// start processing transactions

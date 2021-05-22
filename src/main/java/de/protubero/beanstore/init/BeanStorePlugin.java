@@ -3,13 +3,13 @@ package de.protubero.beanstore.init;
 import java.io.File;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.StoreSnapshot;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.writer.BeanStoreChange;
 
 public interface BeanStorePlugin {
 
-	default void usedFile(File file) {
+	default void onOpenFile(File file) {
 		
 	}
 	
@@ -21,7 +21,7 @@ public interface BeanStorePlugin {
 		
 	}
 	
-	default void onEndCreate(BeanStore beanStore, StoreSnapshot snapshot) {
+	default void onEndCreate(BeanStore beanStore, BeanStoreReader snapshot) {
 		
 	}
 	

@@ -28,14 +28,15 @@ public class KryoPersistence implements TransactionPersistence {
 	private TransactionWriter writer;
 	private File file;
 
-
+	
 	public KryoPersistence(File file) {
 		this.file = Objects.requireNonNull(file);
-
+		
 		// path must not be a directory path
 		if (file.isDirectory()) {
 			throw new PersistenceException("path parameter is a directory");
 		}
+		
 
 		kryo = new Kryo();
 		kryo.register(PersistentTransaction.class);

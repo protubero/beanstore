@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.ReadableBeanStore;
+import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.writer.BeanStoreChange;
 import de.protubero.beanstore.writer.StoreWriter;

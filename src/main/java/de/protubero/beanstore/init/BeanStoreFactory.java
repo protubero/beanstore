@@ -181,7 +181,7 @@ public class BeanStoreFactory {
 		
 				
 		if (file != null) {
-			plugins.forEach(plugin -> plugin.usedFile(file));
+			plugins.forEach(plugin -> plugin.onOpenFile(file));
 			
 			// load transactions
 			KryoPersistence persistence = new KryoPersistence(file);
@@ -325,8 +325,7 @@ public class BeanStoreFactory {
 		TransactionManager finalTxManager = new TaskQueueTransactionManager(storeWriter);
 		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, onCloseStoreAction);
 
-		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, beanStoreImpl.snapshot()));
-
+		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, store.snapshot()));
 		
 		return beanStoreImpl;
 	}

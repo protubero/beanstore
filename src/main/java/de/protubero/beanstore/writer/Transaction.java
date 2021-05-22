@@ -16,7 +16,7 @@ import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.ReadableBeanStore;
+import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.store.Store;
 
 public class Transaction implements BeanStoreTransaction, BeanStoreChange, MigrationTransaction {
@@ -28,7 +28,7 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private ReadableBeanStore dataStore;
+	private BeanStoreReader dataStore;
 	private InstanceFactory context;
 	public PersistentTransaction persistentTransaction;
 
@@ -39,13 +39,13 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(ReadableBeanStore dataStore, InstanceFactory context, PersistentTransaction persistentTransaction) {
+	private Transaction(BeanStoreReader dataStore, InstanceFactory context, PersistentTransaction persistentTransaction) {
 		this.dataStore = dataStore;
 		this.context = context;
 		this.persistentTransaction = persistentTransaction;
 	}
 	
-	public static Transaction of(ReadableBeanStore store, InstanceFactory iFactory, 
+	public static Transaction of(BeanStoreReader store, InstanceFactory iFactory, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
 		return new Transaction(store, iFactory, pt);
@@ -213,7 +213,7 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 
 
 	@Override
-	public ReadableBeanStore dataStore() {
+	public BeanStoreReader dataStore() {
 		return dataStore;
 	}
 

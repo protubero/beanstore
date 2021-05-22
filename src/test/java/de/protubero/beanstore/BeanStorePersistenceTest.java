@@ -11,7 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.init.BeanStore;
 import de.protubero.beanstore.init.BeanStoreFactory;
-import de.protubero.beanstore.store.ReadableBeanStore;
+import de.protubero.beanstore.store.BeanStoreReader;
 
 public class BeanStorePersistenceTest {
 	
@@ -46,17 +46,17 @@ public class BeanStorePersistenceTest {
 				e.put("age", e.getInteger("age") + 3);
 			});
 		});
-		ReadableBeanStore beanStore2 = builder.create();
+		var beanStore2 = builder.create();
 				
-		assertEquals(2, beanStore2.objects(Employee.class).count());
+		assertEquals(2, beanStore2.reader().objects(Employee.class).count());
 		
-		List<Employee> employees = beanStore2.objects(Employee.class).sorted().collect(Collectors.toList());
+		List<Employee> employees = beanStore2.reader().objects(Employee.class).sorted().collect(Collectors.toList());
 		assertEquals(2, employees.size());
 		assertEquals(44, employees.get(0).getAge());
 		assertEquals(49, employees.get(1).getAge());
 		
-		assertEquals(44, beanStore2.find(employee1).getAge());
-		assertEquals(49, beanStore2.find(employee2).getAge());
+		assertEquals(44, beanStore2.reader().find(employee1).getAge());
+		assertEquals(49, beanStore2.reader().find(employee2).getAge());
 
 	}
 
