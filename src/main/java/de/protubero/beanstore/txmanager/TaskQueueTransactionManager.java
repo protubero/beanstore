@@ -23,9 +23,6 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	private Consumer<StoreWriter> taskQueuePoisonPill = x -> {};
 	
 
-	/**
-	 * @param beanStoreImpl
-	 */
 	public TaskQueueTransactionManager(StoreWriter storeWriter) {
 		super(storeWriter);
 		
@@ -63,8 +60,8 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	/**
 	 * Blocking
 	 * 
-	 * @param transaction
-	 * @return
+	 * @param transaction the transaction to be executed
+	 * @return the transaction change description
 	 */
 	public BeanStoreChange execute(Transaction transaction) {
 		sync(sw -> {

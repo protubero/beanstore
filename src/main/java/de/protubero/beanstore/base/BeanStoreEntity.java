@@ -10,7 +10,7 @@ public interface BeanStoreEntity<T extends AbstractPersistentObject> {
 	/**
 	 * The entity alias
 	 * 
-	 * @return
+	 * @return an alias
 	 */
 	String alias();
 

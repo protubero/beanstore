@@ -17,7 +17,7 @@ Unique selling points:
 * full change history
 * Plugin interface
 
-We use *Kryo* to serialize and deserialize Java Beans, *ByteBuddy* to enhance bean classes at runtime and *PCollections* to facilitate concurrent reading and writing.
+We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize Java Beans, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
 
 
 ## Getting Started
@@ -57,7 +57,7 @@ var tx = store.transaction();
 		
 ToDo newToDo = tx.create(ToDo.class);
 newToDo.setText("Hello World");
-tx.execute();	
+tx.execute();
 
 var allToDos = store.reader().objects(ToDo.class).collect(Collectors.toList());
 ```

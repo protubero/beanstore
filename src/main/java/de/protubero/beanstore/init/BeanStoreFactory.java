@@ -128,9 +128,6 @@ public class BeanStoreFactory {
 	/**
 	 * Register a Java Bean class. It must be a descendant of AbstractEntity.
 	 * 
-	 * @param <X>
-	 * @param beanClass
-	 * @return
 	 */
 	public <X extends AbstractEntity> BeanStoreEntity<X> registerType(Class<X> beanClass) {
 		EntityCompagnon<X> compagnon = new EntityCompagnon<>(beanClass);

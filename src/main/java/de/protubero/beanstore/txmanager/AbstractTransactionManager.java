@@ -3,7 +3,6 @@ package de.protubero.beanstore.txmanager;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 

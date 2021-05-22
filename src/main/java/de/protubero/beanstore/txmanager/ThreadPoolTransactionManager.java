@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.writer.BeanStoreChange;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;

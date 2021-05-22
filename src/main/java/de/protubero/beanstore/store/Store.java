@@ -16,15 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.Compagnon;
 import de.protubero.beanstore.base.EntityCompagnon;
 import de.protubero.beanstore.base.EntityMap;
 import de.protubero.beanstore.base.EntityMapCompagnon;
-import de.protubero.beanstore.base.InstanceRef;
-import de.protubero.beanstore.writer.Transaction;
 
 public class Store implements InstanceFactory, BeanStoreReader {
 
@@ -68,13 +65,6 @@ public class Store implements InstanceFactory, BeanStoreReader {
 		return register(new EntityCompagnon<>(aClass));
 	}
 	
-	/**
-	 * Transforms an existing map store to a bean store
-	 * 
-	 * @param <X>
-	 * @param aClass
-	 * @return
-	 */
 	public <X extends AbstractEntity> EntityStore<X> transformOrCreateBeanStore(EntityCompagnon<X> beanCompagnon, Consumer<X> callback) {
 		EntityStore<?> origEntityStore = storeByAliasMap.remove(beanCompagnon.alias());
 		if (origEntityStore != null) {
