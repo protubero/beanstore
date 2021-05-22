@@ -1,5 +1,6 @@
 package de.protubero.beanstore.store;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +21,18 @@ public interface BeanStoreReader {
 	Collection<BeanStoreEntity<?>> entities();
 	
 	
-	<T extends AbstractPersistentObject> T find(InstanceRef ref);
+	default <T extends AbstractPersistentObject> T find(InstanceRef ref) {
+		return find(ref.alias(), ref.id());
+	}
 
-	<T extends AbstractEntity> T find(T ref);
+	default <T extends AbstractEntity> T find(T ref) {
+		return find(ref.alias(), ref.id());
+	}
 	
-	<T extends AbstractPersistentObject> Optional<T> findOptional(InstanceRef ref);
+	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceRef ref) {
+		return findOptional(ref.alias(), ref.id());
+	}
+	
 	
 	<T extends AbstractPersistentObject> T find(String alias, Long id);
 
@@ -40,9 +48,23 @@ public interface BeanStoreReader {
 	
 	<T extends AbstractEntity> Stream<T> objects(Class<T> aClass);
 	
-	List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceRef> refList);
+	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceRef> refList) {
+		List<AbstractPersistentObject> result = new ArrayList<>();
+		for (InstanceRef ref : refList) {
+			findOptional(ref).ifPresent(obj -> result.add(obj));
+		}
+		
+		return result;
+	}
 	
-	List<AbstractPersistentObject> resolve(Iterable<? extends InstanceRef> refList);
+	default List<AbstractPersistentObject> resolve(Iterable<? extends InstanceRef> refList) {
+		List<AbstractPersistentObject> result = new ArrayList<>();
+		for (InstanceRef ref : refList) {
+			result.add(findOptional(ref).orElseThrow(() -> new StoreException("invalid ref " + ref.toRefString())));
+		}
+		
+		return result;
+	}
 	
 	BeanStoreReader snapshot();
 

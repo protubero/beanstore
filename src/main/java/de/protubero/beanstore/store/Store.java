@@ -28,7 +28,6 @@ import de.protubero.beanstore.writer.Transaction;
 
 public class Store implements InstanceFactory, BeanStoreReader {
 
-
 	
 	public static final Logger log = LoggerFactory.getLogger(Store.class);
 	
@@ -36,6 +35,22 @@ public class Store implements InstanceFactory, BeanStoreReader {
 	private Map<String, EntityStore<?>> storeByAliasMap = new HashMap<>();
 	private Map<Class<?>, EntityStore<?>> storeByClassMap = new HashMap<>();
 		
+	/**
+	 * Copy constructor
+	 * 
+	 * @param entityStores
+	 */
+	private Store(Iterable<EntityStore<?>> entityStores) {
+		entityStores.forEach(es -> {
+			storeByAliasMap.put(es.getCompagnon().alias(), es);
+			if (es.getCompagnon().isBean()) {
+				storeByClassMap.put(es.getCompagnon().entityClass(), es);
+			}	
+		});
+	}
+	
+	public Store() {
+	}
 	
 	public EntityStore<EntityMap> createMapStore(String alias) {
 		return register(new EntityMapCompagnon(alias));
@@ -155,42 +170,8 @@ public class Store implements InstanceFactory, BeanStoreReader {
 	}
 		
 
-	@Override
-	public List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceRef> refList) {
-		List<AbstractPersistentObject> result = new ArrayList<>();
-		for (InstanceRef ref : refList) {
-			findOptional(ref).ifPresent(obj -> result.add(obj));
-		}
+	
 		
-		return result;
-	}
-	
-	@Override
-	public List<AbstractPersistentObject> resolve(Iterable<? extends InstanceRef> refList) {
-		List<AbstractPersistentObject> result = new ArrayList<>();
-		for (InstanceRef ref : refList) {
-			result.add(findOptional(ref).orElseThrow(() -> new StoreException("invalid ref " + ref.toRefString())));
-		}
-		
-		return result;
-	}
-	
-	
-	@Override
-	public <T extends AbstractPersistentObject> T find(InstanceRef ref) {
-		return find(ref.alias(), ref.id());
-	}
-
-	@Override
-	public <T extends AbstractEntity> T find(T ref) {
-		return find(ref.alias(), ref.id());
-	}
-	
-	@Override
-	public <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceRef ref) {
-		return findOptional(ref.alias(), ref.id());
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends AbstractPersistentObject> T find(String alias, Long id) {
@@ -264,15 +245,13 @@ public class Store implements InstanceFactory, BeanStoreReader {
 		return Collections.unmodifiableList(result);
 	}
 
-	@SuppressWarnings("unchecked")
 	public BeanStoreReader snapshot() {
-		Map<String, Collection<? extends AbstractPersistentObject>> storeSnapshot = new HashMap<>();
-		for (EntityStore<?> es : entityStores()) {
-			storeSnapshot.put(es.getCompagnon().alias(), (Collection<AbstractPersistentObject>) es.values());
-		}
-		return new StoreSnapshot(this, storeSnapshot);
+		List<EntityStore<?>> resultStores = new ArrayList<>();
+		storeByAliasMap.values().forEach(es -> {
+			resultStores.add(es.cloneStore());
+		});
+		
+		return new Store(resultStores);
 	}
-
-
 	
 }

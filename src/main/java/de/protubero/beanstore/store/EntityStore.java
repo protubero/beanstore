@@ -27,6 +27,12 @@ public class EntityStore<T extends AbstractPersistentObject> {
 	public EntityStore(Compagnon<T> compagnon) {
 		this.compagnon = compagnon;
 	}
+
+	private EntityStore(Compagnon<T> compagnon, HashPMap<Long, T> objectMap, Long nextInstanceId) {
+		this.compagnon = compagnon;
+		this.objectMap = objectMap;
+		this.nextInstanceId = nextInstanceId;
+	}
 	
 	public T newInstance() {
 		T result = compagnon.createInstance();
@@ -102,6 +108,10 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		return result;
 	}
 
+	public EntityStore<T> cloneStore() {
+		EntityStore<T> result = new EntityStore<T>(compagnon, objectMap, nextInstanceId);
+		return result;		
+	}
 
 
 }
