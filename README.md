@@ -35,10 +35,37 @@ We use *Kryo* to serialize and deserialize Java Beans, *ByteBuddy* to enhance be
 
 ### Quickstart Code
 
+```java
+@Entity(alias = "todo")
+public class ToDo extends AbstractEntity {
+
+	private String text;
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+}
+
+BeanStoreFactory factory = BeanStoreFactory.of(new File("c:/your/path/app.kryo"));
+factory.registerType(ToDo.class);
+var store = factory.create();
+var tx = store.transaction();
+		
+ToDo newToDo = tx.create(ToDo.class);
+newToDo.setText("Hello World");
+tx.execute();	
+
+var allToDos = store.reader().objects(ToDo.class).collect(Collectors.toList());
+```
+
 
 ### Example Web Application
 
-[BeanStore Demo](https://github.com/protubero/beanstore-demo)
+The [BeanStore Demo](https://github.com/protubero/beanstore-demo) demonstrates the features and typical use cases of the lib.
 
 ## Documentation
 
@@ -59,12 +86,20 @@ The BeanStore is designed as a store of immutable objects. Stored beans will thr
 
 ### BeanStore Factory
 
-#### Register Java Bean Classes
+Use *BeanStoreFactory* to configure the resulting BeanStore:
+
+* register entity classes
+* register plugins
+* configure migration transactions
+* register callback to initialize an empty store
+
+
+#### Register Entity Classes
+
 
 #### Initialization of a new Store
 
 #### Migration Transactions
-
 
 
 ### Writing Data
@@ -85,8 +120,6 @@ Other callback options allow listeners to be informed on any change to the store
 All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Execptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
 
 
-
-
 ### Reading Data
 
 ### find and query instances
@@ -97,6 +130,8 @@ All transactions are applied sequentially to the store. Synchronous listeners wi
 
 
 ### Plugins
+
+BeanStore plugins 
 
 Implement interface `BeanStorePlugin` to 
 
@@ -115,9 +150,49 @@ beanStoreFactory.addPlugin(plugin);
 
 #### Fulltext search
 
-Register the `BeanStoreSearchPlugin` 
+The class `BeanStoreSearchPlugin` adds full text search capability to the BeanStore lib.
+
+```java
+	// configure full text search
+	BeanStoreSearchPlugin searchPlugin = new BeanStoreSearchPlugin();
+	factory.addPlugin(searchPlugin);
+	
+	// configure projection from instance to text to be indexed
+	searchPlugin.register(todoEntity, todo -> {
+		return todo.getText();
+	});
+
+	var searchResult = searchPlugin.search("World");	
+	
+```
+
 
 #### Bean Validation
 
+[Jakarta Bean Validation](https://beanvalidation.org/) is a Java specification which lets you express constraints on object models via annotations. Register plugin *BeanValidationPlugin* to use this feature.
+
+```java
+	class Employee extends AbstractEntity {
+		@Min(value = 18, message = "Age should not be less than 18")
+		private Integer age;
+	}
+
+	// configure Java Bean Validation
+	BeanValidationPlugin validationPlugin = new BeanValidationPlugin();
+	factory.addPlugin(validationPlugin);
+
+	var employee = tx.create(Employee.class);
+	employee.setAge(20);
+	tx.execute(); // throws ValidationException
+	
+```
+
 #### Transaction History
+
+Use *BeanStoreHistoryPlugin* if you need to access a full change history of each instance. The simplistic implementation might consume too many resources in case of larger stores. Use it as a starting point of your refined and optimized solution.
+
+
+#### Transaction Log
+
+The *BeanStoreTransactionLogPlugin* lets you view all transactions, the transactions initially read as well as all transactions written to the file. *BeanStoreTransactionLogPlugin* listens to the *read* and *write* operations and logs them to a SLF4J Logger.
 
