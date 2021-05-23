@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.protubero</groupId>
 	<artifactId>beanstore</artifactId>
-	<version>0.8.2-SNAPSHOT</version>
+	<version>0.8.1-SNAPSHOT</version>
 
 	<name>BeanStore</name>
   	<description>Persistent Java Bean Store</description>
