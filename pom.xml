@@ -4,6 +4,16 @@
 	<artifactId>beanstore</artifactId>
 	<version>0.8.1-SNAPSHOT</version>
 
+	<name>BeanStore</name>
+  	<description>Persistent Java Bean Store</description>
+  	<url>https://github.com/protubero/beanstore</url>
+  	<developers>
+  		<developer>
+  			<name>Manfred Schäfer</name>
+  			<email>4920713+protubero@users.noreply.github.com</email>  			
+  		</developer>
+  	</developers>
+
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -162,6 +172,20 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>1.6.8</version>
@@ -298,8 +322,7 @@
 		</pluginManagement>
 	</build>
 
-	<profiles>
-		<!-- GPG Signature on release -->
+	<!-- profiles>
 		<profile>
 			<id>release-sign-artifacts</id>
 			<activation>
@@ -327,5 +350,5 @@
 				</plugins>
 			</build>
 		</profile>
-	</profiles>
+	</profiles-->
 </project>
