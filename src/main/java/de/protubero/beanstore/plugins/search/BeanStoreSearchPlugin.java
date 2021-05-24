@@ -43,7 +43,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 		searchEngine = new SearchEngine();
 		SearchEngineAdapter searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap);
 		
-		beanStore.writer().onChangeInstanceAsync(searchAdapter);
+		beanStore.callbacks().onChangeInstanceAsync(searchAdapter);
 						
 		// index asynchcronically
 		new Thread(() -> {

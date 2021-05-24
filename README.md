@@ -4,7 +4,7 @@ BeanStore provides a data storage option when simplicity and flexibility are the
 
 BeanStore should fit perfectly if one tries to quickly put together a little web application. On the client side you usually choose a JS lib like Vue.js or svelte but on the server side you want to stick with good ole' java. There are plenty of good and simple web server libs available, like [Javalin](https://javalin.io/) for example. But when it comes to data persistence there is nothing that fits really well. Here comes BeanStore for the rescue.
 
-Unique selling points:
+Key selling points:
 
 * The data is persisted in one file
 * Everything is in memory, query your data with java streams
@@ -133,7 +133,9 @@ With delete operations you have the choice between optimistic locking (`delete(a
 
 #### Pessimistic Locking
 
-For some operations it is necessary that a transaction is executed immediately. 
+Some transactions require immediate execution. E.g. if you want to update all instances of an entity at once, like you would do with a SQL update statement, you need to make sure that you don't miss any instance. The normal transaction is enqueued when you execute `transaction.execute()`. At the time the transaction is really applied to the store, other transactions might have added new instances which are not covered by your transaction. To fulfil this requirement, BeanStore provides the callback option `executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer)`. When the consumer is invoked, the store is closed for any other transactions and all transaction which are executed by the consumer are executed immediatly.
+
+Beside synchronous transactions listeners for transaction verification, this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
 
 
 ### Transaction Listeners

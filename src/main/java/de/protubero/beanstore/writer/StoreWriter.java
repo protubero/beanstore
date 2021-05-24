@@ -17,12 +17,12 @@ import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.store.Store;
-import de.protubero.beanstore.txmanager.BeanStoreWriter;
+import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
 import de.protubero.beanstore.writer.Transaction.TransactionPhase;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
-public class StoreWriter implements BeanStoreWriter {
+public class StoreWriter implements BeanStoreCallbacks {
 
 	public static final Logger log = LoggerFactory.getLogger(StoreWriter.class);
 	

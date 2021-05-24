@@ -6,7 +6,7 @@ import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.BeanChange;
 import de.protubero.beanstore.writer.BeanStoreChange;
 
-public interface BeanStoreWriter {
+public interface BeanStoreCallbacks {
 
 	
 	void verify(Consumer<BeanStoreChange> consumer);	

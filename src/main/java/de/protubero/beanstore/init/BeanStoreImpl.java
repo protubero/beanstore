@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.store.BeanStoreReader;
 import de.protubero.beanstore.store.Store;
-import de.protubero.beanstore.txmanager.BeanStoreWriter;
+import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
 import de.protubero.beanstore.txmanager.DeferredTransactionExecutionContext;
 import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.txmanager.TransactionManager;
@@ -54,7 +54,7 @@ class BeanStoreImpl implements BeanStore {
 	}
 
 	@Override
-	public BeanStoreWriter writer() {
+	public BeanStoreCallbacks callbacks() {
 		return storeWriter;
 	}
 
