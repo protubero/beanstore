@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.EntityMap;
-import de.protubero.beanstore.base.EntityMapCompagnon;
+import de.protubero.beanstore.base.MapObject;
+import de.protubero.beanstore.base.MapObjectCompagnon;
 import de.protubero.beanstore.base.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
 
@@ -18,11 +18,11 @@ public class EntityMapCompagnonTest {
 
 	@Test
 	public void test() {
-		EntityMapCompagnon compagnon = new EntityMapCompagnon("employee");
+		MapObjectCompagnon compagnon = new MapObjectCompagnon("employee");
 		assertEquals("employee", compagnon.alias());
 
 		// create new object and check initial values
-		final EntityMap newInstance = compagnon.createInstance(44);
+		final MapObject newInstance = compagnon.createInstance(44);
 		assertSame(compagnon, newInstance.compagnon());
 		assertEquals(null, newInstance.refInstance());
 		assertEquals(null, newInstance.changes());
@@ -72,7 +72,7 @@ public class EntityMapCompagnonTest {
 
 				
 		// NEW
-		final EntityMap otherInstance = compagnon.createInstance();
+		final MapObject otherInstance = compagnon.createInstance();
 		otherInstance.applyTransition(Transition.INSTANTIATED_TO_NEW);
 		assertSame(compagnon, otherInstance.compagnon());
 		assertNull(otherInstance.refInstance());

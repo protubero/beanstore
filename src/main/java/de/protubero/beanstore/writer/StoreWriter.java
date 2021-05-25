@@ -10,15 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.BeanChange;
+import de.protubero.beanstore.base.InstanceTransactionEvent;
 import de.protubero.beanstore.base.Compagnon;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
-import de.protubero.beanstore.writer.Transaction.TransactionPhase;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -50,17 +49,17 @@ public class StoreWriter implements BeanStoreCallbacks {
 	}
 	
 	@Override
-	public void verify(Consumer<BeanStoreChange> consumer) {
+	public void verify(Consumer<TransactionEvent> consumer) {
 		registerSyncTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
 	@Override
-	public void onChange(Consumer<BeanStoreChange> consumer) {
+	public void onChange(Consumer<TransactionEvent> consumer) {
 		registerSyncTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
 	@Override
-	public void onChangeAsync(Consumer<BeanStoreChange> consumer) {
+	public void onChangeAsync(Consumer<TransactionEvent> consumer) {
 		transactionSubject
 			.subscribeOn(Schedulers.single())				
 			.subscribe(tx -> {
@@ -70,17 +69,17 @@ public class StoreWriter implements BeanStoreCallbacks {
 	}
 
 	@Override
-	public void verifyInstance(Consumer<BeanChange<?>> consumer) {
+	public void verifyInstance(Consumer<InstanceTransactionEvent<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
 	@Override
-	public void onChangeInstance(Consumer<BeanChange<?>> consumer) {
+	public void onChangeInstance(Consumer<InstanceTransactionEvent<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
 	@Override
-	public void onChangeInstanceAsync(Consumer<BeanChange<?>> consumer) {
+	public void onChangeInstanceAsync(Consumer<InstanceTransactionEvent<?>> consumer) {
 		instanceTransactionSubject
 			.subscribeOn(Schedulers.single())		
 			.subscribe(itx -> {
@@ -89,7 +88,7 @@ public class StoreWriter implements BeanStoreCallbacks {
 	}
 	
 	
-	public void registerSyncTransactionListener(TransactionPhase phase, final Consumer<BeanStoreChange> listener) {
+	public void registerSyncTransactionListener(TransactionPhase phase, final Consumer<TransactionEvent> listener) {
 		transactionListener.add((transaction) -> {
 			if (transaction.phase() == phase) {
 				listener.accept(transaction);
@@ -105,7 +104,7 @@ public class StoreWriter implements BeanStoreCallbacks {
 		});
 	}
 	
-	public void registerSyncInstanceTransactionListener(TransactionPhase phase, final Consumer<BeanChange<?>> listener) {
+	public void registerSyncInstanceTransactionListener(TransactionPhase phase, final Consumer<InstanceTransactionEvent<?>> listener) {
 		transactionListener.add((transaction) -> {
 			if (transaction.phase() == phase) {
 				transaction.getInstanceTransactions().forEach(listener);
@@ -132,7 +131,7 @@ public class StoreWriter implements BeanStoreCallbacks {
 		}
 	}
 	
-	public synchronized BeanStoreReader snapshot() {
+	public synchronized BeanStoreReadAccess snapshot() {
 		return store.snapshot();
 	}
 	
@@ -214,6 +213,7 @@ public class StoreWriter implements BeanStoreCallbacks {
 		}	
 		
 		if (!aTransaction.isEmpty()) {		
+			aTransaction.setTransactionPhase(TransactionPhase.EXECUTE);
 			// 4. apply changes
 			for (StoreInstanceTransaction<?> sit : storeInstanceTransactions) {
 				EntityStore entityStore = ((EntityStore) sit.getEntityStore()); 

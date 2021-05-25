@@ -4,10 +4,10 @@ import java.util.Set;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanChange.ChangeType;
+import de.protubero.beanstore.base.InstanceTransactionEvent.InstanceEventType;
 import de.protubero.beanstore.init.BeanStore;
 import de.protubero.beanstore.init.BeanStorePlugin;
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -26,11 +26,11 @@ public class BeanValidationPlugin implements BeanStorePlugin {
 	}
 	
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreReader snapshot) {
+	public void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
 		// verify newly created and updated beans
 		beanStore.callbacks().verifyInstance(change -> {
 			if (change.entity().isBean()) {
-				if (change.type() == ChangeType.Create || change.type() == ChangeType.Update) {
+				if (change.type() == InstanceEventType.Create || change.type() == InstanceEventType.Update) {
 					doValidate((AbstractEntity) change.newInstance());
 				}
 			}

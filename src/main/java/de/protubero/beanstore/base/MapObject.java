@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class EntityMap extends AbstractPersistentObject {
+public final class MapObject extends AbstractPersistentObject {
 
 	private HashMap<String, Object> properties = new HashMap<>();
 	
@@ -69,8 +69,8 @@ public final class EntityMap extends AbstractPersistentObject {
 		return properties.entrySet();
 	}
 
-	public EntityMapCompagnon compagnon() {
-		return (EntityMapCompagnon) super.compagnon;
+	public MapObjectCompagnon compagnon() {
+		return (MapObjectCompagnon) super.compagnon;
 	}
 
 }

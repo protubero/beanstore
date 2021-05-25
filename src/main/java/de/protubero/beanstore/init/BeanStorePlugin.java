@@ -4,8 +4,8 @@ import java.io.File;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.store.BeanStoreReader;
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
+import de.protubero.beanstore.writer.TransactionEvent;
 
 public interface BeanStorePlugin {
 
@@ -21,7 +21,7 @@ public interface BeanStorePlugin {
 		
 	}
 	
-	default void onEndCreate(BeanStore beanStore, BeanStoreReader snapshot) {
+	default void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
 		
 	}
 	
@@ -33,11 +33,11 @@ public interface BeanStorePlugin {
 		
 	}
 
-	default void onInitTransaction(BeanStoreChange bsc) {
+	default void onInitTransaction(TransactionEvent bsc) {
 		
 	}
 
-	default void onMigrationTransaction(BeanStoreChange bsc) {
+	default void onMigrationTransaction(TransactionEvent bsc) {
 		
 	}
 

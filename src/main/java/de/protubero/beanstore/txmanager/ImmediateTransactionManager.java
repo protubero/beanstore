@@ -2,7 +2,7 @@ package de.protubero.beanstore.txmanager;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
@@ -13,7 +13,7 @@ public class ImmediateTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeAsync(Transaction transaction, Consumer<BeanStoreChange> consumer) {
+	public void executeAsync(Transaction transaction, Consumer<TransactionEvent> consumer) {
 		execute(transaction);
 		if (consumer != null) {
 			consumer.accept(transaction);
@@ -21,13 +21,13 @@ public class ImmediateTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public BeanStoreChange execute(Transaction transaction) {
+	public TransactionEvent execute(Transaction transaction) {
 		storeWriter.execute(transaction);
 		return transaction;
 	}
 
 	@Override
-	public void executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferred(Consumer<TransactionFactory> consumer) {
 		immediate(consumer);
 	}
 
@@ -37,7 +37,7 @@ public class ImmediateTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferredAsync(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
 		immediate(consumer);
 	}
 	

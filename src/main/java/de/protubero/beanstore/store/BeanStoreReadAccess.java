@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.BeanStoreEntity;
-import de.protubero.beanstore.base.InstanceRef;
+import de.protubero.beanstore.base.InstanceKey;
 
-public interface BeanStoreReader {
+/**
+ * BeanStore read operations. 
+ *
+ */
+public interface BeanStoreReadAccess {
 
 			
 	Optional<BeanStoreEntity<?>> entity(String alias);
@@ -20,17 +25,16 @@ public interface BeanStoreReader {
 	
 	Collection<BeanStoreEntity<?>> entities();
 	
-	
-	default <T extends AbstractPersistentObject> T find(InstanceRef ref) {
-		return find(ref.alias(), ref.id());
+	default <T extends AbstractPersistentObject> T find(InstanceKey key) {
+		return find(key.alias(), key.id());
 	}
 
 	default <T extends AbstractEntity> T find(T ref) {
 		return find(ref.alias(), ref.id());
 	}
 	
-	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceRef ref) {
-		return findOptional(ref.alias(), ref.id());
+	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceKey key) {
+		return findOptional(key.alias(), key.id());
 	}
 	
 	
@@ -47,26 +51,34 @@ public interface BeanStoreReader {
 	boolean exists(String alias);
 	
 	<T extends AbstractEntity> Stream<T> objects(Class<T> aClass);
-	
-	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceRef> refList) {
+
+	default List<AbstractPersistentObject> resolve(Iterable<? extends InstanceKey> keyList, 
+			Consumer<InstanceKey> missingKeyConsumer) {
 		List<AbstractPersistentObject> result = new ArrayList<>();
-		for (InstanceRef ref : refList) {
-			findOptional(ref).ifPresent(obj -> result.add(obj));
+		for (InstanceKey key : keyList) {
+			Optional<AbstractPersistentObject> opt = findOptional(key);
+			if (opt.isEmpty()) {
+				if (missingKeyConsumer != null) {
+					missingKeyConsumer.accept(key);
+				}
+			} else {
+				result.add(opt.get());
+			}
 		}
 		
 		return result;
 	}
 	
-	default List<AbstractPersistentObject> resolve(Iterable<? extends InstanceRef> refList) {
-		List<AbstractPersistentObject> result = new ArrayList<>();
-		for (InstanceRef ref : refList) {
-			result.add(findOptional(ref).orElseThrow(() -> new StoreException("invalid ref " + ref.toRefString())));
-		}
-		
-		return result;
+	
+	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceKey> keyList) {
+		return resolve(keyList, null);
 	}
 	
-	BeanStoreReader snapshot();
+	default List<AbstractPersistentObject> resolveAll(Iterable<? extends InstanceKey> keyList) {
+		return resolve(keyList, key -> {throw new StoreException("invalid key " + key.toKeyString());});
+	}
+	
+	BeanStoreReadAccess snapshot();
 
 	
 }

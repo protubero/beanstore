@@ -14,7 +14,7 @@ import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.init.BeanStore;
 import de.protubero.beanstore.init.BeanStorePlugin;
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 
 public class BeanStoreSearchPlugin implements BeanStorePlugin {
 
@@ -31,12 +31,12 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}	
 	
 	public List<AbstractPersistentObject> search(String queryString) {
-		List<AbstractPersistentObject> searchResult = beanStore.reader().resolve(searchEngine.query(queryString));
+		List<AbstractPersistentObject> searchResult = beanStore.read().resolveAll(searchEngine.query(queryString));
 		return searchResult;
 	}
 
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreReader snapshot) {
+	public void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
 		this.beanStore = beanStore;
 		
 		// init search

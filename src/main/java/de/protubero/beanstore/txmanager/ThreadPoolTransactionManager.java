@@ -6,11 +6,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
-class ThreadPoolTransactionManager extends AbstractTransactionManager implements TransactionManager {
+class ThreadPoolTransactionManager extends AbstractTransactionManager {
 
 	
 	
@@ -26,8 +26,8 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager implements
 	}
 
 	@Override
-	public void executeAsync(Transaction transaction, Consumer<BeanStoreChange> consumer) {
-		BeanStoreChange result;
+	public void executeAsync(Transaction transaction, Consumer<TransactionEvent> consumer) {
+		TransactionEvent result;
 		try {
 			result = executor.submit(() -> {
 				return execute(transaction);			
@@ -41,7 +41,7 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager implements
 	}
 	
 	@Override
-	public BeanStoreChange execute(Transaction transaction) {
+	public TransactionEvent execute(Transaction transaction) {
 		storeWriter.execute(transaction);
 		return transaction;
 	}
@@ -57,7 +57,7 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager implements
 	}
 
 	@Override
-	public void executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferred(Consumer<TransactionFactory> consumer) {
 		synchronized(storeWriter) {
 			immediate(consumer);			
 		};
@@ -65,7 +65,7 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager implements
 
 
 	@Override
-	public void executeDeferredAsync(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
 		executor.submit(() -> {
 			executeDeferred(consumer);			
 		});

@@ -16,7 +16,7 @@ import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.EntityCompagnon;
-import de.protubero.beanstore.base.EntityMapCompagnon;
+import de.protubero.beanstore.base.MapObjectCompagnon;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
@@ -31,7 +31,7 @@ import de.protubero.beanstore.writer.BeanStoreTransaction;
 import de.protubero.beanstore.writer.MigrationTransaction;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
-import de.protubero.beanstore.writer.Transaction.TransactionPhase;
+import de.protubero.beanstore.writer.TransactionPhase;
 
 /**
  * The factory class for BeanStore instances.
@@ -283,7 +283,7 @@ public class BeanStoreFactory {
 						storeWriter.execute(tx);
 						plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
 						
-						log.info("migration applied: " + mig.getMigrationId() + " (" + tx.getBeanChanges().size() + ")");
+						log.info("migration applied: " + mig.getMigrationId() + " (" + tx.getInstanceEvents().size() + ")");
 					}
 				}							
 			}
@@ -298,7 +298,7 @@ public class BeanStoreFactory {
 	
 			// remove un-beaned entity stores
 			for (EntityStore<?> es : store.entityStores()) {
-				if (es.getCompagnon() instanceof EntityMapCompagnon) {
+				if (es.getCompagnon() instanceof MapObjectCompagnon) {
 					store.removeMapStore(es);
 				}
 			}
@@ -349,7 +349,7 @@ public class BeanStoreFactory {
 			for (PersistentInstanceTransaction pit : instanceTransactions) {
 				@SuppressWarnings({ "rawtypes" })
 				EntityStore entityStore = store.storeOptional(pit.getAlias()).orElseGet(() -> {
-					return (EntityStore) store.register(new EntityMapCompagnon(pit.getAlias()));
+					return (EntityStore) store.register(new MapObjectCompagnon(pit.getAlias()));
 				});	
 				
 				AbstractPersistentObject instance = null;

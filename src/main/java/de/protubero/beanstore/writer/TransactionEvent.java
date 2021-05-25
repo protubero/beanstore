@@ -2,12 +2,12 @@ package de.protubero.beanstore.writer;
 
 import java.util.List;
 
-import de.protubero.beanstore.base.BeanChange;
-import de.protubero.beanstore.writer.Transaction.TransactionPhase;
+import de.protubero.beanstore.base.InstanceTransactionEvent;
 
-public interface BeanStoreChange {
+
+public interface TransactionEvent {
 	
-	List<BeanChange<?>> getBeanChanges();
+	List<InstanceTransactionEvent<?>> getInstanceEvents();
 	
 	default boolean success() {
 		return !failed();
@@ -17,6 +17,9 @@ public interface BeanStoreChange {
 	
 	TransactionFailure exception();
 	
+	/**
+	 * the transaction phase. 
+	 */
 	TransactionPhase phase();
 	
 	

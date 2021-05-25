@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.store.BeanStoreReader;
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
+import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.Transaction;
 
 public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
@@ -19,12 +19,12 @@ public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
 	}
 
 	@Override
-	public void executeAsync(Consumer<BeanStoreChange> consumer) {
+	public void executeAsync(Consumer<TransactionEvent> consumer) {
 		executionManager.executeAsync(transaction, consumer);
 	}
 
 	@Override
-	public BeanStoreChange execute() {
+	public TransactionEvent execute() {
 		return executionManager.execute(transaction);
 	}
 
@@ -39,8 +39,8 @@ public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
 	}
 
 	@Override
-	public BeanStoreReader dataStore() {
-		return transaction.dataStore();
+	public BeanStoreReadAccess read() {
+		return transaction.read();
 	}
 
 	@Override

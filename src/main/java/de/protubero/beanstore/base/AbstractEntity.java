@@ -46,7 +46,7 @@ public  class AbstractEntity extends AbstractPersistentObject {
 	}
 
 	/**
-	 * Rather imperformant implementation. Not intended for everyday use.
+	 * Rather inperformant implementation. Not intended for everyday use.
 	 */
 	@Override
 	public int size() {

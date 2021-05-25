@@ -2,9 +2,9 @@ package de.protubero.beanstore.init;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
-import de.protubero.beanstore.txmanager.DeferredTransactionExecutionContext;
+import de.protubero.beanstore.txmanager.TransactionFactory;
 import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
 
 /**
@@ -13,30 +13,24 @@ import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
  * 
  *
  */
-public interface BeanStore {
-
-	/**
-	 * Create a new transaction. 
-	 * 
-	 * @return a transaction
-	 */
-	ExecutableBeanStoreTransaction transaction();
+public interface BeanStore extends TransactionFactory {
 
 	/**
 	 * 
 	 * 
-	 * @param consumer
+	 * @param consumer the 
 	 */
-	void executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer);
+	void executeDeferred(Consumer<TransactionFactory> consumer);
 	
 	/**
-	 * Returns an interface which provides access to all READ operations.
+	 * Returns an interface which provides access to all READ operations of the store.
 	 * 
 	 * @return a BeanStoreReader instance
 	 */
-	BeanStoreReader reader();
+	BeanStoreReadAccess read();
 
 	/**
+	 * Returns an interface which provides access to the store callbacks.
 	 * 
 	 * @return a BeanStoreCallbacks instance
 	 */
@@ -47,7 +41,8 @@ public interface BeanStore {
 	 * 
 	 * <p>
 	 * First the transaction queue is closed and will not accept new entries.
-	 * Then the transaction writer is flushed and closed as well.
+	 * When the remaining transactions were all executed, the persistent transaction writer 
+	 * is flushed and closed as well.
 	 * </p>
 	 * 
 	 * Closing the store prevents further changes but the store is still readable.

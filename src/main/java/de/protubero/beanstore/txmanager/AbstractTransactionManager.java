@@ -21,8 +21,8 @@ public abstract class AbstractTransactionManager implements TransactionManager {
 		return storeWriter;
 	}
 	
-	protected void immediate(Consumer<DeferredTransactionExecutionContext> consumer) {
-		consumer.accept(new DeferredTransactionExecutionContext() {
+	protected void immediate(Consumer<TransactionFactory> consumer) {
+		consumer.accept(new TransactionFactory() {
 			
 			@Override
 			public ExecutableBeanStoreTransaction transaction() {

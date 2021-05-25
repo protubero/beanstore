@@ -28,8 +28,8 @@ public class BeanStoreTest {
 			tx.execute();
 		});
 		
-		assertEquals(1, store.reader().objects(Employee.class).count());
-		Employee emp2 = store.reader().objects(Employee.class).findFirst().get();
+		assertEquals(1, store.read().objects(Employee.class).count());
+		Employee emp2 = store.read().objects(Employee.class).findFirst().get();
 		
 		assertEquals("Erik", emp2.getFirstName());
 		assertEquals("Wikinger", emp2.getLastName());

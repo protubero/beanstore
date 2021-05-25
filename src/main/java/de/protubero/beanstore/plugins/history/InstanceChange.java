@@ -2,7 +2,7 @@ package de.protubero.beanstore.plugins.history;
 
 import java.time.Instant;
 
-import de.protubero.beanstore.base.BeanPropertyChange;
+import de.protubero.beanstore.base.InstancePropertyValue;
 
 public class InstanceChange {
 
@@ -12,7 +12,7 @@ public class InstanceChange {
 
 	private String alias;
 	
-	private BeanPropertyChange[] propertyChanges;
+	private InstancePropertyValue[] propertyChanges;
 	
 	private Instant timestamp;
 
@@ -37,11 +37,11 @@ public class InstanceChange {
 		this.id = id;
 	}
 
-	public BeanPropertyChange[] getPropertyChanges() {
+	public InstancePropertyValue[] getPropertyChanges() {
 		return propertyChanges;
 	}
 
-	public void setPropertyChanges(BeanPropertyChange[] propertyChanges) {
+	public void setPropertyChanges(InstancePropertyValue[] propertyChanges) {
 		this.propertyChanges = propertyChanges;
 	}
 

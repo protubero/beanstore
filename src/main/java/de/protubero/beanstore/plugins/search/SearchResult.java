@@ -1,8 +1,8 @@
 package de.protubero.beanstore.plugins.search;
 
-import de.protubero.beanstore.base.InstanceRef;
+import de.protubero.beanstore.base.InstanceKey;
 
-public class SearchResult implements InstanceRef {
+public class SearchResult implements InstanceKey {
 
 	private String id;
 	private String type;

@@ -1,11 +1,11 @@
 package de.protubero.beanstore.writer;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 
 public interface BaseTransaction {
 
-	BeanStoreReader dataStore();
+	BeanStoreReadAccess read();
 	
 	<T extends AbstractPersistentObject> T create(String alias);
 	

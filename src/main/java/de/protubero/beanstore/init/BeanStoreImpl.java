@@ -6,10 +6,10 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
-import de.protubero.beanstore.txmanager.DeferredTransactionExecutionContext;
+import de.protubero.beanstore.txmanager.TransactionFactory;
 import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.txmanager.TransactionManager;
 import de.protubero.beanstore.writer.StoreWriter;
@@ -44,12 +44,12 @@ class BeanStoreImpl implements BeanStore {
 	}
 		
 	@Override
-	public void executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferred(Consumer<TransactionFactory> consumer) {
 		transactionManager.executeDeferred(consumer);
 	}
 
 	@Override
-	public BeanStoreReader reader() {
+	public BeanStoreReadAccess read() {
 		return store;
 	}
 

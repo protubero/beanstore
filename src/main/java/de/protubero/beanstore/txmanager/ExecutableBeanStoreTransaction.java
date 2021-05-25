@@ -2,7 +2,7 @@ package de.protubero.beanstore.txmanager;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.BeanStoreTransaction;
 
 public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
@@ -11,9 +11,9 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 		executeAsync(null);
 	}
 
-	void executeAsync(Consumer<BeanStoreChange> consumer);
+	void executeAsync(Consumer<TransactionEvent> consumer);
 
-	BeanStoreChange execute();
+	TransactionEvent execute();
 	
 	
 }

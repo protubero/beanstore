@@ -1,8 +1,8 @@
 package de.protubero.beanstore.persistence.base;
 
-import de.protubero.beanstore.base.BeanPropertyChange;
+import de.protubero.beanstore.base.InstancePropertyValue;
 
-public class PersistentPropertyUpdate implements BeanPropertyChange {
+public class PersistentPropertyUpdate implements InstancePropertyValue {
 
 	private String property;
 	private Object value;

@@ -11,24 +11,19 @@ import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.BeanChange;
+import de.protubero.beanstore.base.InstanceTransactionEvent;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.BeanStoreReader;
+import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.store.Store;
 
-public class Transaction implements BeanStoreTransaction, BeanStoreChange, MigrationTransaction {
-	
-	public static enum TransactionPhase {
-		INITIAL, VERIFICATION, PERSIST, COMMITTED_SYNC, COMMITTED_ASYNC  
-	}
-	
+public class Transaction implements BeanStoreTransaction, TransactionEvent, MigrationTransaction {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private BeanStoreReader dataStore;
+	private BeanStoreReadAccess dataStore;
 	private InstanceFactory context;
 	public PersistentTransaction persistentTransaction;
 
@@ -39,13 +34,13 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(BeanStoreReader dataStore, InstanceFactory context, PersistentTransaction persistentTransaction) {
+	private Transaction(BeanStoreReadAccess dataStore, InstanceFactory context, PersistentTransaction persistentTransaction) {
 		this.dataStore = dataStore;
 		this.context = context;
 		this.persistentTransaction = persistentTransaction;
 	}
 	
-	public static Transaction of(BeanStoreReader store, InstanceFactory iFactory, 
+	public static Transaction of(BeanStoreReadAccess store, InstanceFactory iFactory, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
 		return new Transaction(store, iFactory, pt);
@@ -189,7 +184,7 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public List<BeanChange<?>> getBeanChanges() {
+	public List<InstanceTransactionEvent<?>> getInstanceEvents() {
 		return (List) instanceTransactions;
 	}
 
@@ -213,7 +208,7 @@ public class Transaction implements BeanStoreTransaction, BeanStoreChange, Migra
 
 
 	@Override
-	public BeanStoreReader dataStore() {
+	public BeanStoreReadAccess read() {
 		return dataStore;
 	}
 

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.base.EntityMap;
+import de.protubero.beanstore.base.MapObject;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.writer.StoreWriter;
@@ -29,7 +29,7 @@ public class WriterTest {
 				
 		assertThrows(RuntimeException.class, () -> {
 			@SuppressWarnings("unused")
-			EntityStore<EntityMap> myStore = store.store("unknown");			
+			EntityStore<MapObject> myStore = store.store("unknown");			
 		});
 		
 		var tx = Transaction.of(store);
@@ -52,7 +52,7 @@ public class WriterTest {
 				
 		assertEquals(2, employeeStore.size());
 		
-		List<EntityMap> employees = employeeStore.objects().sorted().collect(Collectors.toList());
+		List<MapObject> employees = employeeStore.objects().sorted().collect(Collectors.toList());
 		assertEquals(2, employees.size());
 		assertEquals(44, employees.get(0).get("age"));
 		assertEquals(46, employees.get(1).get("age"));

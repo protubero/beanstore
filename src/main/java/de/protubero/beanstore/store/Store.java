@@ -20,10 +20,10 @@ import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.Compagnon;
 import de.protubero.beanstore.base.EntityCompagnon;
-import de.protubero.beanstore.base.EntityMap;
-import de.protubero.beanstore.base.EntityMapCompagnon;
+import de.protubero.beanstore.base.MapObject;
+import de.protubero.beanstore.base.MapObjectCompagnon;
 
-public class Store implements InstanceFactory, BeanStoreReader {
+public class Store implements InstanceFactory, BeanStoreReadAccess {
 
 	
 	public static final Logger log = LoggerFactory.getLogger(Store.class);
@@ -49,12 +49,12 @@ public class Store implements InstanceFactory, BeanStoreReader {
 	public Store() {
 	}
 	
-	public EntityStore<EntityMap> createMapStore(String alias) {
-		return register(new EntityMapCompagnon(alias));
+	public EntityStore<MapObject> createMapStore(String alias) {
+		return register(new MapObjectCompagnon(alias));
 	}
 
 	public void removeMapStore(EntityStore<?> es) {
-		if (!(es.getCompagnon() instanceof EntityMapCompagnon)) {
+		if (!(es.getCompagnon() instanceof MapObjectCompagnon)) {
 			throw new AssertionError();
 		}
 		storeByAliasMap.remove(es.getCompagnon().alias());
@@ -68,7 +68,7 @@ public class Store implements InstanceFactory, BeanStoreReader {
 	public <X extends AbstractEntity> EntityStore<X> transformOrCreateBeanStore(EntityCompagnon<X> beanCompagnon, Consumer<X> callback) {
 		EntityStore<?> origEntityStore = storeByAliasMap.remove(beanCompagnon.alias());
 		if (origEntityStore != null) {
-			if (!(origEntityStore.getCompagnon() instanceof EntityMapCompagnon)) {
+			if (!(origEntityStore.getCompagnon() instanceof MapObjectCompagnon)) {
 				throw new StoreException("store with name " + beanCompagnon.alias() + " is not a map store");
 			}
 		}	
@@ -104,7 +104,7 @@ public class Store implements InstanceFactory, BeanStoreReader {
 			throw new RuntimeException("duplicate alias");
 		}
 
-		if (compagnon.entityClass() != EntityMap.class) {
+		if (compagnon.entityClass() != MapObject.class) {
 			if (storeByClassMap.put(compagnon.entityClass(), store) != null) {
 				throw new RuntimeException("duplicate entity class: " + compagnon.entityClass());
 			}
@@ -235,7 +235,7 @@ public class Store implements InstanceFactory, BeanStoreReader {
 		return Collections.unmodifiableList(result);
 	}
 
-	public BeanStoreReader snapshot() {
+	public BeanStoreReadAccess snapshot() {
 		List<EntityStore<?>> resultStores = new ArrayList<>();
 		storeByAliasMap.values().forEach(es -> {
 			resultStores.add(es.cloneStore());

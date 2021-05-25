@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.GenericWrapper;
-import de.protubero.beanstore.writer.BeanStoreChange;
+import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
@@ -47,7 +47,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 		taskThread.start();
 	}
 
-	public void executeAsync(Transaction transaction, Consumer<BeanStoreChange> callback) {
+	public void executeAsync(Transaction transaction, Consumer<TransactionEvent> callback) {
 		async(sw -> {
 			sw.execute(transaction);
 			
@@ -63,7 +63,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	 * @param transaction the transaction to be executed
 	 * @return the transaction change description
 	 */
-	public BeanStoreChange execute(Transaction transaction) {
+	public TransactionEvent execute(Transaction transaction) {
 		sync(sw -> {
 			sw.execute(transaction);
 		});
@@ -76,7 +76,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferred(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferred(Consumer<TransactionFactory> consumer) {
 		sync(sw -> {
 			immediate(consumer);
 		});
@@ -123,7 +123,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferredAsync(Consumer<DeferredTransactionExecutionContext> consumer) {
+	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
 		async(sw -> {
 			immediate(consumer);
 		});

@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanChange;
+import de.protubero.beanstore.base.InstanceTransactionEvent;
 import de.protubero.beanstore.base.BeanStoreEntity;
 
-class SearchEngineAdapter implements Consumer<BeanChange<?>> {
+class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 
 	public static final Logger log = LoggerFactory.getLogger(SearchEngineAdapter.class);
 	
@@ -62,11 +62,11 @@ class SearchEngineAdapter implements Consumer<BeanChange<?>> {
 	}
 
 	@Override
-	public void accept(BeanChange<?> it) {
+	public void accept(InstanceTransactionEvent<?> it) {
 		index(it);
 	}
 
-	private void index(BeanChange<?> it) throws AssertionError {
+	private void index(InstanceTransactionEvent<?> it) throws AssertionError {
 		String content = null;
 		SearchEngineAction action = null;
 		switch (it.type()) {
