@@ -1,9 +1,8 @@
 package de.protubero.beanstore.txmanager;
 
 /**
+ * A transaction factory creates transaction.
  * 
- *   
- *
  */
 public interface TransactionFactory {
 

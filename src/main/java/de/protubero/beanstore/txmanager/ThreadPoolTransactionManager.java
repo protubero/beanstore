@@ -57,7 +57,7 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferred(Consumer<TransactionFactory> consumer) {
+	public void locked(Consumer<TransactionFactory> consumer) {
 		synchronized(storeWriter) {
 			immediate(consumer);			
 		};
@@ -65,9 +65,9 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager {
 
 
 	@Override
-	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
+	public void lockedAsync(Consumer<TransactionFactory> consumer) {
 		executor.submit(() -> {
-			executeDeferred(consumer);			
+			locked(consumer);			
 		});
 	}
 

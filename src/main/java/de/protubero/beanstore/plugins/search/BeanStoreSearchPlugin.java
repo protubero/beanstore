@@ -50,7 +50,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
 			
-			snapshot.entities().forEach(bse -> {
+			snapshot. entities().forEach(bse -> {
 				snapshot.objects(bse.alias()).forEach(apo -> {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);

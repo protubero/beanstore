@@ -18,7 +18,7 @@ public class BeanStoreTest {
 		factory.registerType(Employee.class);
 		var store = factory.create();
 		
-		store.executeDeferred(ctx -> {
+		store.locked(ctx -> {
 			var tx = ctx.transaction();
 			Employee emp = tx.create(Employee.class);
 			
@@ -28,8 +28,8 @@ public class BeanStoreTest {
 			tx.execute();
 		});
 		
-		assertEquals(1, store.read().objects(Employee.class).count());
-		Employee emp2 = store.read().objects(Employee.class).findFirst().get();
+		assertEquals(1, store.read().stream(Employee.class).count());
+		Employee emp2 = store.read().stream(Employee.class).findFirst().get();
 		
 		assertEquals("Erik", emp2.getFirstName());
 		assertEquals("Wikinger", emp2.getLastName());

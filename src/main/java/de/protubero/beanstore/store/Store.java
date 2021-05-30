@@ -1,15 +1,9 @@
 package de.protubero.beanstore.store;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,18 +11,16 @@ import org.slf4j.LoggerFactory;
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.Compagnon;
 import de.protubero.beanstore.base.EntityCompagnon;
 import de.protubero.beanstore.base.MapObject;
 import de.protubero.beanstore.base.MapObjectCompagnon;
 
-public class Store implements InstanceFactory, BeanStoreReadAccess {
+public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 
 	
 	public static final Logger log = LoggerFactory.getLogger(Store.class);
-	
-	
+		
 	private Map<String, EntityStore<?>> storeByAliasMap = new HashMap<>();
 	private Map<Class<?>, EntityStore<?>> storeByClassMap = new HashMap<>();
 		
@@ -158,36 +150,31 @@ public class Store implements InstanceFactory, BeanStoreReadAccess {
 	public Iterable<EntityStore<?>> entityStores() {
 		return storeByAliasMap.values();
 	}
-		
-
 	
 		
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends AbstractPersistentObject> T find(String alias, Long id) {
-		EntityStore<?> entityStore = store(alias);
-		return (T) entityStore.get(Objects.requireNonNull(id));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends AbstractEntity> T find(Class<T> aClass, Long id) {
-		EntityStore<?> entityStore = store(aClass);
-		return (T) entityStore.get(Objects.requireNonNull(id));
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends AbstractPersistentObject> Optional<T> findOptional(String alias, Long id) {
-		EntityStore<?> entityStore = store(alias);
-		return (Optional<T>) entityStore.getOptional(Objects.requireNonNull(id));
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends AbstractEntity> Optional<T> findOptional(Class<T> aClass, Long id) {
-		EntityStore<?> entityStore = store(aClass);
-		return (Optional<T>) entityStore.getOptional(id);
-	}
+//	@SuppressWarnings("unchecked")
+//	public <T extends AbstractPersistentObject> T find(String alias, Long id) {
+//		EntityStore<?> entityStore = store(alias);
+//		return (T) entityStore.get(Objects.requireNonNull(id));
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	public <T extends AbstractEntity> T find(Class<T> aClass, Long id) {
+//		EntityStore<?> entityStore = store(aClass);
+//		return (T) entityStore.get(Objects.requireNonNull(id));
+//	}
+//	
+//	@SuppressWarnings("unchecked")
+//	public <T extends AbstractPersistentObject> Optional<T> findOptional(String alias, Long id) {
+//		EntityStore<?> entityStore = store(alias);
+//		return (Optional<T>) entityStore.getOptional(Objects.requireNonNull(id));
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	public <T extends AbstractEntity> Optional<T> findOptional(Class<T> aClass, Long id) {
+//		EntityStore<?> entityStore = store(aClass);
+//		return (Optional<T>) entityStore.getOptional(id);
+//	}
 
 	public void applyInstanceStateTransition(Transition transition) {
 		for (EntityStore<?> eStore : entityStores()) {
@@ -199,49 +186,43 @@ public class Store implements InstanceFactory, BeanStoreReadAccess {
 		return storeByAliasMap.values().stream().noneMatch(s -> s.size() > 0);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends AbstractPersistentObject> Stream<T> objects(String alias) {
-		return (Stream<T>) store(alias).objects();
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public <T extends AbstractPersistentObject> Stream<T> objects(String alias) {
+//		return (Stream<T>) store(alias).objects();
+//	}
+//
+//	@Override
+//	public <T extends AbstractEntity> Stream<T> stream(Class<T> aClass) {
+//		return (Stream<T>) store(aClass).objects();
+//	}
+//
+//
+//	public Optional<BeanStoreEntity<?>> entity(String alias) {
+//		return Optional.ofNullable(storeByAliasMap.get(alias)).map(es -> es.getCompagnon());
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	public <T extends AbstractEntity> Optional<BeanStoreEntity<T>> entity(Class<T> aClass) {
+//		return Optional.ofNullable((EntityStore<T>) storeByClassMap.get(aClass)).map(es -> es.getCompagnon());
+//	}
+//
+//	public Collection<BeanStoreEntity<?>> entities() {
+//		List<BeanStoreEntity<?>> result = new ArrayList<>();
+//		storeByAliasMap.values().forEach(es -> {
+//			result.add(es.getCompagnon());
+//		});
+//		return Collections.unmodifiableList(result);
+//	}
+//
+//	public BeanStoreReadAccess snapshot() {
+//		List<EntityStore<?>> resultStores = new ArrayList<>();
+//		storeByAliasMap.values().forEach(es -> {
+//			resultStores.add(es.cloneStore());
+//		});
+//		
+//		return new Store(resultStores);
+//	}
 
-	@Override
-	public <T extends AbstractEntity> Stream<T> objects(Class<T> aClass) {
-		return (Stream<T>) store(aClass).objects();
-	}
-
-	@Override
-	public boolean exists(String alias) {
-		return storeByAliasMap.containsKey(alias);
-	}
-
-	@Override
-	public Optional<BeanStoreEntity<?>> entity(String alias) {
-		return Optional.ofNullable(storeByAliasMap.get(alias)).map(es -> es.getCompagnon());
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends AbstractEntity> Optional<BeanStoreEntity<T>> entity(Class<T> aClass) {
-		return Optional.ofNullable((EntityStore<T>) storeByClassMap.get(aClass)).map(es -> es.getCompagnon());
-	}
-
-	@Override
-	public Collection<BeanStoreEntity<?>> entities() {
-		List<BeanStoreEntity<?>> result = new ArrayList<>();
-		storeByAliasMap.values().forEach(es -> {
-			result.add(es.getCompagnon());
-		});
-		return Collections.unmodifiableList(result);
-	}
-
-	public BeanStoreReadAccess snapshot() {
-		List<EntityStore<?>> resultStores = new ArrayList<>();
-		storeByAliasMap.values().forEach(es -> {
-			resultStores.add(es.cloneStore());
-		});
-		
-		return new Store(resultStores);
-	}
 	
 }

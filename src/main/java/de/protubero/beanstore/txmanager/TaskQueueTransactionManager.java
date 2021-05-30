@@ -76,7 +76,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferred(Consumer<TransactionFactory> consumer) {
+	public void locked(Consumer<TransactionFactory> consumer) {
 		sync(sw -> {
 			immediate(consumer);
 		});
@@ -123,7 +123,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
+	public void lockedAsync(Consumer<TransactionFactory> consumer) {
 		async(sw -> {
 			immediate(consumer);
 		});

@@ -6,9 +6,9 @@ import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
-public class ImmediateTransactionManager extends AbstractTransactionManager {
+public class LockedStoreTransactionManager extends AbstractTransactionManager {
 
-	public ImmediateTransactionManager(StoreWriter storeWriter) {
+	public LockedStoreTransactionManager(StoreWriter storeWriter) {
 		super(storeWriter);
 	}
 
@@ -27,7 +27,7 @@ public class ImmediateTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferred(Consumer<TransactionFactory> consumer) {
+	public void locked(Consumer<TransactionFactory> consumer) {
 		immediate(consumer);
 	}
 
@@ -37,12 +37,12 @@ public class ImmediateTransactionManager extends AbstractTransactionManager {
 	}
 
 	@Override
-	public void executeDeferredAsync(Consumer<TransactionFactory> consumer) {
+	public void lockedAsync(Consumer<TransactionFactory> consumer) {
 		immediate(consumer);
 	}
 	
 	public static ExecutableBeanStoreTransaction transaction(StoreWriter writer) {
-		return new ImmediateTransactionManager(writer).transaction();
+		return new LockedStoreTransactionManager(writer).transaction();
 	}
 
 }

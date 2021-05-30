@@ -2,10 +2,10 @@ package de.protubero.beanstore.init;
 
 import java.util.function.Consumer;
 
+import de.protubero.beanstore.store.BeanStoreMetaInfo;
 import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
 import de.protubero.beanstore.txmanager.TransactionFactory;
-import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
 
 /**
  *  
@@ -15,17 +15,27 @@ import de.protubero.beanstore.txmanager.ExecutableBeanStoreTransaction;
  */
 public interface BeanStore extends TransactionFactory {
 
+	
+	BeanStoreMetaInfo meta();
+	
+	
 	/**
+	 * Access Store and execute transactions on a locked store.
+	 * The method blocks the calling thread until the operation is finished.   
 	 * 
-	 * 
-	 * @param consumer the 
 	 */
-	void executeDeferred(Consumer<TransactionFactory> consumer);
+	void locked(Consumer<TransactionFactory> consumer);
+
+	/**
+	 * Access Store and execute transactions on a locked store.
+	 * The method does NOT block the calling thread.   
+	 */
+	void lockedAsync(Consumer<TransactionFactory> consumer);
 	
 	/**
 	 * Returns an interface which provides access to all READ operations of the store.
 	 * 
-	 * @return a BeanStoreReader instance
+	 * @return a BeanStoreReadAccess instance
 	 */
 	BeanStoreReadAccess read();
 

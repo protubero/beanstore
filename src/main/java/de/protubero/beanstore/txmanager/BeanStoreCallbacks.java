@@ -3,12 +3,12 @@ package de.protubero.beanstore.txmanager;
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.AbstractEntity;
+import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.InstanceTransactionEvent;
 import de.protubero.beanstore.writer.TransactionEvent;
 
 /**
- * An interface to all callback methods of a BeanStore. 
- * 
+ * An interface to the callback methods of a BeanStore. 
  *
  */
 public interface BeanStoreCallbacks {
@@ -18,8 +18,19 @@ public interface BeanStoreCallbacks {
 	 */
 	void verify(Consumer<TransactionEvent> consumer);	
 	
+	
+	/**
+	 * Verify a transaction, one instance at a time. 
+	 */
 	void verifyInstance(Consumer<InstanceTransactionEvent<?>> consumer);
 
+	/**
+	 * Verify only instances of a certain entity
+	 * 
+	 * @param <T>
+	 * @param entityClass
+	 * @param consumer
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void verifyInstance(Class<T> entityClass, Consumer<InstanceTransactionEvent<T>> consumer) {
 		verifyInstance(bc -> {
@@ -28,10 +39,35 @@ public interface BeanStoreCallbacks {
 			}
 		});
 	}
+
+	/**
+	 * Verify only instances of a certain entity
+	 * 
+	 * @param <T>
+	 * @param alias
+	 * @param consumer
+	 */
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> void verifyInstance(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
+		verifyInstance(bc -> {
+			if (bc.entity().alias().equals(alias)) {
+				consumer.accept((InstanceTransactionEvent<T>) bc);
+			}
+		});
+	}
 	
-	
+	/**
+	 * Synchronous notification about store transactions. 
+	 * 
+	 * @param consumer
+	 */
 	void onChange(Consumer<TransactionEvent> consumer);
 
+	/**
+	 * Synchronous notification about store transactions - one instance at a time. 
+	 * 
+	 * @param consumer
+	 */
 	void onChangeInstance(Consumer<InstanceTransactionEvent<?>> consumer);
 
 	@SuppressWarnings("unchecked")
@@ -43,6 +79,14 @@ public interface BeanStoreCallbacks {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> void onChangeInstance(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
+		onChangeInstance(bc -> {
+			if (bc.entity().alias().equals(alias)) {
+				consumer.accept((InstanceTransactionEvent<T>) bc);
+			}
+		});
+	}
 	
 	void onChangeAsync(Consumer<TransactionEvent> consumer);
 
@@ -57,6 +101,14 @@ public interface BeanStoreCallbacks {
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> void onChangeInstanceAsync(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
+		onChangeInstanceAsync(bc -> {
+			if (bc.entity().alias().equals(alias)) {
+				consumer.accept((InstanceTransactionEvent<T>) bc);
+			}
+		});
+	}
 	
 	
 }

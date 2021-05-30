@@ -6,7 +6,7 @@ package de.protubero.beanstore.writer;
  */
 public enum TransactionPhase {
 	/**
-	 * A fresh transaction, not yet comitted
+	 * A fresh transaction, not yet committed
 	 */
 	INITIAL, 
 	

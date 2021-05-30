@@ -18,7 +18,7 @@ public interface TransactionEvent {
 	TransactionFailure exception();
 	
 	/**
-	 * the transaction phase. 
+	 * The transaction phase. 
 	 */
 	TransactionPhase phase();
 	

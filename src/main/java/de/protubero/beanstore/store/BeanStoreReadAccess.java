@@ -1,16 +1,14 @@
 package de.protubero.beanstore.store;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanStoreEntity;
 import de.protubero.beanstore.base.InstanceKey;
+import de.protubero.beanstore.init.BeanStore;
 
 /**
  * BeanStore read operations. 
@@ -18,40 +16,28 @@ import de.protubero.beanstore.base.InstanceKey;
  */
 public interface BeanStoreReadAccess {
 
-			
-	Optional<BeanStoreEntity<?>> entity(String alias);
-
-	<X extends AbstractEntity> Optional<BeanStoreEntity<X>> entity(Class<X> entityClass);
+				
+	BeanStoreMetaInfo meta();
 	
-	Collection<BeanStoreEntity<?>> entities();
-	
-	default <T extends AbstractPersistentObject> T find(InstanceKey key) {
-		return find(key.alias(), key.id());
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> EntityReadAccess<T> entity(String alias) {
+		return (EntityReadAccess<T>) entityOptional(alias).orElseThrow(() -> {
+			throw new StoreException("invalid alias");
+		});
 	}
 
-	default <T extends AbstractEntity> T find(T ref) {
-		return find(ref.alias(), ref.id());
+	default <T extends AbstractEntity> EntityReadAccess<T> entity(Class<T> aClass) {
+		return entityOptional(aClass).orElseThrow(() -> {
+			throw new StoreException("invalid alias");
+		});
 	}
 	
-	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceKey key) {
-		return findOptional(key.alias(), key.id());
-	}
-	
-	
-	<T extends AbstractPersistentObject> T find(String alias, Long id);
+	<T extends AbstractPersistentObject> Optional<EntityReadAccess<T>> entityOptional(String alias);
 
-	<T extends AbstractEntity> T find(Class<T> aClass, Long id);
+	<T extends AbstractEntity> Optional<EntityReadAccess<T>> entityOptional(Class<T> aClass);
 	
-	<T extends AbstractPersistentObject> Optional<T> findOptional(String alias, Long id);
-
-	<T extends AbstractEntity> Optional<T> findOptional(Class<T> aClass, Long id);
 	
-	<T extends AbstractPersistentObject> Stream<T> objects(String alias);
-
-	boolean exists(String alias);
 	
-	<T extends AbstractEntity> Stream<T> objects(Class<T> aClass);
-
 	default List<AbstractPersistentObject> resolve(Iterable<? extends InstanceKey> keyList, 
 			Consumer<InstanceKey> missingKeyConsumer) {
 		List<AbstractPersistentObject> result = new ArrayList<>();
@@ -68,6 +54,23 @@ public interface BeanStoreReadAccess {
 		
 		return result;
 	}
+
+	
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> T find(InstanceKey key) {
+		return (T) entity(key.alias()).find(key.id());
+	}
+
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractEntity> T find(T ref) {
+		return (T) entity(ref.getClass()).find(ref.id());
+	}
+	
+	@SuppressWarnings("unchecked")
+	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceKey key) {
+		return (Optional<T>) entity(key.alias()).findOptional(key.id());
+	}
+	
 	
 	
 	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends InstanceKey> keyList) {
@@ -78,6 +81,10 @@ public interface BeanStoreReadAccess {
 		return resolve(keyList, key -> {throw new StoreException("invalid key " + key.toKeyString());});
 	}
 	
+	/**
+	 * Create an immutable snapshot of the store.
+	 * 
+	 */
 	BeanStoreReadAccess snapshot();
 
 	

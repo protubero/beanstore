@@ -47,9 +47,9 @@ public class BeanStorePersistenceTest {
 		});
 		var beanStore2 = builder.create();
 				
-		assertEquals(2, beanStore2.read().objects(Employee.class).count());
+		assertEquals(2, beanStore2.read().entity(Employee.class).count());
 		
-		List<Employee> employees = beanStore2.read().objects(Employee.class).sorted().collect(Collectors.toList());
+		List<Employee> employees = beanStore2.read().stream(Employee.class).sorted().collect(Collectors.toList());
 		assertEquals(2, employees.size());
 		assertEquals(44, employees.get(0).getAge());
 		assertEquals(49, employees.get(1).getAge());

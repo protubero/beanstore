@@ -26,9 +26,9 @@ public interface TransactionManager {
 		
 	TransactionEvent execute(Transaction transaction);
 
-	void executeDeferred(Consumer<TransactionFactory> consumer);
+	void locked(Consumer<TransactionFactory> consumer);
 
-	void executeDeferredAsync(Consumer<TransactionFactory> consumer);
+	void lockedAsync(Consumer<TransactionFactory> consumer);
 	
 	void close();
 	
