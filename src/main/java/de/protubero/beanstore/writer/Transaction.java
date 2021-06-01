@@ -16,14 +16,13 @@ import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.store.Store;
 
-public class Transaction implements BeanStoreTransaction, TransactionEvent, MigrationTransaction {
+public class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private BeanStoreReadAccess dataStore;
+	private Store store;
 	private InstanceFactory context;
 	public PersistentTransaction persistentTransaction;
 
@@ -34,13 +33,13 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(BeanStoreReadAccess dataStore, InstanceFactory context, PersistentTransaction persistentTransaction) {
-		this.dataStore = dataStore;
+	private Transaction(Store store, InstanceFactory context, PersistentTransaction persistentTransaction) {
+		this.store = store;
 		this.context = context;
 		this.persistentTransaction = persistentTransaction;
 	}
 	
-	public static Transaction of(BeanStoreReadAccess store, InstanceFactory iFactory, 
+	public static Transaction of(Store store, InstanceFactory iFactory, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
 		return new Transaction(store, iFactory, pt);
@@ -60,7 +59,6 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 				|| persistentTransaction.getInstanceTransactions().length == 0; 
 	}
 	
-	@Override
 	public <T extends AbstractPersistentObject> T create(String alias) {
 		T result = context.newInstance(alias);
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
@@ -68,7 +66,6 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 		return result;
 	}
 
-	@Override
 	public <T extends AbstractEntity> T create(Class<T> aClass) {
 		T result = context.newInstance(aClass);
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
@@ -76,7 +73,6 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 		return result;
 	}
 	
-	@Override
 	public <T extends AbstractPersistentObject> void delete(String alias, long id) {
 		// fail fast on invalid alias
 		deleteTx(verifyAlias(alias), id);
@@ -97,20 +93,18 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 	}
 
 	private String verifyAlias(String alias) {
-		if (!dataStore.exists(alias)) {			
-			throw new RuntimeException("unknown alais: " + alias);
+		if (store.storeOptional(alias).isEmpty()) {			
+			throw new RuntimeException("unknown alias: " + alias);
 		}
 		
 		return alias;
 	}
 	
 
-	@Override
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		deleteTx(dataStore.entity(aClass).get().alias(), id);
+		deleteTx(store.store(aClass).getCompagnon().alias(), id);
 	}
 	
-	@Override
 	public <T extends AbstractPersistentObject> void delete(T instance) {
 		if (instance.state() != State.READY) {
 			throw new RuntimeException("not a persistent instance");
@@ -118,7 +112,6 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 		deleteTx(instance.alias(), instance.id()).setRef(instance);
 	}
 
-	@Override
 	public <T extends AbstractPersistentObject> T update(T instance) {
 		if (instance.state() != State.READY) {
 			throw new RuntimeException("not a persistent instance");
@@ -163,8 +156,6 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 		}	
 	}
 	
-	
-	
 	@Override
 	public TransactionPhase phase() {
 		return transactionPhase;
@@ -206,10 +197,8 @@ public class Transaction implements BeanStoreTransaction, TransactionEvent, Migr
 		this.failure = failure;
 	}
 
-
-	@Override
-	public BeanStoreReadAccess read() {
-		return dataStore;
+	public Store store() {
+		return store;
 	}
 
 

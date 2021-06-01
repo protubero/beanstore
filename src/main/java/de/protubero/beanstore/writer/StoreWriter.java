@@ -10,12 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.InstanceTransactionEvent;
 import de.protubero.beanstore.base.Compagnon;
+import de.protubero.beanstore.base.InstanceTransactionEvent;
+import de.protubero.beanstore.init.BeanStoreReadAccessImpl;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
-import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.BeanStoreReadAccess;
+import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
 import io.reactivex.schedulers.Schedulers;
@@ -131,7 +132,7 @@ public class StoreWriter implements BeanStoreCallbacks {
 		}
 	}
 	
-	public synchronized BeanStoreReadAccess snapshot() {
+	public synchronized Store snapshot() {
 		return store.snapshot();
 	}
 	

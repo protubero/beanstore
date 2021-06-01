@@ -1,5 +1,7 @@
 package de.protubero.beanstore.txmanager;
 
+import de.protubero.beanstore.init.ExecutableBeanStoreTransaction;
+
 /**
  * A transaction factory creates transaction.
  * 

@@ -1,5 +1,6 @@
 package de.protubero.beanstore.plugins.search;
 
+import java.time.chrono.Era;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,12 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
 			
-			snapshot. entities().forEach(bse -> {
-				snapshot.objects(bse.alias()).forEach(apo -> {
+			for (var era : snapshot) {
+				for (var apo : era) {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);
-				});
-			});
-			
+				}
+			}	
 			log.info("Stop initial indexing (" + counter.get() + ")");
 			
 			// start processing transactions

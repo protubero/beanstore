@@ -27,8 +27,6 @@ import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.txmanager.TaskQueueTransactionManager;
 import de.protubero.beanstore.txmanager.TransactionManager;
-import de.protubero.beanstore.writer.BeanStoreTransaction;
-import de.protubero.beanstore.writer.MigrationTransaction;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 import de.protubero.beanstore.writer.TransactionPhase;
@@ -223,7 +221,7 @@ public class BeanStoreFactory {
 					
 					// always remember last migration id
 					var tx = Transaction.of(store, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-					initialMigration.accept(tx);
+					initialMigration.accept(new BeanStoreTransactionImpl(tx));
 					storeWriter.execute(tx);
 
 					plugins.forEach(plugin -> plugin.onInitTransaction(tx));
@@ -279,7 +277,7 @@ public class BeanStoreFactory {
 						var mig = migrations.get(idx);
 						
 						var tx = Transaction.of(store, mig.getMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-						mig.getMigration().accept(tx);
+						mig.getMigration().accept(new MigrationTransactionImpl(tx));
 						storeWriter.execute(tx);
 						plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
 						
@@ -322,7 +320,7 @@ public class BeanStoreFactory {
 		TransactionManager finalTxManager = new TaskQueueTransactionManager(storeWriter);
 		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, onCloseStoreAction);
 
-		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, store.snapshot()));
+		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, new BeanStoreReadAccessImpl(store.snapshot())));
 		
 		return beanStoreImpl;
 	}

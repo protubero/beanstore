@@ -1,12 +1,13 @@
-package de.protubero.beanstore.txmanager;
+package de.protubero.beanstore.init;
 
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.AbstractEntity;
 import de.protubero.beanstore.base.AbstractPersistentObject;
 import de.protubero.beanstore.store.BeanStoreReadAccess;
-import de.protubero.beanstore.writer.TransactionEvent;
+import de.protubero.beanstore.txmanager.TransactionManager;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionEvent;
 
 public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
 
@@ -40,7 +41,7 @@ public class ExecutableTransaction  implements ExecutableBeanStoreTransaction {
 
 	@Override
 	public BeanStoreReadAccess read() {
-		return transaction.read();
+		return new BeanStoreReadAccessImpl(transaction.store());
 	}
 
 	@Override

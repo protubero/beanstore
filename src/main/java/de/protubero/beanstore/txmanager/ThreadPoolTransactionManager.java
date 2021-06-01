@@ -6,9 +6,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionEvent;
 
 class ThreadPoolTransactionManager extends AbstractTransactionManager {
 

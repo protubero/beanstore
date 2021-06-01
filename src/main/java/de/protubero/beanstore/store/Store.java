@@ -1,6 +1,9 @@
 package de.protubero.beanstore.store;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -23,6 +26,7 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		
 	private Map<String, EntityStore<?>> storeByAliasMap = new HashMap<>();
 	private Map<Class<?>, EntityStore<?>> storeByClassMap = new HashMap<>();
+	private List<EntityStore<?>> storeList = new ArrayList<>();
 		
 	/**
 	 * Copy constructor
@@ -91,6 +95,7 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		EntityStore<X> store = new EntityStore<>(compagnon);
 
 		log.info("registering store entity " + compagnon.alias());
+		storeList.add(store);
 		
 		if (storeByAliasMap.put(compagnon.alias(), store) != null) {
 			throw new RuntimeException("duplicate alias");
@@ -183,8 +188,14 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 	}
 
 	public boolean empty() {
-		return storeByAliasMap.values().stream().noneMatch(s -> s.size() > 0);
+		return storeList.stream().noneMatch(s -> s.size() > 0);
 	}
+
+	@Override
+	public Iterator<EntityStore<?>> iterator() {
+		return storeList.iterator();
+	}
+
 
 //	@SuppressWarnings("unchecked")
 //	@Override
@@ -215,14 +226,15 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 //		return Collections.unmodifiableList(result);
 //	}
 //
-//	public BeanStoreReadAccess snapshot() {
-//		List<EntityStore<?>> resultStores = new ArrayList<>();
-//		storeByAliasMap.values().forEach(es -> {
-//			resultStores.add(es.cloneStore());
-//		});
-//		
-//		return new Store(resultStores);
-//	}
+	public Store snapshot() {
+		List<EntityStore<?>> resultStores = new ArrayList<>();
+		entityStores().forEach(es -> {
+			resultStores.add(es.cloneStore());
+		});
+		
+		return new Store(resultStores);
+	}
+
 
 	
 }

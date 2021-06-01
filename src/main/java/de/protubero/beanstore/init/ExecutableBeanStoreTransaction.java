@@ -1,9 +1,8 @@
-package de.protubero.beanstore.txmanager;
+package de.protubero.beanstore.init;
 
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.writer.TransactionEvent;
-import de.protubero.beanstore.writer.BeanStoreTransaction;
 
 /**
  * 

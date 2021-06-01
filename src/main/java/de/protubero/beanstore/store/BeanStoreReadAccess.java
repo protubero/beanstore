@@ -14,7 +14,7 @@ import de.protubero.beanstore.init.BeanStore;
  * BeanStore read operations. 
  *
  */
-public interface BeanStoreReadAccess {
+public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 
 				
 	BeanStoreMetaInfo meta();

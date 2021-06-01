@@ -1,4 +1,4 @@
-package de.protubero.beanstore.writer;
+package de.protubero.beanstore.init;
 
 public interface MigrationTransaction extends BaseTransaction {
 

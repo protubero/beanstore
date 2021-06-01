@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.GenericWrapper;
-import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionEvent;
 
 public class TaskQueueTransactionManager extends AbstractTransactionManager {
 

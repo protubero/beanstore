@@ -2,10 +2,12 @@ package de.protubero.beanstore.txmanager;
 
 import java.util.function.Consumer;
 
+import de.protubero.beanstore.init.ExecutableBeanStoreTransaction;
+import de.protubero.beanstore.init.ExecutableTransaction;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.writer.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionEvent;
 
 public interface TransactionManager {
 
