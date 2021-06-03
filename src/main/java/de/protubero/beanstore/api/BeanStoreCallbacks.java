@@ -27,9 +27,6 @@ public interface BeanStoreCallbacks {
 	/**
 	 * Verify only instances of a certain entity
 	 * 
-	 * @param <T>
-	 * @param entityClass
-	 * @param consumer
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void verifyInstance(Class<T> entityClass, Consumer<InstanceTransactionEvent<T>> consumer) {
@@ -42,10 +39,6 @@ public interface BeanStoreCallbacks {
 
 	/**
 	 * Verify only instances of a certain entity
-	 * 
-	 * @param <T>
-	 * @param alias
-	 * @param consumer
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> void verifyInstance(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
@@ -58,18 +51,19 @@ public interface BeanStoreCallbacks {
 	
 	/**
 	 * Synchronous notification about store transactions. 
-	 * 
-	 * @param consumer
 	 */
 	void onChange(Consumer<TransactionEvent> consumer);
 
 	/**
 	 * Synchronous notification about store transactions - one instance at a time. 
 	 * 
-	 * @param consumer
 	 */
 	void onChangeInstance(Consumer<InstanceTransactionEvent<?>> consumer);
 
+	/**
+	 * Synchronous notification about store transactions - one instance at a time.<br>
+	 * Only instances of the entity determined by the <i>entityClass</i> parameter are handled.
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void onChangeInstance(Class<T> entityClass, Consumer<InstanceTransactionEvent<T>> consumer) {
 		onChangeInstance(bc -> {
@@ -79,6 +73,10 @@ public interface BeanStoreCallbacks {
 		});
 	}
 
+	/**
+	 * Synchronous notification about store transactions - one instance at a time.<br>
+	 * Only instances of the entity determined by the <i>alias</i> parameter are handled.
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> void onChangeInstance(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
 		onChangeInstance(bc -> {
@@ -88,10 +86,20 @@ public interface BeanStoreCallbacks {
 		});
 	}
 	
+	/**
+	 * Asynchronous notification about store transactions. 
+	 */
 	void onChangeAsync(Consumer<TransactionEvent> consumer);
 
+	/**
+	 * Asynchronous notification about store transactions - one instance at a time. 
+	 */
 	void onChangeInstanceAsync(Consumer<InstanceTransactionEvent<?>> consumer);
 
+	/**
+	 * Asynchronous notification about store transactions - one instance at a time.<br>
+	 * Only instances of the entity determined by the <i>entityClass</i> parameter are handled.
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void onChangeInstanceAsync(Class<T> entityClass, Consumer<InstanceTransactionEvent<T>> consumer) {
 		onChangeInstanceAsync(bc -> {
@@ -101,6 +109,10 @@ public interface BeanStoreCallbacks {
 		});
 	}
 	
+	/**
+	 * Asynchronous notification about store transactions - one instance at a time.<br>
+	 * Only instances of the entity determined by the <i>alias</i> parameter are handled.
+	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> void onChangeInstanceAsync(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
 		onChangeInstanceAsync(bc -> {

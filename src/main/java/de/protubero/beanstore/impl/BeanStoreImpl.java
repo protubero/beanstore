@@ -13,7 +13,6 @@ import de.protubero.beanstore.api.BeanStoreReadAccess;
 import de.protubero.beanstore.api.BeanStoreTransactionFactory;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.store.Store;
-import de.protubero.beanstore.txmanager.TransactionFactory;
 import de.protubero.beanstore.txmanager.TransactionManager;
 import de.protubero.beanstore.writer.StoreWriter;
 

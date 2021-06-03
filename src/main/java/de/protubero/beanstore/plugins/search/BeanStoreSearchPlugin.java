@@ -1,6 +1,5 @@
 package de.protubero.beanstore.plugins.search;
 
-import java.time.chrono.Era;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

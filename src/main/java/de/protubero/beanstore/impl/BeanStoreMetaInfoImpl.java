@@ -32,7 +32,7 @@ public class BeanStoreMetaInfoImpl implements BeanStoreMetaInfo {
 
 	@Override
 	public <T extends AbstractPersistentObject> Optional<BeanStoreEntity<T>> entityOptional(String alias) {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<EntityStore<T>> opt = (Optional) store.storeOptional(alias);
 		return opt.map(es -> es.getCompagnon());
 	}

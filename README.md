@@ -66,7 +66,7 @@ ToDo newToDo = tx.create(ToDo.class);
 newToDo.setText("Hello World");
 tx.execute();
 
-// 5. read a list of all transactions
+// 5. read a list of all ToDos
 var allToDos = store.reader().objects(ToDo.class).collect(Collectors.toList());
 ```
 

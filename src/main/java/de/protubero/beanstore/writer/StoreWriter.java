@@ -8,10 +8,9 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.api.BeanStoreCallbacks;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Compagnon;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.Compagnon;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;

@@ -2,8 +2,6 @@ package de.protubero.beanstore.api;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.txmanager.TransactionFactory;
-
 /**
  *  
  * The main BeanStore class.
@@ -12,12 +10,14 @@ import de.protubero.beanstore.txmanager.TransactionFactory;
  */
 public interface BeanStore extends BeanStoreTransactionFactory {
 
-	
+	/**
+	 * Meta information of the store, i.e. information about the entities in the store. 
+	 */
 	BeanStoreMetaInfo meta();
 	
 	
 	/**
-	 * Access Store and execute transactions on a locked store.
+	 * Access sStore and execute transactions on a locked store.
 	 * The method blocks the calling thread until the operation is finished.   
 	 * 
 	 */

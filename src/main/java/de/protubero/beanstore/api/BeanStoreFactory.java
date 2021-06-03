@@ -30,17 +30,39 @@ public interface BeanStoreFactory {
 	public static BeanStoreFactory of(File file) {
 		return new BeanStoreFactoryImpl(file);
 	}
-	
+
+	/**
+	 * Register a Java Bean entity. Remember: The class must inherit from AbstractEntity
+	 * and is required to be annotated with the Entity annotation, which sets the <i>alias</i>
+	 * of the entity. 
+	 */
 	<X extends AbstractEntity> BeanStoreEntity<X> registerType(Class<X> beanClass);
 
 	void addMigration(String migrationId, Consumer<MigrationTransaction> migration);
-		
-	void initNewStore(Consumer<BeanStoreTransaction> migration);
+
+	/**
+	 * This callback code is only invoked if the store is completely new, i.e. if the
+	 * file is created during the BeanStore create process..
+	 */
+	void initNewStore(Consumer<BeanStoreTransaction> initCallback);
 	
+	/**
+	 * Register a BeanStore plugin.
+	 */
 	void addPlugin(BeanStorePlugin plugin);
 	
+	/**
+	 * Create the bean store, i.e.
+	 * <p>
+	 * <ol>
+	 * 	<li>Read all transactions from a file</li>
+	 * 	<li>Apply necessary migrations to the data</li>
+	 * 	<li>Convert map-based instances to bean-based instances</li>
+	 * 	<li>Persist all transactions which were applied so far only in-memory</li>
+	 * </ol>
+	 * </p> 
+	 */
 	BeanStore create();
-
 	
 
 }

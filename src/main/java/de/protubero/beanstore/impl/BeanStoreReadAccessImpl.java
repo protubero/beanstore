@@ -3,14 +3,12 @@ package de.protubero.beanstore.impl;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
 import de.protubero.beanstore.api.BeanStoreReadAccess;
 import de.protubero.beanstore.api.EntityReadAccess;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 
@@ -18,7 +16,7 @@ public class BeanStoreReadAccessImpl implements BeanStoreReadAccess {
 
 	private Store store;
 
-	BeanStoreReadAccessImpl(Store store) {
+	public BeanStoreReadAccessImpl(Store store) {
 		this.store = Objects.requireNonNull(store);
 	}
 
