@@ -8,21 +8,23 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.Compagnon;
-import de.protubero.beanstore.base.InstanceTransactionEvent;
-import de.protubero.beanstore.init.BeanStoreReadAccessImpl;
+import de.protubero.beanstore.api.BeanStoreCallbacks;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.Compagnon;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.base.tx.TransactionEvent;
+import de.protubero.beanstore.base.tx.TransactionFailure;
+import de.protubero.beanstore.base.tx.TransactionFailureType;
+import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
-import de.protubero.beanstore.store.BeanStoreReadAccess;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
-import de.protubero.beanstore.txmanager.BeanStoreCallbacks;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
-public class StoreWriter implements BeanStoreCallbacks {
+public class StoreWriter  {
 
 	public static final Logger log = LoggerFactory.getLogger(StoreWriter.class);
 	
@@ -49,17 +51,14 @@ public class StoreWriter implements BeanStoreCallbacks {
 		});		
 	}
 	
-	@Override
 	public void verify(Consumer<TransactionEvent> consumer) {
 		registerSyncTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
-	@Override
 	public void onChange(Consumer<TransactionEvent> consumer) {
 		registerSyncTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
-	@Override
 	public void onChangeAsync(Consumer<TransactionEvent> consumer) {
 		transactionSubject
 			.subscribeOn(Schedulers.single())				
@@ -69,17 +68,14 @@ public class StoreWriter implements BeanStoreCallbacks {
 			});
 	}
 
-	@Override
 	public void verifyInstance(Consumer<InstanceTransactionEvent<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.VERIFICATION, consumer);
 	}
 
-	@Override
 	public void onChangeInstance(Consumer<InstanceTransactionEvent<?>> consumer) {
 		registerSyncInstanceTransactionListener(TransactionPhase.COMMITTED_SYNC, consumer);
 	}
 
-	@Override
 	public void onChangeInstanceAsync(Consumer<InstanceTransactionEvent<?>> consumer) {
 		instanceTransactionSubject
 			.subscribeOn(Schedulers.single())		
@@ -157,12 +153,12 @@ public class StoreWriter implements BeanStoreCallbacks {
 					origInstance = entityStore.get(pit.getId());
 					// fail if referenced instance doesn't exist or has already been deleted
 					if (origInstance == null) {
-						throw new TransactionFailure(TransactionFailure.Type.INSTANCE_NOT_FOUND, pit.getAlias(), pit.getId());
+						throw new TransactionFailure(TransactionFailureType.INSTANCE_NOT_FOUND, pit.getAlias(), pit.getId());
 					} 
 					
 					// check optimistic locking
 					if (pit.getRef() != null && pit.getRef() != origInstance) {
-						throw new TransactionFailure(TransactionFailure.Type.OPTIMISTIC_LOCKING_FAILED, pit.getAlias(),  pit.getId());
+						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, pit.getAlias(),  pit.getId());
 					}
 					
 					newInstance = compagnon.cloneInstance(origInstance);
@@ -204,13 +200,13 @@ public class StoreWriter implements BeanStoreCallbacks {
 			// 2. Verify Transaction / check invariants
 			aTransaction.setInstanceTransactions(storeInstanceTransactions);
 			aTransaction.setTransactionPhase(TransactionPhase.VERIFICATION);
-			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailure.Type.VERIFICATION_FAILED, e);});
+			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
 		if (!aTransaction.isEmpty() || aTransaction.persistentTransaction.getTransactionId() != null) {		
 			// 3. persist
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
-			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailure.Type.PERSISTENCE_FAILED, e);});
+			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
 		}	
 		
 		if (!aTransaction.isEmpty()) {		

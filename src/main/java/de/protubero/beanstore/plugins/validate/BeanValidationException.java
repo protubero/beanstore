@@ -2,7 +2,7 @@ package de.protubero.beanstore.plugins.validate;
 
 import java.util.Set;
 
-import de.protubero.beanstore.base.AbstractEntity;
+import de.protubero.beanstore.base.entity.AbstractEntity;
 import jakarta.validation.ConstraintViolation;
 
 public class BeanValidationException extends RuntimeException {

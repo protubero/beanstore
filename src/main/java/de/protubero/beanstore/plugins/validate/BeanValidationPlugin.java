@@ -2,12 +2,12 @@ package de.protubero.beanstore.plugins.validate;
 
 import java.util.Set;
 
-import de.protubero.beanstore.base.AbstractEntity;
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.InstanceTransactionEvent.InstanceEventType;
-import de.protubero.beanstore.init.BeanStore;
-import de.protubero.beanstore.init.BeanStorePlugin;
-import de.protubero.beanstore.store.BeanStoreReadAccess;
+import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.BeanStorePlugin;
+import de.protubero.beanstore.api.BeanStoreReadAccess;
+import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.tx.InstanceEventType;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

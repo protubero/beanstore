@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.base.MapObject;
+import de.protubero.beanstore.base.entity.MapObject;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.writer.StoreWriter;

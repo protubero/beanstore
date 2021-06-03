@@ -2,10 +2,10 @@ package de.protubero.beanstore.txmanager;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.init.ExecutableBeanStoreTransaction;
+import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
+import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
-import de.protubero.beanstore.writer.TransactionEvent;
 
 public class LockedStoreTransactionManager extends AbstractTransactionManager {
 
@@ -42,7 +42,7 @@ public class LockedStoreTransactionManager extends AbstractTransactionManager {
 		immediate(consumer);
 	}
 	
-	public static ExecutableBeanStoreTransaction transaction(StoreWriter writer) {
+	public static ExecutableTransaction transaction(StoreWriter writer) {
 		return new LockedStoreTransactionManager(writer).transaction();
 	}
 

@@ -11,13 +11,13 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.AbstractEntity;
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.Compagnon;
-import de.protubero.beanstore.base.EntityCompagnon;
-import de.protubero.beanstore.base.MapObject;
-import de.protubero.beanstore.base.MapObjectCompagnon;
+import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.Compagnon;
+import de.protubero.beanstore.base.entity.EntityCompagnon;
+import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.base.entity.MapObjectCompagnon;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 
 public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 

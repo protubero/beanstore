@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.protubero.beanstore.init.BeanStorePlugin;
+import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 
 public class BeanStoreHistoryPlugin implements BeanStorePlugin {

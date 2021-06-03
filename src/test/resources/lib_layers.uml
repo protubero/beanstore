@@ -12,16 +12,14 @@ skinparam component {
 [Store] <<de.protubero.beanstore.store..>>
 [Writer] <<de.protubero.beanstore.writer..>>
 [TransactionManager] <<de.protubero.beanstore.txmanager..>>
-[Init] <<de.protubero.beanstore.init..>>
+[Api] <<de.protubero.beanstore.api..>>
+[Impl] <<de.protubero.beanstore.impl..>>
 
 [PersistenceApi] <<de.protubero.beanstore.persistence.api..>>
 [PersistenceBase] <<de.protubero.beanstore.persistence.base..>>
 [PersistenceImpl] <<de.protubero.beanstore.persistence.impl..>>
 
-[Search] <<de.protubero.beanstore.plugins.search..>>
-[Validate] <<de.protubero.beanstore.plugins.validate..>>
-
-
+[Plugins] <<de.protubero.beanstore.plugins..>>
 
 
 [Store] --> Base
@@ -33,10 +31,11 @@ skinparam component {
 [TransactionManager] --> Store
 [TransactionManager] --> Writer
 
-[Init] --> Base
-[Init] --> Store
-[Init] --> Writer
-[Init] --> TransactionManager
+[Impl] --> Base
+[Impl] --> Api
+[Impl] --> Store
+[Impl] --> Writer
+[Impl] --> TransactionManager
 
 
 [PersistenceBase] --> Base
@@ -47,18 +46,21 @@ skinparam component {
 [Writer] --> PersistenceApi
 [Writer] --> PersistenceBase
 
-[Init] --> PersistenceImpl
-[Init] --> PersistenceBase
-[Init] --> PersistenceApi
+[Api] --> Impl
+[Api] --> Base
+[Api] --> PersistenceBase
+
+[Impl] --> PersistenceImpl
+[Impl] --> PersistenceBase
+[Impl] --> PersistenceApi
 
 [TransactionManager] --> PersistenceBase
 
+[Plugins] --> Base
+[Plugins] --> Api
+[Plugins] --> PersistenceBase
+[Plugins] --> PersistenceApi
 
-[Search] --> Base
-[Search] --> Init
-
-[Validate] --> Base
-[Validate] --> Init
 
 @enduml
 

@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.EntityCompagnon;
-import de.protubero.beanstore.base.AbstractPersistentObject.State;
-import de.protubero.beanstore.base.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.EntityCompagnon;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 
 public class EntityCompagnonTest {
 

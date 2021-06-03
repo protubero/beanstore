@@ -9,9 +9,9 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.InstanceTransactionEvent;
-import de.protubero.beanstore.base.BeanStoreEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 
 class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 

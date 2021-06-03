@@ -1,6 +1,6 @@
 package de.protubero.beanstore.plugins.search;
 
-import de.protubero.beanstore.base.InstanceKey;
+import de.protubero.beanstore.base.entity.InstanceKey;
 
 public class SearchResult implements InstanceKey {
 

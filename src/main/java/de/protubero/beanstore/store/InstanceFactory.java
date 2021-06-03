@@ -1,7 +1,7 @@
 package de.protubero.beanstore.store;
 
-import de.protubero.beanstore.base.AbstractEntity;
-import de.protubero.beanstore.base.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 
 public interface InstanceFactory {
 

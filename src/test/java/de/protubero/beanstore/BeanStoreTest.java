@@ -7,8 +7,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.base.AbstractPersistentObject.State;
-import de.protubero.beanstore.init.BeanStoreFactory;
+import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 
 public class BeanStoreTest {
 

@@ -11,11 +11,11 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.BeanStoreEntity;
-import de.protubero.beanstore.init.BeanStore;
-import de.protubero.beanstore.init.BeanStorePlugin;
-import de.protubero.beanstore.store.BeanStoreReadAccess;
+import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.BeanStorePlugin;
+import de.protubero.beanstore.api.BeanStoreReadAccess;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.BeanStoreEntity;
 
 public class BeanStoreSearchPlugin implements BeanStorePlugin {
 

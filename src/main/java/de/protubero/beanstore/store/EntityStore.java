@@ -10,9 +10,9 @@ import org.pcollections.HashTreePMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.Compagnon;
-import de.protubero.beanstore.base.AbstractPersistentObject.State;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.Compagnon;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 
 public class EntityStore<T extends AbstractPersistentObject> {
 

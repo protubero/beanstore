@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.init.BeanStore;
-import de.protubero.beanstore.init.BeanStoreFactory;
+import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.BeanStoreFactory;
 
 public class BeanStorePersistenceTest {
 	

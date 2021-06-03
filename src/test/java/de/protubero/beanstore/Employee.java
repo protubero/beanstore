@@ -1,7 +1,7 @@
 package de.protubero.beanstore;
 
-import de.protubero.beanstore.base.AbstractEntity;
-import de.protubero.beanstore.base.Entity;
+import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.Entity;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 

@@ -2,10 +2,11 @@ package de.protubero.beanstore.writer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import de.protubero.beanstore.base.AbstractPersistentObject;
-import de.protubero.beanstore.base.InstanceTransactionEvent;
-import de.protubero.beanstore.base.InstancePropertyValue;
-import de.protubero.beanstore.base.BeanStoreEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.base.tx.InstanceEventType;
+import de.protubero.beanstore.base.tx.InstancePropertyValue;
+import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.store.EntityStore;
 
@@ -69,11 +70,11 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	public InstanceEventType type() {
 		switch (getType()) {
 		case PersistentInstanceTransaction.TYPE_CREATE:
-			return InstanceTransactionEvent.InstanceEventType.Create;
+			return InstanceEventType.Create;
 		case PersistentInstanceTransaction.TYPE_UPDATE:
-			return InstanceTransactionEvent.InstanceEventType.Update;
+			return InstanceEventType.Update;
 		case PersistentInstanceTransaction.TYPE_DELETE:
-			return InstanceTransactionEvent.InstanceEventType.Delete;
+			return InstanceEventType.Delete;
 		default:
 			throw new AssertionError();
 		}
