@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.plugins.search.BeanStoreSearchPlugin;
 import de.protubero.beanstore.plugins.search.SearchEngine;
 import de.protubero.beanstore.plugins.search.SearchEngineAction;
@@ -58,7 +59,7 @@ public class SearchTest {
 		BeanStoreFactory factory = BeanStoreFactory.createNonPersisted();
 		factory.addPlugin(searchPlugin);
 		
-		var entity = factory.registerType(Employee.class);
+		var entity = factory.registerEntity(Employee.class);
 		searchPlugin.register(entity, emp -> {
 			return emp.getFirstName() + " " + emp.getLastName();
 		});

@@ -4,6 +4,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -119,6 +120,21 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 				System.out.println("discard null " + key);
 			}	
 		});
+	}
+
+
+	@Override
+	public Map<String, Object> extractProperties(T instance) {
+		Map<String, Object> result = new HashMap<>();
+		for (var desc : descriptors) {
+			try {
+				Object value = desc.getReadMethod().invoke(instance);
+				result.put(desc.getName(), value);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return result;
 	}
 
 

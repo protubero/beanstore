@@ -1,5 +1,7 @@
 package de.protubero.beanstore.base.entity;
 
+import java.util.Map;
+
 public final class MapObjectCompagnon extends AbstractCompagnon<MapObject> {
 
 	private String alias;
@@ -23,6 +25,11 @@ public final class MapObjectCompagnon extends AbstractCompagnon<MapObject> {
 	@Override
 	public Class<MapObject> entityClass() {
 		return MapObject.class;
+	}
+
+	@Override
+	public Map<String, Object> extractProperties(MapObject instance) {
+		return instance;
 	}
 
 }

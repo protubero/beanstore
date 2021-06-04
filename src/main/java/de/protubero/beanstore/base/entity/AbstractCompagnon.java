@@ -23,4 +23,5 @@ public abstract class AbstractCompagnon<T extends AbstractPersistentObject> impl
 	public String toString() {
 		return "entity " + alias() + " [" + entityClass().getSimpleName() + "]";
 	}
+	
 }

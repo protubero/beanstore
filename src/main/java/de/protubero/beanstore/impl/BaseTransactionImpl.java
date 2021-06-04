@@ -26,6 +26,12 @@ public class BaseTransactionImpl implements BaseTransaction {
 	}
 
 	@Override
+	public void create(AbstractPersistentObject apo) {
+		transaction.create(apo);
+	}
+	
+	
+	@Override
 	public <T extends AbstractPersistentObject> T update(T instance) {
 		return transaction.update(instance);
 	}
@@ -39,5 +45,6 @@ public class BaseTransactionImpl implements BaseTransaction {
 	public <T extends AbstractPersistentObject> void delete(T instance) {
 		transaction.delete(instance);
 	}
+
 
 }

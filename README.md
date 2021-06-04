@@ -106,7 +106,7 @@ Use `BeanStoreFactory` to configure the resulting BeanStore:
 
 #### Register Entity Classes
 
-All entity classes have to be registered with the BeanStore factory, using the `registerType)` method.
+All entity classes have to be registered with the BeanStore factory, using the `registerType()` method.
 
 #### Initialization of a new Store
 

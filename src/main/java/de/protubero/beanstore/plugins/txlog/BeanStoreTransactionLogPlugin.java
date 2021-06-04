@@ -9,6 +9,10 @@ import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 
+/**
+ * Logs transaction read and write operations to the SLF4J logger. 
+ *
+ */
 public class BeanStoreTransactionLogPlugin implements BeanStorePlugin {
 
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreTransactionLogPlugin.class);

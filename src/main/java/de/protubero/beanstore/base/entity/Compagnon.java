@@ -1,12 +1,13 @@
 package de.protubero.beanstore.base.entity;
 
+import java.util.Map;
+
 public interface Compagnon<T extends AbstractPersistentObject> extends BeanStoreEntity<T> {
 
 
 	
 	T createInstance();
-		
-	
+			
 	default T cloneInstance(T instance) {		
 		T cloned = createInstance();
 		
@@ -25,6 +26,9 @@ public interface Compagnon<T extends AbstractPersistentObject> extends BeanStore
 	}
 
 	String toString(T instance);
+
+	Map<String, Object> extractProperties(T instance);
+
 	
 	
 	

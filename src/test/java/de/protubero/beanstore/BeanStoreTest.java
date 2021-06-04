@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreTest {
 
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
 		var factory = BeanStoreFactory.createNonPersisted();
-		factory.registerType(Employee.class);
+		factory.registerEntity(Employee.class);
 		var store = factory.create();
 		
 		store.locked(ctx -> {

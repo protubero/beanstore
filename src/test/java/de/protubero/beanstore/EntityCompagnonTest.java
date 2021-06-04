@@ -11,6 +11,7 @@ import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.EntityCompagnon;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.model.Employee;
 
 public class EntityCompagnonTest {
 

@@ -81,6 +81,12 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		
 		return result;
 	}
+
+	protected void checkIfCreatedByStore() {
+		if (compagnon == null) {
+			throw new BeanStoreException("Java Bean Instance has not been created by a Bean Store");
+		}
+	}
 	
 	protected void verifyState(State aState) {
 		if (state != aState) {
@@ -102,7 +108,10 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
-	     return ((Compagnon) compagnon).toString(this);
+		if (compagnon == null) {
+			return null;
+		}
+	    return ((Compagnon) compagnon).toString(this);
 	}
 
 	public boolean outdated() {
@@ -183,4 +192,18 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	public String alias() {
 		return compagnon.alias();
 	}
+	
+	public static String aliasOf(AbstractPersistentObject apo) {
+		return aliasOf(apo.getClass());
+	}
+	
+	public static String aliasOf(Class<? extends AbstractPersistentObject> apoClass) {
+		Entity entityAnnotation = apoClass.getAnnotation(Entity.class);
+		if (entityAnnotation == null) {
+			throw new BeanStoreException("Missing entity annotation at class " + apoClass);
+		}
+		return entityAnnotation.alias();
+	}
+	
+	
 }

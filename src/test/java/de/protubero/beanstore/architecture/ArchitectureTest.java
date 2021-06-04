@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.library.plantuml.PlantUmlArchCondition.adhereToPlantUmlDiagram;

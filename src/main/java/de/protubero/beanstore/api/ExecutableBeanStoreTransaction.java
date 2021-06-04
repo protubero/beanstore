@@ -30,6 +30,6 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 	 * @return Information about the executed transaction, e.g. if it was successful.
 	 */
 	TransactionEvent execute();
-	
+
 	
 }

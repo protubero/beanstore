@@ -65,14 +65,22 @@ public class Transaction implements TransactionEvent {
 	public <T extends AbstractPersistentObject> T create(String alias) {
 		T result = context.newInstance(alias);
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
-		persistentTransaction.create(result.alias(), result.id()).setRef(result);
+		persistentTransaction.create(result.alias(), null).setRef(result);
 		return result;
 	}
 
+	public <T extends AbstractPersistentObject> T create(T instance) {
+		String alias = AbstractPersistentObject.aliasOf(instance);
+		T result = create(alias);
+		result.putAll(context.extractProperties(instance));
+		return result;
+	}
+	
+	
 	public <T extends AbstractEntity> T create(Class<T> aClass) {
 		T result = context.newInstance(aClass);
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
-		persistentTransaction.create(result.alias(), result.id()).setRef(result);
+		persistentTransaction.create(result.alias(), null).setRef(result);
 		return result;
 	}
 	
@@ -203,6 +211,7 @@ public class Transaction implements TransactionEvent {
 	public Store store() {
 		return store;
 	}
+
 
 
 }	

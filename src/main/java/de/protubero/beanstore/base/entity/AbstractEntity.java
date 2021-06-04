@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
 public  class AbstractEntity extends AbstractPersistentObject {
 
@@ -60,6 +61,7 @@ public  class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public boolean containsKey(Object key) {
+		checkIfCreatedByStore();
 		return compagnon().hasProperty((String) key);
 	}
 
@@ -107,6 +109,7 @@ public  class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Set<String> keySet() {
+		checkIfCreatedByStore();
 		return compagnon().propertySet();
 	}
 
@@ -117,13 +120,15 @@ public  class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
+		checkIfCreatedByStore();
 		Set<Entry<String, Object>> resultSet = new HashSet<>();
-		for (PropertyDescriptor descriptor :  compagnon().getDescriptors()) {
+		for (PropertyDescriptor descriptor : compagnon().getDescriptors()) {
 				resultSet.add(new MapEntry(descriptor.getName(), 
 						get(descriptor.getName())));
 		};
 		return resultSet;
 	}
+
 
 	
 }

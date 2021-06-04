@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.entity.Compagnon;
 import de.protubero.beanstore.base.entity.EntityCompagnon;
 import de.protubero.beanstore.base.entity.MapObject;
 import de.protubero.beanstore.base.entity.MapObjectCompagnon;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 
 public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 
@@ -118,7 +118,7 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		}
 		return result;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public <T extends AbstractEntity> EntityStore<T> store(Class<T> aClass) {
 		EntityStore<T> result = (EntityStore<T>) storeByClassMap.get(aClass);
@@ -128,6 +128,12 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractPersistentObject> EntityStore<T> store(T ref) {
+		// this should also work for instances which were not created by the store
+		return store(AbstractPersistentObject.aliasOf(ref));
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T extends AbstractPersistentObject> Optional<EntityStore<T>> storeOptional(String alias) {
 		EntityStore<T> result = (EntityStore) storeByAliasMap.get(alias);
@@ -151,35 +157,12 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 	public <T extends AbstractEntity> T newInstance(Class<T> aClass) {
 		return ((EntityStore<T>) store(aClass)).newInstance();
 	}
+
 	
 	public Iterable<EntityStore<?>> entityStores() {
 		return storeByAliasMap.values();
 	}
 	
-		
-//	@SuppressWarnings("unchecked")
-//	public <T extends AbstractPersistentObject> T find(String alias, Long id) {
-//		EntityStore<?> entityStore = store(alias);
-//		return (T) entityStore.get(Objects.requireNonNull(id));
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	public <T extends AbstractEntity> T find(Class<T> aClass, Long id) {
-//		EntityStore<?> entityStore = store(aClass);
-//		return (T) entityStore.get(Objects.requireNonNull(id));
-//	}
-//	
-//	@SuppressWarnings("unchecked")
-//	public <T extends AbstractPersistentObject> Optional<T> findOptional(String alias, Long id) {
-//		EntityStore<?> entityStore = store(alias);
-//		return (Optional<T>) entityStore.getOptional(Objects.requireNonNull(id));
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	public <T extends AbstractEntity> Optional<T> findOptional(Class<T> aClass, Long id) {
-//		EntityStore<?> entityStore = store(aClass);
-//		return (Optional<T>) entityStore.getOptional(id);
-//	}
 
 	public void applyInstanceStateTransition(Transition transition) {
 		for (EntityStore<?> eStore : entityStores()) {
@@ -197,35 +180,6 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 	}
 
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public <T extends AbstractPersistentObject> Stream<T> objects(String alias) {
-//		return (Stream<T>) store(alias).objects();
-//	}
-//
-//	@Override
-//	public <T extends AbstractEntity> Stream<T> stream(Class<T> aClass) {
-//		return (Stream<T>) store(aClass).objects();
-//	}
-//
-//
-//	public Optional<BeanStoreEntity<?>> entity(String alias) {
-//		return Optional.ofNullable(storeByAliasMap.get(alias)).map(es -> es.getCompagnon());
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	public <T extends AbstractEntity> Optional<BeanStoreEntity<T>> entity(Class<T> aClass) {
-//		return Optional.ofNullable((EntityStore<T>) storeByClassMap.get(aClass)).map(es -> es.getCompagnon());
-//	}
-//
-//	public Collection<BeanStoreEntity<?>> entities() {
-//		List<BeanStoreEntity<?>> result = new ArrayList<>();
-//		storeByAliasMap.values().forEach(es -> {
-//			result.add(es.getCompagnon());
-//		});
-//		return Collections.unmodifiableList(result);
-//	}
-//
 	public Store snapshot() {
 		List<EntityStore<?>> resultStores = new ArrayList<>();
 		entityStores().forEach(es -> {
@@ -235,6 +189,9 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		return new Store(resultStores);
 	}
 
-
+	@Override
+	public Map<String, Object> extractProperties(AbstractPersistentObject apo) {
+		return store(apo).extractProperties(apo);
+	}
 	
 }

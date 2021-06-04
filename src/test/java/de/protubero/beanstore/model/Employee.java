@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.model;
 
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.Entity;
@@ -14,6 +14,15 @@ public class Employee extends AbstractEntity {
 	@Min(value = 1, message = "Age should not be less than 18")
     @Max(value = 100, message = "Age should not be greater than 150")	
 	private Integer age;
+
+	public Employee() {
+	}
+	
+	public Employee(String firstName, String lastName, Integer age) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.age = age;
+	}
 	
 	public String getFirstName() {
 		return firstName;

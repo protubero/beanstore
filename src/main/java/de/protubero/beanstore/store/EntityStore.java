@@ -1,6 +1,7 @@
 package de.protubero.beanstore.store;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -38,6 +39,8 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		T result = compagnon.createInstance();
 		return result;
 	}
+
+	
 	
 	public T get(Long id) {
 		T result = objectMap.get(Objects.requireNonNull(id));
@@ -113,5 +116,9 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		return result;		
 	}
 
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> extractProperties(AbstractPersistentObject apo) {
+		return compagnon.extractProperties((T) apo);
+	}
 
 }

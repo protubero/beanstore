@@ -36,7 +36,7 @@ public interface BeanStoreFactory {
 	 * and is required to be annotated with the Entity annotation, which sets the <i>alias</i>
 	 * of the entity. 
 	 */
-	<X extends AbstractEntity> BeanStoreEntity<X> registerType(Class<X> beanClass);
+	<X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass);
 
 	void addMigration(String migrationId, Consumer<MigrationTransaction> migration);
 

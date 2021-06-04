@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.model.Employee;
 
 public class BeanStorePersistenceTest {
 	
@@ -61,7 +62,7 @@ public class BeanStorePersistenceTest {
 
 	private BeanStoreFactory createBuilder(File tempDir) {
 		BeanStoreFactory builder = BeanStoreFactory.of(new File(tempDir, "anyFile.kryo"));
-		builder.registerType(Employee.class);
+		builder.registerEntity(Employee.class);
 		return builder;
 	}
 	

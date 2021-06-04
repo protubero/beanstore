@@ -77,7 +77,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	 * 
 	 */
 	@Override
-	public <X extends AbstractEntity> BeanStoreEntity<X> registerType(Class<X> beanClass) {
+	public <X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass) {
 		EntityCompagnon<X> compagnon = new EntityCompagnon<>(beanClass);
 		if (entityCompagnonMap.containsKey(compagnon.alias())) {
 			throw new RuntimeException("Duplicate alias: " + compagnon.alias() + " [" + beanClass + "]");

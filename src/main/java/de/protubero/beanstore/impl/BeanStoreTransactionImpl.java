@@ -2,6 +2,7 @@ package de.protubero.beanstore.impl;
 
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.writer.Transaction;
 
 public class BeanStoreTransactionImpl extends BaseTransactionImpl implements BeanStoreTransaction {
@@ -18,6 +19,11 @@ public class BeanStoreTransactionImpl extends BaseTransactionImpl implements Bea
 	@Override
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
 		transaction.delete(aClass, id);
+	}
+
+	@Override
+	public void create(AbstractPersistentObject apo) {
+		transaction.create(apo);		
 	}
 
 	
