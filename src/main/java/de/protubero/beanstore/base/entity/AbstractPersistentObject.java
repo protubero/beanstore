@@ -190,7 +190,11 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	
 	@Override
 	public String alias() {
-		return compagnon.alias();
+		if (compagnon == null) {
+			return AbstractPersistentObject.aliasOf(this);
+		} else {
+			return compagnon.alias();
+		}	
 	}
 	
 	public static String aliasOf(AbstractPersistentObject apo) {

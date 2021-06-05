@@ -150,11 +150,11 @@ Other callback options allow listeners to be informed on any change to the store
 All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Execptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
 
 
-### Reading Data with the `BeanStoreReader`
+### Read Data
 
-`BeanStore.reader()` returns a `BeanStoreReader` implementation that provides read access methods. 
+`BeanStore.read()` returns a `BeanStoreReadAccess` implementation that provides read access methods. 
 
-The `BeanStoreReader` interface has methods to
+The `BeanStoreReadAccess` interface has methods to
 
 * get type information about the stored entities
 * find single instances by type alias and id

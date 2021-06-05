@@ -30,7 +30,7 @@ public class BeanStoreHistoryPlugin implements BeanStorePlugin {
 				change.setTimestamp(transaction.getTimestamp());
 				change.setTransactionId(transaction.getTransactionId());
 				change.setTransactionType(transaction.getTransactionType());
-				change.setType(it.getType());
+				change.setChangeType(it.getType());
 				change.setPropertyChanges(it.getPropertyUpdates());
 				change.setAlias(it.getAlias());
 				

@@ -2,6 +2,7 @@ package de.protubero.beanstore.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -81,6 +82,15 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> T find(InstanceKey key) {
+		Objects.requireNonNull(key);
+		
+		if (key instanceof AbstractPersistentObject) {
+			return (T) find((AbstractPersistentObject) key);
+		}
+		
+		if (key.alias() == null || key.id() == null) {
+			throw new BeanStoreException("Incomplete key");
+		}
 		return (T) entity(key.alias()).find(key.id());
 	}
 
@@ -90,7 +100,8 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> T find(T ref) {
-		if (ref.alias() == null || ref.id() == null) {
+		Objects.requireNonNull(ref);
+		if (ref.compagnon() == null) {
 			throw new BeanStoreException("Instance was not created by the store");
 		}
 		return (T) entity(ref.alias()).find(ref.id());
@@ -101,6 +112,10 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> Optional<T> findOptional(InstanceKey key) {
+		Objects.requireNonNull(key);
+		if (key.alias() == null || key.id() == null) {
+			throw new BeanStoreException("Incomplete key");
+		}
 		return (Optional<T>) entity(key.alias()).findOptional(key.id());
 	}
 	

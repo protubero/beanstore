@@ -6,7 +6,7 @@ import de.protubero.beanstore.base.tx.InstancePropertyValue;
 
 public class InstanceChange {
 
-	private int type;
+	private int changeType;
 	
 	private long id;
 
@@ -21,13 +21,6 @@ public class InstanceChange {
 	private int transactionType;
 	
 	
-	public int getType() {
-		return type;
-	}
-
-	public void setType(int type) {
-		this.type = type;
-	}
 
 	public long getId() {
 		return id;
@@ -75,6 +68,14 @@ public class InstanceChange {
 
 	public void setAlias(String alias) {
 		this.alias = alias;
+	}
+
+	public int getChangeType() {
+		return changeType;
+	}
+
+	public void setChangeType(int changeType) {
+		this.changeType = changeType;
 	}
 	
 }

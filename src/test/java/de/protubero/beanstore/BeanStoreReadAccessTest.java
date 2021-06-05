@@ -1,24 +1,70 @@
 package de.protubero.beanstore;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Test;
 
+import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.base.entity.BeanStoreException;
 import de.protubero.beanstore.base.entity.InstanceKey;
 import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 
 	@Test
-	public void test() {
+	public void testFindMethods() {
 		var store = addSampleData(createEmptyStore());
 		
 		var readStore = store.read();
-		var readEntity = readStore.entity(Employee.class);
 
 		// data has been correctly stored
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
 		equalsSampleData(emp1);
 		
-		readStore.find(null);
+		Employee emp2 = readStore.find(emp1);
+		assertSame(emp1, emp2);
+		
+		assertThrows(NullPointerException.class, () -> readStore.find((InstanceKey) null));
+		assertThrows(NullPointerException.class, () -> readStore.find((AbstractPersistentObject) null));
+		
+		assertThrows(BeanStoreException.class, () -> readStore.find(instanceKey(null, 1l)));
+		assertThrows(BeanStoreException.class, () -> readStore.find(instanceKey("employee", null)));
+		assertThrows(BeanStoreException.class, () -> readStore.find(SAMPLE_DATA[0]));
+
+		var tx =store.transaction();
+		tx.update(emp1).setAge(111);
+		tx.execute();
+		
+		var updatedObj = readStore.find(emp1);
+		
+		assertEquals(111, updatedObj.getAge());
+		assertEquals(updatedObj.getFirstName(), emp1.getFirstName());
+		assertEquals(updatedObj.getLastName(), emp1.getLastName());
+		assertEquals(updatedObj.id(), emp1.id());
+		assertEquals(updatedObj.alias(), emp1.alias());
+		
+		assertEquals(State.OUTDATED, emp1.state());
+		assertEquals(State.READY, updatedObj.state());
+	}
+
+	@Test
+	public void testFindOptional()  {
+		var store = addSampleData(createEmptyStore());
+		
+		var readStore = store.read();
+		assertThrows(NullPointerException.class, () -> readStore.findOptional(null));
+		
+		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey(null, 1l)));		
+		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey("employee", null)));		
+		assertThrows(BeanStoreException.class, () -> readStore.findOptional(SAMPLE_DATA[0]));
+		
+		
+		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
+		assertEquals(true, readStore.findOptional(emp1).isPresent());
+		assertEquals(false, readStore.findOptional(instanceKey("employee", -1000l)).isPresent());
 	}
 
 	

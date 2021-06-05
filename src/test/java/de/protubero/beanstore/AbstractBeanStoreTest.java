@@ -10,6 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.base.entity.InstanceKey;
 import de.protubero.beanstore.model.Employee;
 
 public abstract class AbstractBeanStoreTest {
@@ -17,7 +18,7 @@ public abstract class AbstractBeanStoreTest {
 	@TempDir
 	File pFileDir;
 	
-	private static Employee[] SAMPLE_DATA = new Employee[] {
+	static Employee[] SAMPLE_DATA = new Employee[] {
 		new Employee("Werner", "Liebrich", 27),	
 		new Employee("Horst", "Eckel", 22),	
 		new Employee("Fritz", "Walter", 34),	
@@ -31,6 +32,21 @@ public abstract class AbstractBeanStoreTest {
 		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, "beanstore.kryo"));
 		factory.registerEntity(Employee.class);
 		return factory.create();
+	}
+	
+	protected InstanceKey instanceKey(String alias, Long id) {
+		return new InstanceKey() {
+			
+			@Override
+			public Long id() {
+				return id;
+			}
+			
+			@Override
+			public String alias() {
+				return alias;
+			}
+		};
 	}
 	
 	protected Employee empByLastName(String lastName) {
