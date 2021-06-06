@@ -67,7 +67,7 @@ newToDo.setText("Hello World");
 tx.execute();
 
 // 5. read a list of all ToDos
-var allToDos = store.read().stream().collect(Collectors.toList());
+var allToDos = store.read().entity(ToDo.class).stream().collect(Collectors.toList());
 ```
 
 
@@ -128,11 +128,11 @@ You can think of the migration name as a kind of database version.
 BeanStore has four options to execute transactions. Some of them blocking, some of them non-blocking.
 
 Blocking
-* BeanStore.locked(Consumer<BeanStoreTransactionFactory> consumer)
+* BeanStore.locked(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
 * BeanStore.transaction().execute()
 
 Non-Blocking
-* BeanStore.lockedAsync(Consumer<BeanStoreTransactionFactory> consumer)
+* BeanStore.lockedAsync(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
 * BeanStore.transaction().executeAsync()
 
 The BeanStore always applies the transactions to the store data *ony by one*. This is achieved by using a transaction queue. All new transactions are enqueued, the store takes the transactions one after another from the queue. The *locked* variants call the callback code just when the store pulls this 'transaction factory' from the queue. The factory is then given the possibility to create the transactions. This is, how *pessimistic locking* is implemented. E.g. if you want to update all instances of an entity at once, like you would do with a SQL update statement, you need to make sure that you don't miss any instance. 
@@ -142,9 +142,9 @@ Beside synchronous transactions listeners for transaction verification (see belo
 
 #### Optimistic Locking
 
-Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance (`tx.update(anInstance)`) to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
+Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
 
-With delete operations you have the choice between optimistic locking (`delete(anInstance)`) and no locking at all (`delete("todo", 4)`).
+With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
 
 
 #### Transaction Listeners
