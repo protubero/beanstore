@@ -22,7 +22,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 
 		// data has been correctly stored
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
-		equalsSampleData(emp1);
+		assertEqualsSampleData(emp1);
 		
 		Employee emp2 = readStore.find(emp1);
 		assertSame(emp1, emp2);

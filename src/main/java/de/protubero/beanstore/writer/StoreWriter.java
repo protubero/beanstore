@@ -18,6 +18,7 @@ import de.protubero.beanstore.base.tx.TransactionFailureType;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
+import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
 import io.reactivex.schedulers.Schedulers;
@@ -134,13 +135,12 @@ public class StoreWriter  {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public synchronized void execute(Transaction aTransaction) throws TransactionFailure {
-		aTransaction.prepare();
-		
-		List<StoreInstanceTransaction<?>> storeInstanceTransactions = null;
+		aTransaction.prepare();		
+		aTransaction.setInstanceTransactions(new ArrayList<>());
+
 		if (!aTransaction.isEmpty()) {		
 					
 			// 1. Create clones and check optimistic locking (Wrap with StoreInstanceTransaction)
-			storeInstanceTransactions = new ArrayList<>();
 			for (PersistentInstanceTransaction pit : aTransaction.persistentTransaction.getInstanceTransactions()) {
 				EntityStore<?> entityStore = store.store(pit.getAlias());
 				Compagnon compagnon = ((Compagnon) entityStore.getCompagnon());
@@ -193,16 +193,15 @@ public class StoreWriter  {
 				sit.setNewInstance(newInstance);
 				sit.setReplacedInstance(origInstance);
 				sit.setEntityStore(entityStore);
-				storeInstanceTransactions.add(sit);
+				aTransaction.getInstanceTransactions().add(sit);
 			}
 			
 			// 2. Verify Transaction / check invariants
-			aTransaction.setInstanceTransactions(storeInstanceTransactions);
 			aTransaction.setTransactionPhase(TransactionPhase.VERIFICATION);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
-		if (!aTransaction.isEmpty() || aTransaction.persistentTransaction.getTransactionId() != null) {		
+		if (!aTransaction.isEmpty() || (aTransaction.persistentTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
 			// 3. persist
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
@@ -211,7 +210,7 @@ public class StoreWriter  {
 		if (!aTransaction.isEmpty()) {		
 			aTransaction.setTransactionPhase(TransactionPhase.EXECUTE);
 			// 4. apply changes
-			for (StoreInstanceTransaction<?> sit : storeInstanceTransactions) {
+			for (StoreInstanceTransaction<?> sit : aTransaction.getInstanceTransactions()) {
 				EntityStore entityStore = ((EntityStore) sit.getEntityStore()); 
 				if (sit.getType() == PersistentInstanceTransaction.TYPE_DELETE) {
 					AbstractPersistentObject removedInstance = entityStore.remove(sit.instanceId());

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.InstanceKey;
 import de.protubero.beanstore.model.Employee;
@@ -19,17 +20,24 @@ public abstract class AbstractBeanStoreTest {
 	File pFileDir;
 	
 	static Employee[] SAMPLE_DATA = new Employee[] {
-		new Employee("Werner", "Liebrich", 27),	
-		new Employee("Horst", "Eckel", 22),	
-		new Employee("Fritz", "Walter", 34),	
-		new Employee("Helmut", "Rahn", 25),	
-		new Employee("Ottmar", "Walter", 30),	
-		new Employee("Max", "Morlock", 29),	
-		new Employee("Toni", "Tureck", 35)	
+		new Employee(10, "Werner", "Liebrich", 27),	
+		new Employee(6, "Horst", "Eckel", 22),	
+		new Employee(16, "Fritz", "Walter", 34),	
+		new Employee(12, "Helmut", "Rahn", 25),	
+		new Employee(15, "Ottmar", "Walter", 30),	
+		new Employee(13, "Max", "Morlock", 29),	
+		new Employee(1, "Toni", "Tureck", 35)	
 	};
-	
+
 	protected BeanStore createEmptyStore() {
+		return createEmptyStore(null);
+	}
+	
+	protected BeanStore createEmptyStore(BeanStorePlugin plugin) {
 		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, "beanstore.kryo"));
+		if (plugin != null) {
+			factory.addPlugin(plugin);
+		}
 		factory.registerEntity(Employee.class);
 		return factory.create();
 	}
@@ -57,13 +65,23 @@ public abstract class AbstractBeanStoreTest {
 		}
 		throw new AssertionError("unknown name: " + lastName);
 	}
+
+	protected Employee empByEmployeeNumber(int number) {
+		for (Employee emp : SAMPLE_DATA) {
+			if (emp.getEmployeeNumber() == number) {
+				return emp;
+			}
+		}
+		throw new AssertionError("unknown employee number: " + number);
+	}
 	
-	protected void equalsSampleData(Employee emp) {
+	protected void assertEqualsSampleData(Employee emp) {
 		assertNotNull(emp, "employee ref must not be null");
 		assertNotNull(emp.getLastName(), "employee last name must not be null");
 		
-		var sampleEmployee = empByLastName(emp.getLastName());
+		var sampleEmployee = empByEmployeeNumber(emp.getEmployeeNumber());
 		assertEquals(sampleEmployee.getFirstName(), emp.getFirstName());
+		assertEquals(sampleEmployee.getLastName(), emp.getLastName());
 		assertEquals(sampleEmployee.getAge(), emp.getAge());
 	}
 	
