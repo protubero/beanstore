@@ -97,7 +97,6 @@ public class EntityCompagnonTest {
 		// create new object and check initial values
 		final Employee newInstance = compagnon.createInstance(44);
 		
-		
 		// set and read values in INSTANTIATED state
 		assertEquals(null, newInstance.getAge());
 		newInstance.setFirstName("Erik");
@@ -122,7 +121,6 @@ public class EntityCompagnonTest {
 		assertEquals(2, detached.size());
 		assertEquals(State.DETACHED, detached.state());
 		assertEquals(33, detached.getAge());
-		
 
 		// change properties of detached object
 		detached.put("age", 55);

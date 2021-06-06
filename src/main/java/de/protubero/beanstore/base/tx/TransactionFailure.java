@@ -1,6 +1,8 @@
 package de.protubero.beanstore.base.tx;
 
-public final class TransactionFailure extends RuntimeException {
+import de.protubero.beanstore.base.entity.BeanStoreException;
+
+public final class TransactionFailure extends BeanStoreException {
 
 	/**
 	 * 

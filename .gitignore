@@ -47,4 +47,5 @@ local.properties
 target/
 dependency-reduced-pom.xml
 
-
+# ignore test stores
+*.kryo

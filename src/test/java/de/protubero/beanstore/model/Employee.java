@@ -15,7 +15,7 @@ public class Employee extends AbstractEntity {
     @Max(value = 100, message = "Age should not be greater than 150")	
 	private Integer age;
 
-	private int employeeNumber;
+	private Integer employeeNumber;
 	
 	public Employee() {
 	}
@@ -46,11 +46,11 @@ public class Employee extends AbstractEntity {
 		this.age = age;
 	}
 
-	public int getEmployeeNumber() {
+	public Integer getEmployeeNumber() {
 		return employeeNumber;
 	}
 
-	public void setEmployeeNumber(int employeeNumber) {
+	public void setEmployeeNumber(Integer employeeNumber) {
 		this.employeeNumber = employeeNumber;
 	}
 	

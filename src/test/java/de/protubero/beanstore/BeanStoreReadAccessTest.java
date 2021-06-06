@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
@@ -14,6 +17,9 @@ import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 
+	@TempDir
+	File pFileDir;
+	
 	@Test
 	public void testFindMethods() {
 		var store = addSampleData(createEmptyStore());
@@ -35,12 +41,12 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		assertThrows(BeanStoreException.class, () -> readStore.find(SAMPLE_DATA[0]));
 
 		var tx =store.transaction();
-		tx.update(emp1).setAge(111);
+		tx.update(emp1).setAge(121);
 		tx.execute();
 		
 		var updatedObj = readStore.find(emp1);
 		
-		assertEquals(111, updatedObj.getAge());
+		assertEquals(121, updatedObj.getAge());
 		assertEquals(updatedObj.getFirstName(), emp1.getFirstName());
 		assertEquals(updatedObj.getLastName(), emp1.getLastName());
 		assertEquals(updatedObj.id(), emp1.id());
@@ -61,10 +67,14 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey("employee", null)));		
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(SAMPLE_DATA[0]));
 		
-		
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
 		assertEquals(true, readStore.findOptional(emp1).isPresent());
 		assertEquals(false, readStore.findOptional(instanceKey("employee", -1000l)).isPresent());
+	}
+
+	@Override
+	protected File getFileDir() {
+		return pFileDir;
 	}
 
 	

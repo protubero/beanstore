@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.io.TempDir;
 
@@ -16,8 +17,8 @@ import de.protubero.beanstore.model.Employee;
 
 public abstract class AbstractBeanStoreTest {
 
-	@TempDir
-	File pFileDir;
+	
+	public static AtomicInteger beanStoreId = new AtomicInteger(); 
 	
 	static Employee[] SAMPLE_DATA = new Employee[] {
 		new Employee(10, "Werner", "Liebrich", 27),	
@@ -34,7 +35,16 @@ public abstract class AbstractBeanStoreTest {
 	}
 	
 	protected BeanStore createEmptyStore(BeanStorePlugin plugin) {
-		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, "beanstore.kryo"));
+		File pFileDir = getFileDir();
+		
+		if (pFileDir == null) {
+			throw new AssertionError();
+		}
+		File file = new File(pFileDir, "beanstore_" + beanStoreId.addAndGet(1) + ".kryo");
+		if (file.exists()) {
+			throw new AssertionError();
+		}
+		BeanStoreFactory factory = BeanStoreFactory.of(file);
 		if (plugin != null) {
 			factory.addPlugin(plugin);
 		}
@@ -42,6 +52,8 @@ public abstract class AbstractBeanStoreTest {
 		return factory.create();
 	}
 	
+	protected abstract File getFileDir();
+
 	protected InstanceKey instanceKey(String alias, Long id) {
 		return new InstanceKey() {
 			

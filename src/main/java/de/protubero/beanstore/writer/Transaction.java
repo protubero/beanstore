@@ -11,6 +11,7 @@ import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.BeanStoreException;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;
@@ -105,7 +106,7 @@ public class Transaction implements TransactionEvent {
 
 	private String verifyAlias(String alias) {
 		if (store.storeOptional(alias).isEmpty()) {			
-			throw new RuntimeException("unknown alias: " + alias);
+			throw new BeanStoreException("unknown alias: " + alias);
 		}
 		
 		return alias;
@@ -125,8 +126,10 @@ public class Transaction implements TransactionEvent {
 
 	public <T extends AbstractPersistentObject> T update(T instance) {
 		if (instance.state() != State.READY) {
-			throw new RuntimeException("not a persistent instance");
+			throw new BeanStoreException("not a persistent instance");
 		}
+		
+		
 		T detachedInstance = instance.detach();
 		persistentTransaction.update(instance.alias(), instance.id()).setRef(detachedInstance);
 		return detachedInstance;

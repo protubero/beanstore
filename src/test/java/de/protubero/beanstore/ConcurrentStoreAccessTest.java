@@ -2,11 +2,13 @@ package de.protubero.beanstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreReadAccess;
 import de.protubero.beanstore.api.EntityReadAccess;
@@ -15,6 +17,17 @@ import de.protubero.beanstore.model.Employee;
 public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 
 	long newEmployeeId;
+	
+	@TempDir
+	File pFileDir;
+	
+	
+	
+	@Override
+	protected File getFileDir() {
+		return pFileDir;
+	}
+	
 	
 	@Test
 	public void test() {

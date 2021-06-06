@@ -1,10 +1,14 @@
 package de.protubero.beanstore;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
@@ -13,6 +17,16 @@ public class EmptyTransactionTest extends AbstractBeanStoreTest {
 
 	private boolean transactionNotification;
 	private boolean transactionPersisted;
+	
+	@TempDir
+	File pFileDir;
+	
+	
+	
+	@Override
+	protected File getFileDir() {
+		return pFileDir;
+	}
 	
 	@Test
 	public void test() {
