@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.protubero</groupId>
 	<artifactId>beanstore</artifactId>
-	<version>0.8.2-SNAPSHOT</version>
+	<version>0.8.2</version>
 
 	<name>BeanStore</name>
   	<description>Persistent Java Bean Store</description>
@@ -26,7 +26,7 @@
 		<url>https://github.com/protubero/beanstore</url>
 		<connection>scm:git:git://github.com/protubero/beanstore.git</connection>
 		<developerConnection>scm:git:git@github.com:protubero/beanstore.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>beanstore-0.8.2</tag>
   </scm>
 
 	<properties>
