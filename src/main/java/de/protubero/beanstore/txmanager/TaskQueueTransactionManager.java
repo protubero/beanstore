@@ -20,7 +20,9 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	
 	private BlockingQueue<Consumer<StoreWriter>> taskQueue = new LinkedBlockingQueue<>();
 	private Thread taskThread;
-	private Consumer<StoreWriter> taskQueuePoisonPill = x -> {};
+	private Consumer<StoreWriter> taskQueuePoisonPill = x -> {
+		throw new PoisonPillError();
+	};
 	
 
 	public TaskQueueTransactionManager(StoreWriter storeWriter) {
@@ -31,19 +33,22 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 			while (!stopped) {
 				try {
 					Consumer<StoreWriter> task = taskQueue.take();
-					if (task == taskQueuePoisonPill) {
-						log.info("Stopping Task execution");
-						stopped = true;
-					} else {
+					log.debug("Consuming next task");
+					try {
 						task.accept(storeWriter);
-					}	
+					} catch (PoisonPillError ppe) {
+						log.debug("Swallowed poison pill");
+						stopped = false;
+					}
 				} catch (InterruptedException e) {
 					log.error("Task execution interrupted", e);
 				}				
 			}
 			log.info("Task execution thread stopped");
 		});
-		
+		taskThread.setUncaughtExceptionHandler((thread, throwable) -> {
+			log.error("Uncaught task execution exception", throwable);
+		});
 		taskThread.start();
 	}
 
@@ -72,6 +77,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	
 	@Override
 	public void close() {
+		log.debug("Sending poison pill to task execution thread");
 		sync(taskQueuePoisonPill);
 	}
 
@@ -84,6 +90,7 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 
 	private void async(Consumer<StoreWriter> consumer) {
 		try {
+			log.debug("Insert async task into task execution thread " + consumer);
 			taskQueue.put(consumer);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -94,12 +101,14 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 		var countDownLatch = new CountDownLatch(1);
 		GenericWrapper<Exception> exceptionWrapper = new GenericWrapper<>();  
 		try {
+			log.debug("Insert sync task into task execution thread " + consumer);
 			taskQueue.put(sw -> {
 				try {
-					consumer.accept(sw);;
+					consumer.accept(sw);
 				} catch (Exception e) {
 					exceptionWrapper.setWrappedObject(e);
 				} finally {
+					log.debug("Sync Task has been executed " + consumer);
 					countDownLatch.countDown();
 				}
 			});
