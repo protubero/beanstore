@@ -183,27 +183,6 @@
 	            <version>3.0.0-M5</version>
 	        </plugin>		
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
-                    <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
-                </configuration>				
-			</plugin>
-			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>1.6.8</version>
@@ -343,15 +322,9 @@
 		</pluginManagement>
 	</build>
 
-	<!-- profiles>
+	<profiles>
 		<profile>
-			<id>release-sign-artifacts</id>
-			<activation>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
+			<id>release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -367,9 +340,16 @@
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+		                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
+		                    <gpgArguments>
+		                        <arg>--pinentry-mode</arg>
+		                        <arg>loopback</arg>
+		                    </gpgArguments>
+		                </configuration>				
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
-	</profiles-->
+	</profiles>
 </project>
