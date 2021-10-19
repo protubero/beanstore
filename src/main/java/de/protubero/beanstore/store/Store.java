@@ -128,7 +128,6 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> EntityStore<T> store(T ref) {
 		// this should also work for instances which were not created by the store
 		return store(AbstractPersistentObject.aliasOf(ref));

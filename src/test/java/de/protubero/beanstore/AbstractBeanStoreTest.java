@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.io.TempDir;
-
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.api.BeanStorePlugin;
