@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.esotericsoftware.kryo.Kryo;
-
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -25,7 +23,6 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 
 	public static final Logger log = LoggerFactory.getLogger(EntityCompagnon.class);
 	
-	private Kryo kryo;
 	private Class<T> beanClass;
 	private BeanInfo beanInfo;
 	private List<PropertyDescriptor> descriptors;
@@ -59,9 +56,6 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 			descriptorMap.put(desc.getName(), desc);
 		});
 		
-		kryo = new Kryo();
-		
-		kryo.register(beanClass);
 	}
 	
 
