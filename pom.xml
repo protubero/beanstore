@@ -46,7 +46,7 @@
 		<version.byte-buddy>1.12.3</version.byte-buddy>
 		<version.collections4>4.4</version.collections4>
 
-		<version.logback>1.2.7</version.logback>
+		<version.logback>1.2.8</version.logback>
 		<version.rxjava>2.2.21</version.rxjava>
 		<version.jakarta-el>4.0.2</version.jakarta-el>
 		<version.hibernate-validator>7.0.1.Final</version.hibernate-validator>
