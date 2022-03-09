@@ -34,7 +34,7 @@
 
 		<version.lucene>9.0.0</version.lucene>
 
-		<version.slf4j>1.7.32</version.slf4j>
+		<version.slf4j>1.7.36</version.slf4j>
 		<version.junit-jupiter>5.8.2</version.junit-jupiter>
 		<version.kryo>5.3.0</version.kryo>
 
