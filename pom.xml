@@ -34,16 +34,16 @@
 
 		<version.lucene>9.0.0</version.lucene>
 
-		<version.slf4j>1.7.36</version.slf4j>
+		<version.slf4j>1.7.32</version.slf4j>
 		<version.junit-jupiter>5.8.2</version.junit-jupiter>
-		<version.kryo>5.3.0</version.kryo>
+		<version.kryo>5.2.0</version.kryo>
 
 		<version.jackson>2.13.1</version.jackson>
 		<version.hamcrest>2.2</version.hamcrest>
 		<version.pcollections>3.1.4</version.pcollections>
 
 		<version.beanutils>1.9.4</version.beanutils>
-		<version.byte-buddy>1.12.8</version.byte-buddy>
+		<version.byte-buddy>1.12.6</version.byte-buddy>
 		<version.collections4>4.4</version.collections4>
 
 		<version.logback>1.2.10</version.logback>
@@ -240,7 +240,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.3.2</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
