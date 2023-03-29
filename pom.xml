@@ -43,7 +43,7 @@
 		<version.pcollections>3.1.4</version.pcollections>
 
 		<version.beanutils>1.9.4</version.beanutils>
-		<version.byte-buddy>1.12.6</version.byte-buddy>
+		<version.byte-buddy>1.14.3</version.byte-buddy>
 		<version.collections4>4.4</version.collections4>
 
 		<version.logback>1.2.11</version.logback>
