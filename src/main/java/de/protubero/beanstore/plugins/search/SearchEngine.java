@@ -25,12 +25,11 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("deprecation")
 public class SearchEngine {
 
 	public static final Logger log = LoggerFactory.getLogger(SearchEngine.class);
@@ -42,7 +41,7 @@ public class SearchEngine {
 	private Runnable closer;
 
 	public SearchEngine() {
-		Directory directory = new RAMDirectory();
+		Directory directory = new ByteBuffersDirectory();
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 
 		// init index
