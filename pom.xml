@@ -32,25 +32,25 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<version.lucene>8.8.2</version.lucene>
+		<version.lucene>9.0.0</version.lucene>
 
 		<version.slf4j>1.7.32</version.slf4j>
-		<version.junit-jupiter>5.7.2</version.junit-jupiter>
-		<version.kryo>5.1.1</version.kryo>
+		<version.junit-jupiter>5.8.2</version.junit-jupiter>
+		<version.kryo>5.2.0</version.kryo>
 
-		<version.jackson>2.12.3</version.jackson>
+		<version.jackson>2.13.2</version.jackson>
 		<version.hamcrest>2.2</version.hamcrest>
 		<version.pcollections>3.1.4</version.pcollections>
 
 		<version.beanutils>1.9.4</version.beanutils>
-		<version.byte-buddy>1.10.19</version.byte-buddy>
+		<version.byte-buddy>1.12.6</version.byte-buddy>
 		<version.collections4>4.4</version.collections4>
 
-		<version.logback>1.2.3</version.logback>
+		<version.logback>1.2.11</version.logback>
 		<version.rxjava>2.2.21</version.rxjava>
-		<version.jakarta-el>4.0.1</version.jakarta-el>
-		<version.hibernate-validator>7.0.1.Final</version.hibernate-validator>
-		<version.archunit>0.18.0</version.archunit>
+		<version.jakarta-el>4.0.2</version.jakarta-el>
+		<version.hibernate-validator>7.0.3.Final</version.hibernate-validator>
+		<version.archunit>0.23.1</version.archunit>
 	</properties>
 
 
@@ -185,7 +185,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.8</version>
+				<version>1.6.12</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
@@ -207,7 +207,7 @@
 					<dependency>
 						<groupId>org.apache.maven.scm</groupId>
 						<artifactId>maven-scm-provider-gitexe</artifactId>
-						<version>1.9.5</version>
+						<version>1.12.2</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -240,7 +240,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.2</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -256,7 +256,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
+				<version>0.8.7</version>
 				<executions>
 					<execution>
 						<goals>
@@ -279,7 +279,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.10.0</version>
 					<configuration>
 						<source>11</source>
 						<target>11</target>
@@ -330,7 +330,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
