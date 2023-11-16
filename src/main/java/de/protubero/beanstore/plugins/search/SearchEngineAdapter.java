@@ -72,7 +72,6 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 		switch (it.type()) {
 		case Create:
 			content = contentOf(it.newInstance());
-			System.out.println(content);
 			if (content == null) {
 				return;
 			}

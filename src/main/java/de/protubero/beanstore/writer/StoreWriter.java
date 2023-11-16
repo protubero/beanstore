@@ -63,7 +63,6 @@ public class StoreWriter  {
 		transactionSubject
 			.subscribeOn(Schedulers.single())				
 			.subscribe(tx -> {
-				System.out.println("accept");
 				consumer.accept(tx);
 			});
 	}

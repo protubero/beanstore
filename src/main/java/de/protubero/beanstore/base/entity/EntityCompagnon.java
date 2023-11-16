@@ -40,7 +40,7 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 	            .method(ElementMatchers.isSetter())
 	            .intercept(MethodDelegation.to(new GenericInterceptor()))
 	            .make()
-	            .load(EntityCompagnon.class.getClassLoader())
+	            .load(originalBeanClass.getClassLoader())
 	            .getLoaded();		
 		
 		try {
@@ -48,7 +48,14 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}        
-        descriptors = Arrays.asList(beanInfo.getPropertyDescriptors());
+        descriptors = Arrays.asList(beanInfo.getPropertyDescriptors()).stream().filter(desc -> {
+        	if (desc.getPropertyType().getName().startsWith("groovy.lang.MetaClass")) {
+        		log.info("Omit groovy metaClass property");
+        		return false;
+        	}        	
+        	return true;
+        }).collect(Collectors.toList());
+        
         descriptorMap = new HashMap<>();
 		descriptors.forEach(desc -> {
 			log.info("bean property " + desc.getName());

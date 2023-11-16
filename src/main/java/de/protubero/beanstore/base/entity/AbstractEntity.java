@@ -40,6 +40,11 @@ public  class AbstractEntity extends AbstractPersistentObject {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
+		public String toString() {
+			return key + ":" + value;
+		}
+		
 	}
 	
 	public EntityCompagnon<?> compagnon() {

@@ -49,3 +49,7 @@ dependency-reduced-pom.xml
 
 # ignore test stores
 *.kryo
+
+
+pom.xml.releaseBackup
+release.properties
