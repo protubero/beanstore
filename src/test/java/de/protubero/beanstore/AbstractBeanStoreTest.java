@@ -11,6 +11,7 @@ import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.InstanceKey;
+import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.Employee;
 
 public abstract class AbstractBeanStoreTest {
@@ -33,6 +34,18 @@ public abstract class AbstractBeanStoreTest {
 	}
 	
 	protected BeanStore createEmptyStore(BeanStorePlugin plugin) {
+		BeanStoreFactory factory = createEmptyStoreFactory(plugin);
+		factory.registerEntity(Employee.class);
+		factory.registerEntity(Address.class);
+		return factory.create();
+	}
+
+	protected BeanStoreFactory createEmptyStoreFactory() throws AssertionError {
+		return createEmptyStoreFactory(null);
+	}
+
+	
+	protected BeanStoreFactory createEmptyStoreFactory(BeanStorePlugin plugin) throws AssertionError {
 		File pFileDir = getFileDir();
 		
 		if (pFileDir == null) {
@@ -46,8 +59,7 @@ public abstract class AbstractBeanStoreTest {
 		if (plugin != null) {
 			factory.addPlugin(plugin);
 		}
-		factory.registerEntity(Employee.class);
-		return factory.create();
+		return factory;
 	}
 	
 	protected abstract File getFileDir();

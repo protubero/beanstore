@@ -67,6 +67,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	@Override
 	public void addPlugin(BeanStorePlugin plugin) {
+		throwExceptionIfAlreadyCreated();
 		plugins.add(plugin);
 	}
 	
@@ -78,6 +79,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	 */
 	@Override
 	public <X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass) {
+		throwExceptionIfAlreadyCreated();
 		EntityCompagnon<X> compagnon = new EntityCompagnon<>(beanClass);
 		if (entityCompagnonMap.containsKey(compagnon.alias())) {
 			throw new RuntimeException("Duplicate alias: " + compagnon.alias() + " [" + beanClass + "]");
@@ -88,6 +90,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	@Override
 	public void addMigration(String migrationId, Consumer<MigrationTransaction> migration) {
+		throwExceptionIfAlreadyCreated();
 		if (!migrationId.trim().equals(migrationId)) {
 			throw new RuntimeException("invalid migration id");
 		}
@@ -105,6 +108,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	@Override
 	public void initNewStore(Consumer<BeanStoreTransaction> migration) {
+		throwExceptionIfAlreadyCreated();
 		if (initMigration != null) {
 			throw new RuntimeException("duplicate init migration");
 		} else {
@@ -112,14 +116,18 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		}
 	}
 	
-	@Override
-	public BeanStore create() {
+	private void throwExceptionIfAlreadyCreated() {
 		// It can only be created once
 		if (created) {
 			throw new RuntimeException("bean store has already been created");
-		} else {
-			created = true;
 		}
+		
+	}
+	
+	@Override
+	public BeanStore create() {
+		throwExceptionIfAlreadyCreated();
+		created = true;
 
 		plugins.forEach(plugin -> plugin.onStartCreate(this));
 		

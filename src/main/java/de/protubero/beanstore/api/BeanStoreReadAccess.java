@@ -39,7 +39,7 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 */
 	default <T extends AbstractEntity> EntityReadAccess<T> entity(Class<T> aClass) {
 		return entityOptional(aClass).orElseThrow(() -> {
-			throw new BeanStoreException("invalid alias");
+			throw new BeanStoreException("invalid bean class: " + aClass.getName());
 		});
 	}
 	

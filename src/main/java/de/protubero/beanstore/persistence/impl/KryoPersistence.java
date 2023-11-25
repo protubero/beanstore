@@ -39,6 +39,8 @@ public class KryoPersistence implements TransactionPersistence {
 		
 
 		kryo = new Kryo();
+		kryo.setRegistrationRequired(false);
+		kryo.setWarnUnregisteredClasses(true);
 		
 		kryo.register(PersistentTransaction.class, 20);
 		kryo.register(PersistentInstanceTransaction.class, 21);
@@ -47,6 +49,7 @@ public class KryoPersistence implements TransactionPersistence {
 		kryo.register(PersistentPropertyUpdate.class, 24);
 		kryo.register(Instant.class, 25);
 
+		kryo.addDefaultSerializer(Object.class, KryoDefaultSerializer.class);
 		
 		writer = new TransactionWriter() {
 
