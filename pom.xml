@@ -40,7 +40,7 @@
 
 		<version.jackson>2.13.2</version.jackson>
 		<version.hamcrest>2.2</version.hamcrest>
-		<version.pcollections>3.1.4</version.pcollections>
+		<version.pcollections>4.0.1</version.pcollections>
 
 		<version.beanutils>1.9.4</version.beanutils>
 		<version.byte-buddy>1.12.6</version.byte-buddy>

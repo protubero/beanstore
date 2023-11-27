@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.AbstractTaggedEntity;
 import de.protubero.beanstore.base.entity.Compagnon;
 import de.protubero.beanstore.base.entity.EntityCompagnon;
 import de.protubero.beanstore.base.entity.MapObject;
@@ -69,6 +70,8 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 			}
 		}	
 		
+		boolean isTaggedEntity = AbstractTaggedEntity.class.isAssignableFrom(beanCompagnon.beanClass());
+		
 		// do the real conversion
 		EntityStore<X> newEntityStore = register(beanCompagnon);
 		
@@ -79,6 +82,12 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 				newInstance.id(obj.id());
 				// copy all properties
 				beanCompagnon.transferProperties(obj, newInstance);
+				
+				// set tags ref to entity
+				if (isTaggedEntity) {
+					((AbstractTaggedEntity) newInstance).getTags().setEntity((AbstractTaggedEntity) newInstance);
+				}
+				
 				newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
 				
 				if (callback != null) {

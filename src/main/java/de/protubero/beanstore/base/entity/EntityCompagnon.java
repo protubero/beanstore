@@ -55,10 +55,18 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
         	}        	
         	return true;
         }).collect(Collectors.toList());
+        log.info("Number properties of entity " + alias + ":" + descriptors.size());
         
         descriptorMap = new HashMap<>();
 		descriptors.forEach(desc -> {
 			log.info("bean property " + desc.getName());
+			
+			if (desc.getReadMethod() == null) {
+				throw new RuntimeException("Property read method not found: " + alias + '.' + desc.getName());
+			}
+			if (desc.getWriteMethod() == null) {
+				throw new RuntimeException("Property write method not found: " + alias + '.' + desc.getName());
+			}
 			
 			descriptorMap.put(desc.getName(), desc);
 		});

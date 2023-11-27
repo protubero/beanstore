@@ -39,8 +39,6 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		T result = compagnon.createInstance();
 		return result;
 	}
-
-	
 	
 	public T get(Long id) {
 		T result = objectMap.get(Objects.requireNonNull(id));
@@ -119,6 +117,11 @@ public class EntityStore<T extends AbstractPersistentObject> {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> extractProperties(AbstractPersistentObject apo) {
 		return compagnon.extractProperties((T) apo);
+	}
+	
+	@Override
+	public String toString() {
+		return "Entity store of " + compagnon;
 	}
 
 }

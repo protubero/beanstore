@@ -70,6 +70,7 @@ public class Transaction implements TransactionEvent {
 		return result;
 	}
 
+		
 	public <T extends AbstractPersistentObject> T create(T instance) {
 		String alias = AbstractPersistentObject.aliasOf(instance);
 		T result = create(alias);

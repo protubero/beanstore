@@ -8,6 +8,10 @@ public class PostCode implements CustomValueType {
 
 	private String code;
 	
+	
+	public PostCode() {
+	}
+	
 	public PostCode(byte[] byteArray) {
 		if (byteArray != null) {
 			code = new String(byteArray, Charsets.UTF_8);			
@@ -23,7 +27,14 @@ public class PostCode implements CustomValueType {
 	}
 
 	@Override
-	public byte[] asBytes() {
+	public void bytes(byte[] aByteArray) {
+		if (aByteArray != null) {
+			code = new String(aByteArray, Charsets.UTF_8);			
+		}
+	}
+	
+	@Override
+	public byte[] bytes() {
 		if (code == null) {
 			return null;
 		}

@@ -21,6 +21,8 @@ import de.protubero.beanstore.persistence.api.TransactionWriter;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.persistence.base.Tag;
+import de.protubero.beanstore.persistence.base.TagSerializer;
 
 public class KryoPersistence implements TransactionPersistence {
 
@@ -49,6 +51,8 @@ public class KryoPersistence implements TransactionPersistence {
 		kryo.register(PersistentPropertyUpdate.class, 24);
 		kryo.register(Instant.class, 25);
 
+		kryo.register(Tag.class, new TagSerializer());
+		
 		kryo.addDefaultSerializer(Object.class, KryoDefaultSerializer.class);
 		
 		writer = new TransactionWriter() {

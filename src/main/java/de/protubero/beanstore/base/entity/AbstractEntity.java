@@ -10,10 +10,11 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
-public  class AbstractEntity extends AbstractPersistentObject {
+public class AbstractEntity extends AbstractPersistentObject {
 
 	public static class MapEntry implements Map.Entry<String, Object> {
 
@@ -51,6 +52,7 @@ public  class AbstractEntity extends AbstractPersistentObject {
 		return (EntityCompagnon<?>) super.compagnon;
 	}
 
+	
 	/**
 	 * Rather inperformant implementation. Not intended for everyday use.
 	 */
