@@ -9,21 +9,21 @@ import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.MapObject;
-import de.protubero.beanstore.base.entity.MapObjectCompagnon;
+import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 
 
-public class EntityMapCompagnonTest {
+public class EntityMapCompanionTest {
 
 	@Test
 	public void test() {
-		MapObjectCompagnon compagnon = new MapObjectCompagnon("employee");
-		assertEquals("employee", compagnon.alias());
+		MapObjectCompanion companion = new MapObjectCompanion("employee");
+		assertEquals("employee", companion.alias());
 
 		// create new object and check initial values
-		final MapObject newInstance = compagnon.createInstance(44);
-		assertSame(compagnon, newInstance.compagnon());
+		final MapObject newInstance = companion.createInstance(44);
+		assertSame(companion, newInstance.companion());
 		assertEquals(null, newInstance.refInstance());
 		assertEquals(null, newInstance.changes());
 		assertEquals(44, newInstance.id());
@@ -46,7 +46,7 @@ public class EntityMapCompagnonTest {
 
 		// create DETACHED object 
 		AbstractPersistentObject detached = newInstance.detach();
-		assertSame(compagnon, detached.compagnon());
+		assertSame(companion, detached.companion());
 		assertEquals(newInstance, detached.refInstance());
 		assertEquals(null, detached.changes());
 		assertEquals(44, detached.id());
@@ -72,9 +72,9 @@ public class EntityMapCompagnonTest {
 
 				
 		// NEW
-		final MapObject otherInstance = compagnon.createInstance();
+		final MapObject otherInstance = companion.createInstance();
 		otherInstance.applyTransition(Transition.INSTANTIATED_TO_NEW);
-		assertSame(compagnon, otherInstance.compagnon());
+		assertSame(companion, otherInstance.companion());
 		assertNull(otherInstance.refInstance());
 		assertEquals(null, otherInstance.changes());
 		assertEquals(null, otherInstance.id());

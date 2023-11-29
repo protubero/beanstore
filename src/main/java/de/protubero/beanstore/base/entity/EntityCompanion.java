@@ -19,9 +19,9 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
 
-public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCompagnon<T> {
+public final class EntityCompanion<T extends AbstractEntity> extends AbstractCompanion<T> {
 
-	public static final Logger log = LoggerFactory.getLogger(EntityCompagnon.class);
+	public static final Logger log = LoggerFactory.getLogger(EntityCompanion.class);
 	
 	private Class<T> beanClass;
 	private BeanInfo beanInfo;
@@ -31,7 +31,7 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 	private Class<T> originalBeanClass;
 	
 	@SuppressWarnings("unchecked")
-	public EntityCompagnon(Class<T> originalBeanClass) {
+	public EntityCompanion(Class<T> originalBeanClass) {
 		this.originalBeanClass = originalBeanClass;
 		Entity entityAnnotytion = originalBeanClass.getAnnotation(Entity.class);
 		alias = entityAnnotytion.alias();
@@ -84,7 +84,7 @@ public final class EntityCompagnon<T extends AbstractEntity> extends AbstractCom
 		T newInstance;
 		try {
 			newInstance = beanClass().newInstance();
-			newInstance.compagnon(this);
+			newInstance.companion(this);
 			return newInstance;
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);

@@ -88,7 +88,7 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 
 	@Override
 	public BeanStoreEntity<T> entity() {
-		return entityStore.getCompagnon();
+		return entityStore.getCompanion();
 	}
 	
 }

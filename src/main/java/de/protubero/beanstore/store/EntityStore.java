@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Compagnon;
+import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 
 public class EntityStore<T extends AbstractPersistentObject> {
@@ -21,22 +21,22 @@ public class EntityStore<T extends AbstractPersistentObject> {
 	
 	private HashPMap<Long, T> objectMap = HashTreePMap.empty();
 
-	private Compagnon<T> compagnon;
+	private Companion<T> companion;
 	
 	private Long nextInstanceId = null;
 	
-	public EntityStore(Compagnon<T> compagnon) {
-		this.compagnon = compagnon;
+	public EntityStore(Companion<T> companion) {
+		this.companion = companion;
 	}
 
-	private EntityStore(Compagnon<T> compagnon, HashPMap<Long, T> objectMap, Long nextInstanceId) {
-		this.compagnon = compagnon;
+	private EntityStore(Companion<T> companion, HashPMap<Long, T> objectMap, Long nextInstanceId) {
+		this.companion = companion;
 		this.objectMap = objectMap;
 		this.nextInstanceId = nextInstanceId;
 	}
 	
 	public T newInstance() {
-		T result = compagnon.createInstance();
+		T result = companion.createInstance();
 		return result;
 	}
 	
@@ -44,7 +44,7 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		T result = objectMap.get(Objects.requireNonNull(id));
 		
 		if (result == null) {
-			throw new InstanceNotFoundException(compagnon.alias(), id);
+			throw new InstanceNotFoundException(companion.alias(), id);
 		}
 		
 		return result;
@@ -91,8 +91,8 @@ public class EntityStore<T extends AbstractPersistentObject> {
 		return objectMap.size();
 	}
 
-	public Compagnon<T> getCompagnon() {
-		return compagnon;
+	public Companion<T> getCompanion() {
+		return companion;
 	}
 
 	public Collection<T> values() {
@@ -110,18 +110,18 @@ public class EntityStore<T extends AbstractPersistentObject> {
 	}
 
 	public EntityStore<T> cloneStore() {
-		EntityStore<T> result = new EntityStore<T>(compagnon, objectMap, nextInstanceId);
+		EntityStore<T> result = new EntityStore<T>(companion, objectMap, nextInstanceId);
 		return result;		
 	}
 
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> extractProperties(AbstractPersistentObject apo) {
-		return compagnon.extractProperties((T) apo);
+		return companion.extractProperties((T) apo);
 	}
 	
 	@Override
 	public String toString() {
-		return "Entity store of " + compagnon;
+		return "Entity store of " + companion;
 	}
 
 }

@@ -48,8 +48,8 @@ public class AbstractEntity extends AbstractPersistentObject {
 		
 	}
 	
-	public EntityCompagnon<?> compagnon() {
-		return (EntityCompagnon<?>) super.compagnon;
+	public EntityCompanion<?> companion() {
+		return (EntityCompanion<?>) super.companion;
 	}
 
 	
@@ -69,7 +69,7 @@ public class AbstractEntity extends AbstractPersistentObject {
 	@Override
 	public boolean containsKey(Object key) {
 		checkIfCreatedByStore();
-		return compagnon().hasProperty((String) key);
+		return companion().hasProperty((String) key);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class AbstractEntity extends AbstractPersistentObject {
 	@Override
 	public Set<String> keySet() {
 		checkIfCreatedByStore();
-		return compagnon().propertySet();
+		return companion().propertySet();
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class AbstractEntity extends AbstractPersistentObject {
 	public Set<Entry<String, Object>> entrySet() {
 		checkIfCreatedByStore();
 		Set<Entry<String, Object>> resultSet = new HashSet<>();
-		for (PropertyDescriptor descriptor : compagnon().getDescriptors()) {
+		for (PropertyDescriptor descriptor : companion().getDescriptors()) {
 				resultSet.add(new MapEntry(descriptor.getName(), 
 						get(descriptor.getName())));
 		};

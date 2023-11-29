@@ -2,11 +2,11 @@ package de.protubero.beanstore.base.entity;
 
 import java.util.Map;
 
-public final class MapObjectCompagnon extends AbstractCompagnon<MapObject> {
+public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 
 	private String alias;
 
-	public MapObjectCompagnon(String alias) {
+	public MapObjectCompanion(String alias) {
 		this.alias = alias;
 	}
 
@@ -18,7 +18,7 @@ public final class MapObjectCompagnon extends AbstractCompagnon<MapObject> {
 	@Override
 	public MapObject createInstance() {
 		MapObject result = new MapObject();
-		result.compagnon(this);
+		result.companion(this);
 		return result;
 	}
 

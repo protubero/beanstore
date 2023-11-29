@@ -69,8 +69,8 @@ public final class MapObject extends AbstractPersistentObject {
 		return properties.entrySet();
 	}
 
-	public MapObjectCompagnon compagnon() {
-		return (MapObjectCompagnon) super.compagnon;
+	public MapObjectCompanion companion() {
+		return (MapObjectCompanion) super.companion;
 	}
 
 }

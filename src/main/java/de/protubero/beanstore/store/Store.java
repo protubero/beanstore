@@ -15,10 +15,10 @@ import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.entity.AbstractTaggedEntity;
-import de.protubero.beanstore.base.entity.Compagnon;
-import de.protubero.beanstore.base.entity.EntityCompagnon;
+import de.protubero.beanstore.base.entity.Companion;
+import de.protubero.beanstore.base.entity.EntityCompanion;
 import de.protubero.beanstore.base.entity.MapObject;
-import de.protubero.beanstore.base.entity.MapObjectCompagnon;
+import de.protubero.beanstore.base.entity.MapObjectCompanion;
 
 public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 
@@ -36,9 +36,9 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 	 */
 	private Store(Iterable<EntityStore<?>> entityStores) {
 		entityStores.forEach(es -> {
-			storeByAliasMap.put(es.getCompagnon().alias(), es);
-			if (es.getCompagnon().isBean()) {
-				storeByClassMap.put(es.getCompagnon().entityClass(), es);
+			storeByAliasMap.put(es.getCompanion().alias(), es);
+			if (es.getCompanion().isBean()) {
+				storeByClassMap.put(es.getCompanion().entityClass(), es);
 			}	
 		});
 	}
@@ -47,33 +47,33 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 	}
 	
 	public EntityStore<MapObject> createMapStore(String alias) {
-		return register(new MapObjectCompagnon(alias));
+		return register(new MapObjectCompanion(alias));
 	}
 
 	public void removeMapStore(EntityStore<?> es) {
-		if (!(es.getCompagnon() instanceof MapObjectCompagnon)) {
+		if (!(es.getCompanion() instanceof MapObjectCompanion)) {
 			throw new AssertionError();
 		}
-		storeByAliasMap.remove(es.getCompagnon().alias());
+		storeByAliasMap.remove(es.getCompanion().alias());
 	}
 	
 	
 	public <X extends AbstractEntity> EntityStore<X> createBeanStore(Class<X> aClass) {
-		return register(new EntityCompagnon<>(aClass));
+		return register(new EntityCompanion<>(aClass));
 	}
 	
-	public <X extends AbstractEntity> EntityStore<X> transformOrCreateBeanStore(EntityCompagnon<X> beanCompagnon, Consumer<X> callback) {
-		EntityStore<?> origEntityStore = storeByAliasMap.remove(beanCompagnon.alias());
+	public <X extends AbstractEntity> EntityStore<X> transformOrCreateBeanStore(EntityCompanion<X> beanCompanion, Consumer<X> callback) {
+		EntityStore<?> origEntityStore = storeByAliasMap.remove(beanCompanion.alias());
 		if (origEntityStore != null) {
-			if (!(origEntityStore.getCompagnon() instanceof MapObjectCompagnon)) {
-				throw new StoreException("store with name " + beanCompagnon.alias() + " is not a map store");
+			if (!(origEntityStore.getCompanion() instanceof MapObjectCompanion)) {
+				throw new StoreException("store with name " + beanCompanion.alias() + " is not a map store");
 			}
 		}	
 		
-		boolean isTaggedEntity = AbstractTaggedEntity.class.isAssignableFrom(beanCompagnon.beanClass());
+		boolean isTaggedEntity = AbstractTaggedEntity.class.isAssignableFrom(beanCompanion.beanClass());
 		
 		// do the real conversion
-		EntityStore<X> newEntityStore = register(beanCompagnon);
+		EntityStore<X> newEntityStore = register(beanCompanion);
 		
 		if (origEntityStore != null) {
 			// copy instances
@@ -81,7 +81,7 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 				X newInstance = newEntityStore.newInstance();
 				newInstance.id(obj.id());
 				// copy all properties
-				beanCompagnon.transferProperties(obj, newInstance);
+				beanCompanion.transferProperties(obj, newInstance);
 				
 				// set tags ref to entity
 				if (isTaggedEntity) {
@@ -100,19 +100,19 @@ public class Store implements InstanceFactory, Iterable<EntityStore<?>> {
 		return newEntityStore;
 	}
 	
-	public <X extends AbstractPersistentObject> EntityStore<X> register(Compagnon<X> compagnon) {
-		EntityStore<X> store = new EntityStore<>(compagnon);
+	public <X extends AbstractPersistentObject> EntityStore<X> register(Companion<X> companion) {
+		EntityStore<X> store = new EntityStore<>(companion);
 
-		log.info("registering store entity " + compagnon.alias());
+		log.info("registering store entity " + companion.alias());
 		storeList.add(store);
 		
-		if (storeByAliasMap.put(compagnon.alias(), store) != null) {
+		if (storeByAliasMap.put(companion.alias(), store) != null) {
 			throw new RuntimeException("duplicate alias");
 		}
 
-		if (compagnon.entityClass() != MapObject.class) {
-			if (storeByClassMap.put(compagnon.entityClass(), store) != null) {
-				throw new RuntimeException("duplicate entity class: " + compagnon.entityClass());
+		if (companion.entityClass() != MapObject.class) {
+			if (storeByClassMap.put(companion.entityClass(), store) != null) {
+				throw new RuntimeException("duplicate entity class: " + companion.entityClass());
 			}
 		}
 		

@@ -8,21 +8,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.EntityCompagnon;
+import de.protubero.beanstore.base.entity.EntityCompanion;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.model.Employee;
 
-public class EntityCompagnonTest {
+public class EntityCompanionTest {
 
 	@Test
 	public void map_like_test() {
-		EntityCompagnon<Employee> compagnon = new EntityCompagnon<>(Employee.class);
-		assertEquals("employee", compagnon.alias());
+		EntityCompanion<Employee> companion = new EntityCompanion<>(Employee.class);
+		assertEquals("employee", companion.alias());
 
 		// create new object and check initial values
-		final Employee newInstance = compagnon.createInstance(44);
-		assertSame(compagnon, newInstance.compagnon());
+		final Employee newInstance = companion.createInstance(44);
+		assertSame(companion, newInstance.companion());
 		assertEquals(null, newInstance.refInstance());
 		assertEquals(null, newInstance.changes());
 		assertEquals(44, newInstance.id());
@@ -45,7 +45,7 @@ public class EntityCompagnonTest {
 
 		// create DETACHED object 
 		AbstractPersistentObject detached = newInstance.detach();
-		assertSame(compagnon, detached.compagnon());
+		assertSame(companion, detached.companion());
 		assertEquals(newInstance, detached.refInstance());
 		assertEquals(null, detached.changes());
 		assertEquals(44, detached.id());
@@ -71,9 +71,9 @@ public class EntityCompagnonTest {
 
 				
 		// NEW
-		final Employee otherInstance = compagnon.createInstance();
+		final Employee otherInstance = companion.createInstance();
 		otherInstance.applyTransition(Transition.INSTANTIATED_TO_NEW);
-		assertSame(compagnon, otherInstance.compagnon());
+		assertSame(companion, otherInstance.companion());
 		assertNull(otherInstance.refInstance());
 		assertEquals(null, otherInstance.changes());
 		assertEquals(null, otherInstance.id());
@@ -91,11 +91,11 @@ public class EntityCompagnonTest {
 	
 	@Test
 	public void bean_like_test() {
-		EntityCompagnon<Employee> compagnon = new EntityCompagnon<>(Employee.class);
-		assertEquals("employee", compagnon.alias());
+		EntityCompanion<Employee> companion = new EntityCompanion<>(Employee.class);
+		assertEquals("employee", companion.alias());
 
 		// create new object and check initial values
-		final Employee newInstance = compagnon.createInstance(44);
+		final Employee newInstance = companion.createInstance(44);
 		
 		// set and read values in INSTANTIATED state
 		assertEquals(null, newInstance.getAge());
@@ -113,7 +113,7 @@ public class EntityCompagnonTest {
 
 		// create DETACHED object 
 		Employee detached = newInstance.detach();
-		assertSame(compagnon, detached.compagnon());
+		assertSame(companion, detached.companion());
 		assertEquals(newInstance, detached.refInstance());
 		assertEquals(null, detached.changes());
 		assertEquals(44, detached.id());
@@ -135,9 +135,9 @@ public class EntityCompagnonTest {
 		assertNull(newInstance.changes());
 				
 		// NEW
-		final Employee otherInstance = compagnon.createInstance();
+		final Employee otherInstance = companion.createInstance();
 		otherInstance.applyTransition(Transition.INSTANTIATED_TO_NEW);
-		assertSame(compagnon, otherInstance.compagnon());
+		assertSame(companion, otherInstance.companion());
 		assertNull(otherInstance.refInstance());
 		assertEquals(null, otherInstance.changes());
 		assertEquals(null, otherInstance.id());

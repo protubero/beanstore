@@ -3,9 +3,9 @@ package de.protubero.beanstore.base.entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractCompagnon<T extends AbstractPersistentObject> implements Compagnon<T> {
+public abstract class AbstractCompanion<T extends AbstractPersistentObject> implements Companion<T> {
 
-	public static final Logger log = LoggerFactory.getLogger(AbstractCompagnon.class);
+	public static final Logger log = LoggerFactory.getLogger(AbstractCompanion.class);
 	
 	
 	@Override

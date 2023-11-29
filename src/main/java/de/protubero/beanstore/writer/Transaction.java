@@ -115,7 +115,7 @@ public class Transaction implements TransactionEvent {
 	
 
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		deleteTx(store.store(aClass).getCompagnon().alias(), id);
+		deleteTx(store.store(aClass).getCompanion().alias(), id);
 	}
 	
 	public <T extends AbstractPersistentObject> void delete(T instance) {

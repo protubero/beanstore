@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.entity.Compagnon;
+import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;
@@ -142,7 +142,7 @@ public class StoreWriter  {
 			// 1. Create clones and check optimistic locking (Wrap with StoreInstanceTransaction)
 			for (PersistentInstanceTransaction pit : aTransaction.persistentTransaction.getInstanceTransactions()) {
 				EntityStore<?> entityStore = store.store(pit.getAlias());
-				Compagnon compagnon = ((Compagnon) entityStore.getCompagnon());
+				Companion companion = ((Companion) entityStore.getCompanion());
 				AbstractPersistentObject newInstance = null;
 				AbstractPersistentObject origInstance = null;
 				if (pit.getType() == PersistentInstanceTransaction.TYPE_DELETE ||
@@ -159,7 +159,7 @@ public class StoreWriter  {
 						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, pit.getAlias(),  pit.getId());
 					}
 					
-					newInstance = compagnon.cloneInstance(origInstance);
+					newInstance = companion.cloneInstance(origInstance);
 					
 					if (pit.getType() == PersistentInstanceTransaction.TYPE_UPDATE && pit.getPropertyUpdates() != null) {
 						// set properties
@@ -173,7 +173,7 @@ public class StoreWriter  {
 					long newInstanceId = entityStore.getNextInstanceId();	
 					
 					if (pit.getRef() == null) {
-						newInstance = compagnon.createInstance(newInstanceId);
+						newInstance = companion.createInstance(newInstanceId);
 						// set properties
 						for (PersistentPropertyUpdate ppu : pit.getPropertyUpdates()) {
 							newInstance.put(ppu.getProperty(), ppu.getValue());						

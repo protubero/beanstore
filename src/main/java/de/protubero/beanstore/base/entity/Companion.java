@@ -2,7 +2,7 @@ package de.protubero.beanstore.base.entity;
 
 import java.util.Map;
 
-public interface Compagnon<T extends AbstractPersistentObject> extends BeanStoreEntity<T> {
+public interface Companion<T extends AbstractPersistentObject> extends BeanStoreEntity<T> {
 
 
 	

@@ -60,7 +60,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	protected Long id;
 	
 	@JsonIgnore	
-	protected Compagnon<?> compagnon;
+	protected Companion<?> companion;
 	
 	@JsonIgnore	
 	protected State state = State.INSTANTIATED;
@@ -75,7 +75,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		verifyState(State.READY);
 		
 		@SuppressWarnings({ "unchecked" })
-		T result = ((Compagnon<T>) compagnon).cloneInstance((T) this);
+		T result = ((Companion<T>) companion).cloneInstance((T) this);
 		result.applyTransition(Transition.INSTANTIATED_TO_DETACHED);
 		result.refInstance(this);
 		
@@ -83,7 +83,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 
 	protected void checkIfCreatedByStore() {
-		if (compagnon == null) {
+		if (companion == null) {
 			throw new BeanStoreException("Java Bean Instance has not been created by a Bean Store");
 		}
 	}
@@ -108,10 +108,10 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
-		if (compagnon == null) {
+		if (companion == null) {
 			return null;
 		}
-	    return ((Compagnon) compagnon).toString(this);
+	    return ((Companion) companion).toString(this);
 	}
 
 	public boolean outdated() {
@@ -166,10 +166,10 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		changes = null;
 	}
 
-	public abstract Compagnon<?> compagnon();
+	public abstract Companion<?> companion();
 
-	public void compagnon(Compagnon<?> compagnon) {
-		this.compagnon = compagnon;
+	public void companion(Companion<?> companion) {
+		this.companion = companion;
 	}
 
 	public String getString(String key) {
@@ -185,15 +185,15 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 	
 	public BeanStoreEntity<?> entity() {
-		return compagnon;
+		return companion;
 	}
 	
 	@Override
 	public String alias() {
-		if (compagnon == null) {
+		if (companion == null) {
 			return AbstractPersistentObject.aliasOf(this);
 		} else {
-			return compagnon.alias();
+			return companion.alias();
 		}	
 	}
 	

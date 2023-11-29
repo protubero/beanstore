@@ -101,7 +101,7 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> T find(T ref) {
 		Objects.requireNonNull(ref);
-		if (ref.compagnon() == null) {
+		if (ref.companion() == null) {
 			throw new BeanStoreException("Instance was not created by the store");
 		}
 		return (T) entity(ref.alias()).find(ref.id());

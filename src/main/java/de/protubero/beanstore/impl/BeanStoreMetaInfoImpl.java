@@ -22,19 +22,19 @@ public class BeanStoreMetaInfoImpl implements BeanStoreMetaInfo {
 
 	@Override
 	public Stream<BeanStoreEntity<?>> stream() {
-		return StreamSupport.stream(store.entityStores().spliterator(), false).map(es -> es.getCompagnon());
+		return StreamSupport.stream(store.entityStores().spliterator(), false).map(es -> es.getCompanion());
 	}
 
 	@Override
 	public <T extends AbstractEntity> Optional<BeanStoreEntity<T>> entityOptional(Class<T> entityClass) {
-		return store.storeOptional(entityClass).map(es -> es.getCompagnon());
+		return store.storeOptional(entityClass).map(es -> es.getCompanion());
 	}
 
 	@Override
 	public <T extends AbstractPersistentObject> Optional<BeanStoreEntity<T>> entityOptional(String alias) {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<EntityStore<T>> opt = (Optional) store.storeOptional(alias);
-		return opt.map(es -> es.getCompagnon());
+		return opt.map(es -> es.getCompanion());
 	}
 
 }

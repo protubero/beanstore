@@ -19,8 +19,8 @@ import de.protubero.beanstore.api.MigrationTransaction;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
-import de.protubero.beanstore.base.entity.EntityCompagnon;
-import de.protubero.beanstore.base.entity.MapObjectCompagnon;
+import de.protubero.beanstore.base.entity.EntityCompanion;
+import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.api.TransactionReader;
@@ -50,7 +50,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private Store store;
 	private StoreWriter storeWriter;
 
-	private Map<String, EntityCompagnon<?>> entityCompagnonMap = new HashMap<>();
+	private Map<String, EntityCompanion<?>> entityCompanionMap = new HashMap<>();
 	private boolean created;
 	
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
@@ -80,12 +80,12 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	@Override
 	public <X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass) {
 		throwExceptionIfAlreadyCreated();
-		EntityCompagnon<X> compagnon = new EntityCompagnon<>(beanClass);
-		if (entityCompagnonMap.containsKey(compagnon.alias())) {
-			throw new RuntimeException("Duplicate alias: " + compagnon.alias() + " [" + beanClass + "]");
+		EntityCompanion<X> companion = new EntityCompanion<>(beanClass);
+		if (entityCompanionMap.containsKey(companion.alias())) {
+			throw new RuntimeException("Duplicate alias: " + companion.alias() + " [" + beanClass + "]");
 		}
-		entityCompagnonMap.put(compagnon.alias(), compagnon);
-		return compagnon;
+		entityCompanionMap.put(companion.alias(), companion);
+		return companion;
 	}
 
 	@Override
@@ -247,8 +247,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			}
 			
 			// convert maps to beans or create them new
-			for (EntityCompagnon<?> compagnon : entityCompagnonMap.values()) {
-				store.transformOrCreateBeanStore(compagnon, newBean -> {
+			for (EntityCompanion<?> companion : entityCompanionMap.values()) {
+				store.transformOrCreateBeanStore(companion, newBean -> {
 					// validate all new beans
 					plugins.forEach(plugin -> plugin.validate(newBean));
 				});
@@ -256,7 +256,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	
 			// remove un-beaned entity stores
 			for (EntityStore<?> es : store.entityStores()) {
-				if (es.getCompagnon() instanceof MapObjectCompagnon) {
+				if (es.getCompanion() instanceof MapObjectCompanion) {
 					store.removeMapStore(es);
 				}
 			}
@@ -272,8 +272,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			dtw.deactivate();
 		} else {
 			// create entity stores
-			for (EntityCompagnon<?> compagnon : entityCompagnonMap.values()) {
-				store.register(compagnon);
+			for (EntityCompanion<?> companion : entityCompanionMap.values()) {
+				store.register(companion);
 			}
 		}
 
@@ -307,13 +307,13 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			for (PersistentInstanceTransaction pit : instanceTransactions) {
 				@SuppressWarnings({ "rawtypes" })
 				EntityStore entityStore = store.storeOptional(pit.getAlias()).orElseGet(() -> {
-					return (EntityStore) store.register(new MapObjectCompagnon(pit.getAlias()));
+					return (EntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
 				});	
 				
 				AbstractPersistentObject instance = null;
 				switch (pit.getType()) {
 				case PersistentInstanceTransaction.TYPE_CREATE:
-					instance = entityStore.getCompagnon().createInstance();
+					instance = entityStore.getCompanion().createInstance();
 					instance.id(pit.getId());
 					break;
 				case PersistentInstanceTransaction.TYPE_DELETE:
