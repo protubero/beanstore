@@ -64,5 +64,22 @@ public interface BeanStoreFactory {
 	 */
 	BeanStore create();
 	
+	
+	/**
+	 * How to handle an entity that is found during the load process but has not been registered.
+	 * If <i>false<i> (Default) an exception is thrown. If <i>true</i> the entity is kept as MapObject entity.
+	 * 
+	 * @return
+	 */
+	boolean isAcceptUnregisteredEntities();
+
+	/**
+	 * How to handle an entity that is found during the load process but has not been registered.
+	 * If <i>false<i> (Default) an exception is thrown. If <i>true</i> the entity is kept as MapObject entity.
+	 * 
+	 * @param acceptUnregisteredEntities
+	 */
+	void setAcceptUnregisteredEntities(boolean acceptUnregisteredEntities);
+	
 
 }

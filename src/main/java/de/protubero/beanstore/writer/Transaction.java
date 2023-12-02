@@ -1,8 +1,10 @@
 package de.protubero.beanstore.writer;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
 import de.protubero.beanstore.base.entity.BeanStoreException;
+import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;
@@ -19,15 +22,15 @@ import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.store.InstanceFactory;
-import de.protubero.beanstore.store.Store;
+import de.protubero.beanstore.store.EntityStoreSet;
+import de.protubero.beanstore.store.ImmutableEntityStoreSet;
+import de.protubero.beanstore.store.CompanionShip;
 
-public class Transaction implements TransactionEvent {
+public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private Store store;
-	private InstanceFactory context;
+	private CompanionShip companionShip;
 	public PersistentTransaction persistentTransaction;
 
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
@@ -37,25 +40,20 @@ public class Transaction implements TransactionEvent {
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(Store store, InstanceFactory context, PersistentTransaction persistentTransaction) {
-		this.store = store;
-		this.context = context;
+	private Transaction(CompanionShip aCompanionShip, PersistentTransaction persistentTransaction) {
+		this.companionShip = aCompanionShip;
 		this.persistentTransaction = persistentTransaction;
 	}
 	
-	public static Transaction of(Store store, InstanceFactory iFactory, 
+	public static Transaction of(CompanionShip iFactory, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
-		return new Transaction(store, iFactory, pt);
-	}	
-	
-	public static Transaction of(Store store, 
-			String transactionId, int transactionType) {
-		return of(store, store, transactionId, transactionType);
+		return new Transaction(iFactory, pt);
 	}	
 
-	public static Transaction of(Store store) {
-		return of(store, store, null, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
+	public static Transaction of(CompanionShip iFactory, 
+			String transactionId) {
+		return of(iFactory, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 	
 	public boolean isEmpty() {
@@ -64,23 +62,32 @@ public class Transaction implements TransactionEvent {
 	}
 	
 	public <T extends AbstractPersistentObject> T create(String alias) {
-		T result = context.newInstance(alias);
+		Optional<Companion<T>> companion = companionShip.companionByAlias(alias);
+		if (companion.isEmpty()) {
+			throw new RuntimeException("Invalid alias: " + alias);
+		}
+		T result = companion.get().createInstance();
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
 		persistentTransaction.create(result.alias(), null).setRef(result);
 		return result;
 	}
 
 		
+	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> T create(T instance) {
 		String alias = AbstractPersistentObject.aliasOf(instance);
 		T result = create(alias);
-		result.putAll(context.extractProperties(instance));
+		result.putAll(((Companion<T>) result.companion()).extractProperties(instance));
 		return result;
 	}
 	
 	
 	public <T extends AbstractEntity> T create(Class<T> aClass) {
-		T result = context.newInstance(aClass);
+		Optional<Companion<T>> companion = companionShip.companionByClass(aClass);
+		if (companion.isEmpty()) {
+			throw new RuntimeException("Invalid entity class: " + aClass);
+		}
+		T result = companion.get().createInstance();
 		result.applyTransition(Transition.INSTANTIATED_TO_NEW);
 		persistentTransaction.create(result.alias(), null).setRef(result);
 		return result;
@@ -106,16 +113,19 @@ public class Transaction implements TransactionEvent {
 	}
 
 	private String verifyAlias(String alias) {
-		if (store.storeOptional(alias).isEmpty()) {			
+		Optional<Companion<AbstractPersistentObject>> companion = companionShip.companionByAlias(alias);
+		
+		if (companion.isEmpty()) {			
 			throw new BeanStoreException("unknown alias: " + alias);
 		}
 		
 		return alias;
 	}
-	
 
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		deleteTx(store.store(aClass).getCompanion().alias(), id);
+		deleteTx(companionShip.companionByClass(aClass).map(c -> c.alias()).orElseThrow(() -> {
+			throw new RuntimeException("Invalid entity class: " + aClass);
+		}), id);
 	}
 	
 	public <T extends AbstractPersistentObject> void delete(T instance) {
@@ -169,6 +179,8 @@ public class Transaction implements TransactionEvent {
 				}
 			}
 		}	
+		
+		instanceTransactions = new ArrayList<>();
 	}
 	
 	@Override
@@ -182,10 +194,6 @@ public class Transaction implements TransactionEvent {
 
 	public List<StoreInstanceTransaction<?>> getInstanceTransactions() {
 		return instanceTransactions;
-	}
-
-	public void setInstanceTransactions(List<StoreInstanceTransaction<?>> instanceTransactions) {
-		this.instanceTransactions = instanceTransactions;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -210,10 +218,6 @@ public class Transaction implements TransactionEvent {
 
 	public void setFailure(TransactionFailure failure) {
 		this.failure = failure;
-	}
-
-	public Store store() {
-		return store;
 	}
 
 

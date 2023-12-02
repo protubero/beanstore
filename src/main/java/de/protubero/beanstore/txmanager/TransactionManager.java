@@ -17,7 +17,7 @@ public interface TransactionManager {
 	}
 	
 	default ExecutableTransaction transaction(String transactionId, int transactionType) {
-		return new ExecutableTransaction(Transaction.of(storeWriter().dataStore(), storeWriter().dataStore(),
+		return new ExecutableTransaction(Transaction.of(storeWriter().dataStore(),
 				transactionId, transactionType), this);
 	}
 

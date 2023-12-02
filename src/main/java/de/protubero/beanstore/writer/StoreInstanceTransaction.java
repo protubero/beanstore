@@ -17,8 +17,6 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	@JsonIgnore
 	private T replacedInstance;
 	
-	@JsonIgnore
-	private EntityStore<T> entityStore;
 
 	@JsonIgnore
 	private T newInstance;
@@ -58,13 +56,6 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 		this.newInstance = newInstance;
 	}
 
-	public EntityStore<T> getEntityStore() {
-		return entityStore;
-	}
-
-	public void setEntityStore(EntityStore<T> entityStore) {
-		this.entityStore = entityStore;
-	}
 
 	@Override
 	public InstanceEventType type() {
@@ -86,9 +77,10 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public BeanStoreEntity<T> entity() {
-		return entityStore.getCompanion();
+		return (BeanStoreEntity<T>) replacedInstance.companion();
 	}
 	
 }

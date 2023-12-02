@@ -8,7 +8,7 @@ public interface Companion<T extends AbstractPersistentObject> extends BeanStore
 	
 	T createInstance();
 			
-	default T cloneInstance(T instance) {		
+	default T cloneInstance(T instance) {	
 		T cloned = createInstance();
 		
 		instance.forEach((key, value) -> {

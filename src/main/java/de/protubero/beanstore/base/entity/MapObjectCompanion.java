@@ -1,13 +1,14 @@
 package de.protubero.beanstore.base.entity;
 
 import java.util.Map;
+import java.util.Objects;
 
 public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 
 	private String alias;
 
 	public MapObjectCompanion(String alias) {
-		this.alias = alias;
+		this.alias = Objects.requireNonNull(alias);
 	}
 
 	@Override

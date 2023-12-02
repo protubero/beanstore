@@ -54,6 +54,7 @@ public final class MapObject extends AbstractPersistentObject {
 	}
 	@Override
 	public void clear() {
+		onBeforeChange();
 		properties.clear();
 	}
 	@Override

@@ -10,20 +10,16 @@ import de.protubero.beanstore.api.EntityReadAccess;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.Store;
+import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 
 public class BeanStoreReadAccessImpl implements BeanStoreReadAccess {
 
-	private Store store;
+	private ImmutableEntityStoreSet store;
 
-	public BeanStoreReadAccessImpl(Store store) {
+	public BeanStoreReadAccessImpl(ImmutableEntityStoreSet store) {
 		this.store = Objects.requireNonNull(store);
 	}
 
-	@Override
-	public BeanStoreReadAccess snapshot() {
-		return new BeanStoreReadAccessImpl(store.snapshot());
-	}
 
 	@Override
 	public <T extends AbstractEntity> Optional<EntityReadAccess<T>> entityOptional(Class<T> aClass) {

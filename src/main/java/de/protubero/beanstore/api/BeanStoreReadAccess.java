@@ -134,9 +134,5 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 		return resolve(keyList, key -> {throw new BeanStoreException("invalid key " + key.toKeyString());});
 	}
 	
-	/**
-	 * Returns an immutable snapshot of the store.
-	 */
-	BeanStoreReadAccess snapshot();
 	
 }

@@ -28,6 +28,14 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				throw new AssertionError();
 			}
 		}
+
+		public boolean isImmutable() {
+			return immutable;
+		}
+
+		public boolean isRecordChanges() {
+			return recordChanges;
+		}
 	}
 
 	public static enum Transition {
@@ -128,6 +136,12 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 			throw new RuntimeException("changing value on immutable instance is prohibited " + fieldName + " -> " + object);
 		}
 	}
+
+	void onBeforeChange() {
+		if (state.immutable) {
+			throw new RuntimeException("changing value on immutable instance is prohibited");
+		}
+	}
 	
 	void onAfterValueSet(String fieldName, Object object) {
 		if (state.recordChanges) {
@@ -208,6 +222,5 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		}
 		return entityAnnotation.alias();
 	}
-	
 	
 }
