@@ -33,4 +33,9 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 		return instance;
 	}
 
+	@Override
+	public boolean isMapCompanion() {
+		return true;
+	}
+
 }

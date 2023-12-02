@@ -102,13 +102,26 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	}
 
 
-
-
 	@Override
 	public boolean isImmutable() {
 		return false;
 	}
-	
+
+
+	@Override
+	public long getNextInstanceId() {
+		return nextInstanceId;
+	}
+
+
+	public Map<Long, T> getObjectMap() {
+		return objectMap;
+	}
+
+	@Override
+	public long getAndIncreaseInstanceId() {
+		return nextInstanceId++;
+	}
 	
 	
 }

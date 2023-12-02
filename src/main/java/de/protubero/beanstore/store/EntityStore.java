@@ -30,5 +30,7 @@ public interface EntityStore<T extends AbstractPersistentObject> {
 
 	long getAndIncreaseInstanceId();
 
+	long getNextInstanceId();
+
 	
 }

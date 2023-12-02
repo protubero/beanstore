@@ -4,7 +4,6 @@ import java.util.Map;
 
 public interface Companion<T extends AbstractPersistentObject> extends BeanStoreEntity<T> {
 
-
 	
 	T createInstance();
 			

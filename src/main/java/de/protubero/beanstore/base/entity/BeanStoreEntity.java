@@ -20,14 +20,16 @@ public interface BeanStoreEntity<T extends AbstractPersistentObject> {
 	 */
 	Class<T> entityClass();
 
-		
+	boolean isMapCompanion();
+
+	
 	/**
 	 * Does the entity represent a JavaBean class?
 	 * 
 	 * @return true, if entityClass() returns a JavaBean class, false if it returns MapObject.class
 	 */
 	default boolean isBean() {
-		return AbstractEntity.class.isAssignableFrom(entityClass());
+		return !isMapCompanion();
 	}
 		
 }

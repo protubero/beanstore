@@ -3,10 +3,11 @@ package de.protubero.beanstore.store;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
+import org.pcollections.HashTreePMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,21 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	public ImmutableEntityStoreSet(ImmutableEntityStoreBase<?>[] entityStoreBaseList) {
+		storeList = new ImmutableEntityStore<?>[entityStoreBaseList.length];
+		for (int idx = 0; idx < entityStoreBaseList.length; idx++) {
+			ImmutableEntityStoreBase<?> storeBase = entityStoreBaseList[idx];
+			storeList[idx] = 
+					new ImmutableEntityStore<AbstractPersistentObject>(
+							this, 
+							idx, 
+							(Companion<AbstractPersistentObject>) storeBase.getCompanion(), 
+							HashTreePMap.from((Map<Long, AbstractPersistentObject>)storeBase.getObjectMap()),
+							storeBase.getNextInstanceId());
+		}
+	}
+
 	public static ImmutableEntityStoreSet of(List<ImmutableEntityStore<?>> aStoreList) {
 		return new  ImmutableEntityStoreSet( aStoreList.toArray(new ImmutableEntityStore<?>[aStoreList.size()]));
 	}
@@ -146,50 +162,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 			}
 		}
 		return true;
-	}
-
-	public <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> put(T modelObject) {
-		return put(store(modelObject), modelObject);
-	}
-
-	public <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> put(ImmutableEntityStore<T> store, T modelObject) {
-		if (store.storeSet() != this) {
-			throw new AssertionError("Store does not belong to this store set");
-		}
-		ImmutableStoreMutationResult<T> result = ((ImmutableEntityStore<T>) store).put(modelObject);
-		return completeMutationResult(store, result);
-	}
-
-	private <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> completeMutationResult(
-			ImmutableEntityStore<T> store, ImmutableStoreMutationResult<T> result) {
-		if (result.changed()) {
-			ImmutableEntityStore<?>[] newStoreList = new ImmutableEntityStore<?>[storeList.length];
-			System.arraycopy(storeList, 0, newStoreList, 0, storeList.length);
-			newStoreList[store.getStoreSetIndex()] = result.getNewEntityStore();
-			ImmutableEntityStoreSet newStoreSet = new ImmutableEntityStoreSet(newStoreList);
-			result.setStoreSet(newStoreSet);
-		} else {
-			result.setStoreSet(this);
-		}
-		
-		return result;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> remove(String alias, Long id) {
-		return (ImmutableStoreMutationResult<T>) remove(store(alias), id);
-	}
-
-	public <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> remove(Class<T> aClass, Long id) {
-		return (ImmutableStoreMutationResult<T>) remove(store(aClass), id);
-	}
-
-	public <T extends AbstractPersistentObject> ImmutableStoreMutationResult<T> remove(ImmutableEntityStore<T> store, Long id) {
-		if (store.storeSet() != this) {
-			throw new AssertionError("Store does not belong to this store set");
-		}
-		ImmutableStoreMutationResult<T> result = ((ImmutableEntityStore<T>) store).remove(id);
-		return completeMutationResult(store, result);
 	}
 
 	@Override

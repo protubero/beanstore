@@ -32,12 +32,13 @@ import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
+import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.ImmutableEntityStore;
+import de.protubero.beanstore.store.ImmutableEntityStoreBase;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
-import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.txmanager.TaskQueueTransactionManager;
 import de.protubero.beanstore.txmanager.TransactionManager;
 import de.protubero.beanstore.writer.StoreWriter;
@@ -60,6 +61,11 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private boolean created;
 	
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
+
+	// Fields are used at build time
+	private KryoPersistence persistence;
+	private DeferredTransactionWriter deferredTransactionWriter;
+	private List<AppliedMigration> appliedMigrations;
 	
 	public BeanStoreFactoryImpl(File file) {
 		this.file = Objects.requireNonNull(file);
@@ -120,187 +126,229 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		}
 		
 	}
+
+	private void initStore(ImmutableEntityStoreSet aStoreSet) {
+		log.info("Init store");
+		
+		// init store
+		Consumer<BeanStoreTransaction> initialMigration = initMigration;
+		initialMigration = initMigration;
+		if (initialMigration == null) {
+			// default migration: do nothing
+			initialMigration = (bst) -> {
+			};
+		}
+
+		String initialTransactionId = INIT_ID;
+		if (migrations.size() > 0) {
+			String lastMigrationId = migrations.get(migrations.size() - 1).getMigrationId();
+			initialTransactionId += lastMigrationId;
+		}
+		
+		// always remember last migration id
+		var tx = Transaction.of(companionSet, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
+		initialMigration.accept(new BeanStoreTransactionImpl(tx));
+		createStoreWriter().execute(tx, aStoreSet);
+
+		plugins.forEach(plugin -> plugin.onInitTransaction(tx));
+	}	
+	
+	private MutableEntityStoreSet loadMapStore() {
+		plugins.forEach(plugin -> plugin.onOpenFile(file));
+		
+		// load transactions
+		persistence = new KryoPersistence(file);
+		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
+
+		appliedMigrations = new ArrayList<>();
+		boolean noStoredTransactions = persistence.isEmpty();
+		if (noStoredTransactions) {
+			return null;
+		} else {	
+			MutableEntityStoreSet mapStore = new MutableEntityStoreSet(); 
+			load(mapStore, persistence.reader(), appliedMigrations);
+			
+			// handle loaded entity stores which has not been registered
+			for (MutableEntityStore<?> es : mapStore) {
+				String tAlias = es.companion().alias();
+				Optional<Companion<AbstractPersistentObject>> registeredCompanion = companionSet.companionByAlias(tAlias);
+				if (!registeredCompanion.isPresent()) {
+					if (acceptUnregisteredEntities) {
+						companionSet.addMapEntity(tAlias);
+					} else {
+						throw new RuntimeException("Found un-registered entity in file: " + tAlias);
+					}
+				}
+			}
+			return mapStore;
+		}	
+		
+	}
+
+	private StoreWriter createStoreWriter() {
+		StoreWriter storeWriter = new StoreWriter();
+		
+		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
+			plugins.forEach(plugin -> plugin.onWriteTransaction(t.persistentTransaction));
+			if (deferredTransactionWriter != null) {
+				deferredTransactionWriter.append(t.persistentTransaction);
+			}	
+		});		
+	}	
+	
+	private void migrate(MutableEntityStoreSet mapStore) {
+		// migrate store
+		String databaseState = null;
+		if (appliedMigrations.size() == 0) {
+			throw new AssertionError("missing init migration");
+		} else {
+			log.info("No. of applied migration transations: " + appliedMigrations.size());
+		}
+		
+		// find database state (i.e. last applied migration)
+		databaseState = appliedMigrations.get(appliedMigrations.size() - 1).getMigrationId();
+		
+		if (databaseState.startsWith(INIT_ID)) {
+			if (appliedMigrations.size() != 1) {
+				throw new AssertionError("unexpected");
+			}
+			if (databaseState.length() != INIT_ID.length()) {
+				databaseState = databaseState.substring(INIT_ID.length());
+				log.info("loaded db state: " + databaseState);
+			} else {
+				log.info("loaded db state: _initialised_");
+				databaseState = null;
+			}
+		}
+		
+		int migrationStartIdx = 0;
+		if (databaseState != null) {
+			// find migration which is referred to by the database state
+			var tempIdx = 0;
+			var lastMigrationIdx = -1;
+			for (var mig : migrations) {
+				if (mig.getMigrationId().equals(databaseState)) {
+					lastMigrationIdx = tempIdx;
+					break;
+				}
+				tempIdx++;
+			}
+			if (lastMigrationIdx == -1) {
+				throw new RuntimeException("missing migration id " + databaseState);
+			} else {
+				migrationStartIdx = lastMigrationIdx + 1;
+			}
+		}	
+		
+		StoreWriter migrationStoreWriter = createStoreWriter();
+		// apply remaining migrations
+		if (migrationStartIdx < migrations.size()) {
+			for (int idx = migrationStartIdx; idx < migrations.size(); idx++) {
+				var mig = migrations.get(idx);
+				
+				var tx = Transaction.of(mapStore, mig.getMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
+				mig.getMigration().accept(new MigrationTransactionImpl(tx));
+				mapStore = migrationStoreWriter.execute(tx, mapStore);
+				plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
+				
+				log.info("migration applied: " + mig.getMigrationId() + " (" + tx.getInstanceEvents().size() + ")");
+			}
+		}							
+
+	}	
+	
 	
 	@Override
 	public BeanStore create() {
-		MutableEntityStoreSet mapStore = new MutableEntityStoreSet(); 
-		StoreWriter migrationStoreWriter = new StoreWriter(mapStore);
-		
-		
 		throwExceptionIfAlreadyCreated();
 		created = true;
 
 		plugins.forEach(plugin -> plugin.onStartCreate(this));
+
+		List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
 		
-		Runnable onCloseStoreAction = () -> {};
-		Runnable onInitStoreAction = null;
 		
-				
+		
+		MutableEntityStoreSet mapStore = null;
+		boolean initStore = true;
+		boolean migrateMapStore = true;
 		if (file != null) {
-			plugins.forEach(plugin -> plugin.onOpenFile(file));
-			
-			// load transactions
-			KryoPersistence persistence = new KryoPersistence(file);
-			List<AppliedMigration> appliedMigrations = new ArrayList<>();
-			boolean noStoredTransactions = persistence.isEmpty();
-			if (!noStoredTransactions) {
-				load(mapStore, persistence.reader(), appliedMigrations);
-			}	
-						
-			DeferredTransactionWriter dtw = new DeferredTransactionWriter(persistence.writer());
-			
-			migrationStoreWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
-				plugins.forEach(plugin -> plugin.onWriteTransaction(t.persistentTransaction));
-				dtw.append(t.persistentTransaction);
-			});
-			onCloseStoreAction = () -> {try {
-				log.info("Closing transaction writer");
-				dtw.close();
-			} catch (Exception e) {
-				log.error("Error closing transaction writer", e);
-			}};			
-
-			if (noStoredTransactions) {
-				log.info("No store transactions");
-				onInitStoreAction = () -> {
-					log.info("Init store");
-	
-					// init store
-					Consumer<BeanStoreTransaction> initialMigration = initMigration;
-					initialMigration = initMigration;
-					if (initialMigration == null) {
-						// default migration: do nothing
-						initialMigration = (bst) -> {
-						};
-					}
-	
-					String initialTransactionId = INIT_ID;
-					if (migrations.size() > 0) {
-						String lastMigrationId = migrations.get(migrations.size() - 1).getMigrationId();
-						initialTransactionId += lastMigrationId;
-					}
-					
-					// always remember last migration id
-					var tx = Transaction.of(store, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-					initialMigration.accept(new BeanStoreTransactionImpl(tx));
-					migrationStoreWriter.execute(tx);
-
-					plugins.forEach(plugin -> plugin.onInitTransaction(tx));
-				};	
-				
+			mapStore = loadMapStore();
+			if (mapStore == null) {
+				migrateMapStore = false;
+				initStore = true;
 			} else {
-				// migrate store
-				String databaseState = null;
-				if (appliedMigrations.size() == 0) {
-					throw new AssertionError("missing init migration");
-				} else {
-					log.info("No. of migration transations: " + appliedMigrations.size());
-				}
-				
-				// find database state (i.e. last applied migration)
-				databaseState = appliedMigrations.get(appliedMigrations.size() - 1).getMigrationId();
-				
-				if (databaseState.startsWith(INIT_ID)) {
-					if (appliedMigrations.size() != 1) {
-						throw new AssertionError("unexpected");
-					}
-					if (databaseState.length() != INIT_ID.length()) {
-						databaseState = databaseState.substring(INIT_ID.length());
-						log.info("loaded db state: " + databaseState);
-					} else {
-						log.info("loaded db state: _initialised_");
-						databaseState = null;
-					}
-				}
-				
-				int migrationStartIdx = 0;
-				if (databaseState != null) {
-					// find migration which is referred to by the database state
-					var tempIdx = 0;
-					var lastMigrationIdx = -1;
-					for (var mig : migrations) {
-						if (mig.getMigrationId().equals(databaseState)) {
-							lastMigrationIdx = tempIdx;
-							break;
-						}
-						tempIdx++;
-					}
-					if (lastMigrationIdx == -1) {
-						throw new RuntimeException("missing migration id " + databaseState);
-					} else {
-						migrationStartIdx = lastMigrationIdx + 1;
-					}
-				}	
-				
-				// apply remaining migrations
-				if (migrationStartIdx < migrations.size()) {
-					for (int idx = migrationStartIdx; idx < migrations.size(); idx++) {
-						var mig = migrations.get(idx);
-						
-						var tx = Transaction.of(store, mig.getMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-						mig.getMigration().accept(new MigrationTransactionImpl(tx));
-						migrationStoreWriter.execute(tx);
-						plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
-						
-						log.info("migration applied: " + mig.getMigrationId() + " (" + tx.getInstanceEvents().size() + ")");
-					}
-				}							
-			}
+				migrateMapStore = true;
+				initStore = false;
+			}	
+		}	
+		
+		if (migrateMapStore) {
+			migrate(mapStore);
+		}	
 			
 			// convert maps to beans or create them new
-			List<ImmutableEntityStore<?>> entityStoreList = new ArrayList<>();
-			mapStore.forEach(es -> {
-				Optional<Companion<AbstractPersistentObject>> registeredEntityCompanion = companionSet.companionByAlias(es.companion().alias());					
-				if (registeredEntityCompanion.isPresent()) {
+			for (MutableEntityStore<?> es : mapStore) {
+				ImmutableEntityStoreBase<AbstractPersistentObject> newEntityStore = new ImmutableEntityStoreBase<>();
+				String entityAlias = es.companion().alias();
+				Companion<AbstractPersistentObject> registeredEntityCompanion = companionSet.companionByAlias(entityAlias).get();
+				
+				newEntityStore.setNextInstanceId(es.getNextInstanceId());
+				newEntityStore.setCompanion(registeredEntityCompanion);
+				
+				if (registeredEntityCompanion.isMapCompanion()) {
+					newEntityStore.setObjectMap((Map) es.getObjectMap());
+				} else {
 					Map<Long, AbstractPersistentObject> initialEntityMap = new HashMap<>();
-					es.objects().forEach(obj -> {
-						X newInstance = companion.newInstance();
-						newInstance.id(obj.id());
+					es.objects().forEach(mapObj -> {
+						AbstractPersistentObject newInstance = registeredEntityCompanion.newInstance();
+						newInstance.id(mapObj.id());
 						// copy all properties
-						beanCompanion.transferProperties(obj, newInstance);
+						registeredEntityCompanion.transferProperties(mapObj, newInstance);
 						
 						// set tags ref to entity
+						/*
 						if (isTaggedEntity) {
 							((AbstractTaggedEntity) newInstance).getTags().setEntity((AbstractTaggedEntity) newInstance);
 						}
+						*/
 						
 						newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
-						
-						if (callback != null) {
-							callback.accept(newInstance);
-						}
-						newEntityStore.put(newInstance);
+						plugins.forEach(plugin -> plugin.validate(newBean));
+						initialEntityMap.put(newInstance.id(), newInstance);						
 					});
-					
-				}
-				
-			});
-			for (EntityCompanion<?> companion : entityCompanionMap.values()) {
-				store.transformOrCreateBeanStore(companion, newBean -> {
-					// validate all new beans
-					plugins.forEach(plugin -> plugin.validate(newBean));
-				});
-			}
-	
-			// remove un-beaned entity stores
-			for (EntityStore<?> es : store.entityStores()) {
-				if (es.getCompanion() instanceof MapObjectCompanion) {
-					store.removeMapStore(es);
+					newEntityStore.setObjectMap(initialEntityMap);
 				}
 			}
-			
-			// init store
-			if (onInitStoreAction != null) {
-				onInitStoreAction.run();
-			}
-			
-			// persist migration transactions
-			// this is the first time that data gets written to the file 
-			dtw.flush();
-			dtw.deactivate();
+						
 		}
 
-		TransactionManager finalTxManager = new TaskQueueTransactionManager(storeWriter);
+		
+		
+	}
+
+
+		ImmutableEntityStoreSet finalStoreSet = 
+				new ImmutableEntityStoreSet(entityStoreBaseList.toArray(new ImmutableEntityStoreBase<AbstractPersistentObject>[entityStoreBaseList.size()])));
+				
+		if (dtw != null) {
+			// persist migration transactions
+			// this is the first time that data gets written to the file
+			dtw.switchToNonDeferred();
+		}	
+		
+		StoreWriter finalStoreWriter = new StoreWriter();		
+		TransactionManager finalTxManager = new TaskQueueTransactionManager(finalStoreWriter);
+
+		Runnable onCloseStoreAction = () -> {try {
+			if (dtw != null) {
+				log.info("Closing transaction writer");
+				dtw.close();
+			}	
+		} catch (Exception e) {
+			log.error("Error closing transaction writer", e);
+		}};			
+		
 		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, onCloseStoreAction);
 
 		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, new BeanStoreReadAccessImpl(store)));

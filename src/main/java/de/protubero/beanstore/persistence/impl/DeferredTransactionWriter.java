@@ -11,7 +11,7 @@ public class DeferredTransactionWriter implements TransactionWriter {
 
 	private TransactionWriter writer;
 	private List<PersistentTransaction> transactions = new ArrayList<>();
-	private boolean active = true;
+	private boolean deferralActive = true;
 	
 	public DeferredTransactionWriter(TransactionWriter writer) {
 		this.writer = writer;
@@ -24,7 +24,7 @@ public class DeferredTransactionWriter implements TransactionWriter {
 
 	@Override
 	public void append(Iterator<PersistentTransaction> aTransactions) {
-		if (active) {
+		if (deferralActive) {
 			while (aTransactions.hasNext()) {
 				transactions.add(aTransactions.next());
 			}
@@ -33,9 +33,10 @@ public class DeferredTransactionWriter implements TransactionWriter {
 		}
 	}
 	
-	public void deactivate() {
+	public void switchToNonDeferred() {
+		flush();
 		writeTransactions();	
-		active = false;
+		deferralActive = false;
 	}
 
 	@Override

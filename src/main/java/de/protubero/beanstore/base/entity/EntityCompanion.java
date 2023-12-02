@@ -147,5 +147,11 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	}
 
 
+	@Override
+	public boolean isMapCompanion() {
+		return false;
+	}
+
+
 
 }

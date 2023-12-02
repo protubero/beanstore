@@ -85,37 +85,6 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 		return "Immutable entity store of " + companion;
 	}
 	
-	public ImmutableStoreMutationResult<T> put(T modelObject) {
-		if (modelObject.companion() != companion) {
-			throw new AssertionError();
-		}
-		if (nextInstanceId <= modelObject.id()) {
-			throw new AssertionError();
-		}
-		if (modelObject.state() != State.READY) {
-			throw new AssertionError("invalid state: " + modelObject.state());
-		}
-		T result = objectMap.get(modelObject.id());
-		HashPMap<Long, T> newObjectMap = objectMap.plus(modelObject.id(), modelObject);
-		
-		ImmutableEntityStore<T> newEntityStore = new ImmutableEntityStore<>(entityStoreSet, storeSetIndex, companion, newObjectMap, nextInstanceId); 
-		return new ImmutableStoreMutationResult<>(this, newEntityStore, result); 
-	}
-
-	public ImmutableStoreMutationResult<T> remove(Long id) {
-		T result = objectMap.get(id);
-		if (result != null) {
-			HashPMap<Long, T> newObjectMap = objectMap.minus(id);
-			ImmutableEntityStore<T> newEntityStore = new ImmutableEntityStore<>(entityStoreSet, storeSetIndex, companion, newObjectMap, nextInstanceId); 
-			return new ImmutableStoreMutationResult<>(this, newEntityStore, result); 
-		} else {
-			// unmodified state
-			return new ImmutableStoreMutationResult<>(this, this, null); 
-		}
-	}
-
-
-
 	@Override
 	public EntityStoreSet<?> storeSet() {
 		return entityStoreSet;
@@ -181,6 +150,11 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	@Override
 	public long getAndIncreaseInstanceId() {
 		return nextInstanceId++;
+	}
+
+	@Override
+	public long getNextInstanceId() {
+		return nextInstanceId;
 	}
 	
 }

@@ -18,12 +18,10 @@ import de.protubero.beanstore.base.tx.TransactionFailureType;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 import de.protubero.beanstore.store.ImmutableEntityStore;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
-import de.protubero.beanstore.store.ImmutableStoreMutationResult;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -130,16 +128,17 @@ public class StoreWriter  {
 		
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public synchronized EntityStoreSet<?> execute(Transaction aTransaction, ImmutableEntityStoreSet aStoreSet) throws TransactionFailure {
+	public synchronized <E extends EntityStore<?>> EntityStoreSet<E> execute(Transaction aTransaction, EntityStoreSet<E> aStoreSet) throws TransactionFailure {
 		aTransaction.prepare();		
 
-		ImmutableEntityStoreSet workStoreSet = Objects.requireNonNull(aStoreSet).internalCloneStoreSet();;
+		// Clone Store Set
+		ImmutableEntityStoreSet workStoreSet = Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
 		EntityStoreSet<?> result = aStoreSet;
 		
 		
 		if (!aTransaction.isEmpty()) {		
 					
-			// 1. Create clones and check optimistic locking (Wrap with StoreInstanceTransaction)
+			// 1. Create instance clones and check optimistic locking (Wrap with StoreInstanceTransaction)
 			for (PersistentInstanceTransaction pit : aTransaction.persistentTransaction.getInstanceTransactions()) {
 				EntityStore<?> entityStore = workStoreSet.store(pit.getAlias());
 				Companion companion = ((Companion) entityStore.companion());
@@ -173,7 +172,7 @@ public class StoreWriter  {
 					newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
 	
 				} else {
-					long newInstanceId =  ((ImmutableEntityStore) entityStore).internalGetAndIncreaseInstanceId();	
+					long newInstanceId =  ((ImmutableEntityStore) entityStore).getAndIncreaseInstanceId();	
 					
 					if (pit.getRef() == null) {
 						newInstance = companion.createInstance(newInstanceId);
@@ -202,7 +201,7 @@ public class StoreWriter  {
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
-		if (!aTransaction.isEmpty() || (aTransaction.persistentTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
+		if (!aTransaction.isEmpty()) {		
 			// 3. persist
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
@@ -216,9 +215,9 @@ public class StoreWriter  {
 			
 			// 4. apply changes
 			for (StoreInstanceTransaction<?> sit : aTransaction.getInstanceTransactions()) {
+				ImmutableEntityStore<?> entityStore = workStoreSet.store(sit.entity().alias());
 				switch (sit.getType()) {
 				case PersistentInstanceTransaction.TYPE_DELETE:
-					ImmutableEntityStore<?> entityStore = workStoreSet.store(sit.entity().alias());
 					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(sit.instanceId());
 					removedInstance.applyTransition(Transition.READY_TO_OUTDATED);
 				case PersistentInstanceTransaction.TYPE_UPDATE:
