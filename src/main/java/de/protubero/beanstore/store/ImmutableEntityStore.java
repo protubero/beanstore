@@ -104,6 +104,7 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 		return new ImmutableEntityStore<>(entityStoreSet, storeSetIndex, companion, objectMap, nextInstanceId);
 	}
 
+	@Override
 	public T internalRemoveInplace(Long instanceId) {
 		T result = objectMap.get(instanceId);
 		if (result != null) {
@@ -115,6 +116,7 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public T internalUpdateInplace(AbstractPersistentObject apo) {
 		if (apo.companion() != companion) {
 			throw new AssertionError();
@@ -130,6 +132,7 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public T internalCreateInplace(AbstractPersistentObject anInstance) {
 		if (anInstance.companion() != companion) {
 			throw new AssertionError();

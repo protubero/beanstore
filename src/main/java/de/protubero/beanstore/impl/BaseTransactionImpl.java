@@ -15,10 +15,6 @@ public class BaseTransactionImpl implements BaseTransaction {
 		this.transaction = Objects.requireNonNull(transaction);
 	}
 
-	@Override
-	public BeanStoreReadAccess read() {
-		return new BeanStoreReadAccessImpl(transaction.store());
-	}
 
 	@Override
 	public <T extends AbstractPersistentObject> T create(String alias) {

@@ -19,7 +19,7 @@ public class EntityReadAccessImpl<T extends AbstractPersistentObject> implements
 
 	@Override
 	public BeanStoreEntity<T> meta() {
-		return store.getCompanion();
+		return store.companion();
 	}
 
 	@Override

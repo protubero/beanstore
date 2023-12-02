@@ -20,8 +20,6 @@ import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
-import de.protubero.beanstore.store.ImmutableEntityStore;
-import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -128,12 +126,12 @@ public class StoreWriter  {
 		
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public synchronized <E extends EntityStore<?>> EntityStoreSet<E> execute(Transaction aTransaction, EntityStoreSet<E> aStoreSet) throws TransactionFailure {
+	public synchronized <E extends EntityStore<?>, S extends EntityStoreSet<E>> S execute(Transaction aTransaction, S aStoreSet) throws TransactionFailure {
 		aTransaction.prepare();		
 
 		// Clone Store Set
-		ImmutableEntityStoreSet workStoreSet = Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
-		EntityStoreSet<?> result = aStoreSet;
+		S workStoreSet = (S) Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
+		S result = aStoreSet;
 		
 		
 		if (!aTransaction.isEmpty()) {		
@@ -172,7 +170,7 @@ public class StoreWriter  {
 					newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
 	
 				} else {
-					long newInstanceId =  ((ImmutableEntityStore) entityStore).getAndIncreaseInstanceId();	
+					long newInstanceId =  entityStore.getAndIncreaseInstanceId();	
 					
 					if (pit.getRef() == null) {
 						newInstance = companion.createInstance(newInstanceId);
@@ -215,7 +213,7 @@ public class StoreWriter  {
 			
 			// 4. apply changes
 			for (StoreInstanceTransaction<?> sit : aTransaction.getInstanceTransactions()) {
-				ImmutableEntityStore<?> entityStore = workStoreSet.store(sit.entity().alias());
+				EntityStore<?> entityStore = workStoreSet.store(sit.entity().alias());
 				switch (sit.getType()) {
 				case PersistentInstanceTransaction.TYPE_DELETE:
 					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(sit.instanceId());
@@ -236,7 +234,6 @@ public class StoreWriter  {
 			aTransaction.setTransactionPhase(TransactionPhase.COMMITTED_ASYNC);
 			transactionSubject.onNext(aTransaction);
 		}	
-		
 		
 		return result;
 	}	

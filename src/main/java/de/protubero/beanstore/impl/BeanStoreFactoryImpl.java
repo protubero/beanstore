@@ -20,7 +20,6 @@ import de.protubero.beanstore.api.MigrationTransaction;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.entity.AbstractTaggedEntity;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.entity.EntityCompanion;
@@ -33,8 +32,6 @@ import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
 import de.protubero.beanstore.store.CompanionSet;
-import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.ImmutableEntityStore;
 import de.protubero.beanstore.store.ImmutableEntityStoreBase;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
@@ -45,32 +42,31 @@ import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
 public class BeanStoreFactoryImpl implements BeanStoreFactory {
-	
+
 	public static final String INIT_ID = "_INIT_";
-	
+
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreFactory.class);
-	
-	
+
 	private File file;
 	private boolean acceptUnregisteredEntities = false;
 	private List<Migration> migrations = new ArrayList<>();
 	private Consumer<BeanStoreTransaction> initMigration;
-		
+
 	private CompanionSet companionSet = new CompanionSet();
 
 	private boolean created;
-	
+
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
 
 	// Fields are used at build time
 	private KryoPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations;
-	
+
 	public BeanStoreFactoryImpl(File file) {
 		this.file = Objects.requireNonNull(file);
 	}
-	
+
 	public BeanStoreFactoryImpl() {
 	}
 
@@ -79,7 +75,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		throwExceptionIfAlreadyCreated();
 		plugins.add(plugin);
 	}
-	
+
 	/**
 	 * Register a Java Bean class. It must be a descendant of AbstractEntity.
 	 * 
@@ -97,11 +93,11 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		if (!migrationId.trim().equals(migrationId)) {
 			throw new RuntimeException("invalid migration id");
 		}
-		
+
 		if (migrationId.startsWith("_")) {
 			throw new RuntimeException("migration id must not start with an underscore character: " + migrationId);
 		}
-		
+
 		// ignore case is intentional
 		if (migrations.stream().filter(m -> m.getMigrationId().equalsIgnoreCase(migrationId)).findAny().isPresent()) {
 			throw new RuntimeException("duplicate migration id: " + migrationId);
@@ -118,18 +114,18 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			initMigration = migration;
 		}
 	}
-	
+
 	private void throwExceptionIfAlreadyCreated() {
 		// It can only be created once
 		if (created) {
 			throw new RuntimeException("bean store has already been created");
 		}
-		
+
 	}
 
 	private void initStore(ImmutableEntityStoreSet aStoreSet) {
 		log.info("Init store");
-		
+
 		// init store
 		Consumer<BeanStoreTransaction> initialMigration = initMigration;
 		initialMigration = initMigration;
@@ -144,18 +140,18 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			String lastMigrationId = migrations.get(migrations.size() - 1).getMigrationId();
 			initialTransactionId += lastMigrationId;
 		}
-		
+
 		// always remember last migration id
 		var tx = Transaction.of(companionSet, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
 		initialMigration.accept(new BeanStoreTransactionImpl(tx));
 		createStoreWriter().execute(tx, aStoreSet);
 
 		plugins.forEach(plugin -> plugin.onInitTransaction(tx));
-	}	
-	
+	}
+
 	private MutableEntityStoreSet loadMapStore() {
 		plugins.forEach(plugin -> plugin.onOpenFile(file));
-		
+
 		// load transactions
 		persistence = new KryoPersistence(file);
 		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
@@ -164,14 +160,15 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		boolean noStoredTransactions = persistence.isEmpty();
 		if (noStoredTransactions) {
 			return null;
-		} else {	
-			MutableEntityStoreSet mapStore = new MutableEntityStoreSet(); 
+		} else {
+			MutableEntityStoreSet mapStore = new MutableEntityStoreSet();
 			load(mapStore, persistence.reader(), appliedMigrations);
-			
+
 			// handle loaded entity stores which has not been registered
 			for (MutableEntityStore<?> es : mapStore) {
 				String tAlias = es.companion().alias();
-				Optional<Companion<AbstractPersistentObject>> registeredCompanion = companionSet.companionByAlias(tAlias);
+				Optional<Companion<AbstractPersistentObject>> registeredCompanion = companionSet
+						.companionByAlias(tAlias);
 				if (!registeredCompanion.isPresent()) {
 					if (acceptUnregisteredEntities) {
 						companionSet.addMapEntity(tAlias);
@@ -181,21 +178,23 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				}
 			}
 			return mapStore;
-		}	
-		
+		}
+
 	}
 
 	private StoreWriter createStoreWriter() {
 		StoreWriter storeWriter = new StoreWriter();
-		
+
 		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
 			plugins.forEach(plugin -> plugin.onWriteTransaction(t.persistentTransaction));
 			if (deferredTransactionWriter != null) {
 				deferredTransactionWriter.append(t.persistentTransaction);
-			}	
-		});		
-	}	
-	
+			}
+		});
+		
+		return storeWriter;
+	}
+
 	private void migrate(MutableEntityStoreSet mapStore) {
 		// migrate store
 		String databaseState = null;
@@ -204,10 +203,10 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		} else {
 			log.info("No. of applied migration transations: " + appliedMigrations.size());
 		}
-		
+
 		// find database state (i.e. last applied migration)
 		databaseState = appliedMigrations.get(appliedMigrations.size() - 1).getMigrationId();
-		
+
 		if (databaseState.startsWith(INIT_ID)) {
 			if (appliedMigrations.size() != 1) {
 				throw new AssertionError("unexpected");
@@ -220,7 +219,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				databaseState = null;
 			}
 		}
-		
+
 		int migrationStartIdx = 0;
 		if (databaseState != null) {
 			// find migration which is referred to by the database state
@@ -238,26 +237,26 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			} else {
 				migrationStartIdx = lastMigrationIdx + 1;
 			}
-		}	
-		
+		}
+
 		StoreWriter migrationStoreWriter = createStoreWriter();
 		// apply remaining migrations
 		if (migrationStartIdx < migrations.size()) {
 			for (int idx = migrationStartIdx; idx < migrations.size(); idx++) {
 				var mig = migrations.get(idx);
-				
-				var tx = Transaction.of(mapStore, mig.getMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
+
+				var tx = Transaction.of(mapStore, mig.getMigrationId(),
+						PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
 				mig.getMigration().accept(new MigrationTransactionImpl(tx));
 				mapStore = migrationStoreWriter.execute(tx, mapStore);
 				plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
-				
+
 				log.info("migration applied: " + mig.getMigrationId() + " (" + tx.getInstanceEvents().size() + ")");
 			}
-		}							
+		}
 
-	}	
-	
-	
+	}
+
 	@Override
 	public BeanStore create() {
 		throwExceptionIfAlreadyCreated();
@@ -265,10 +264,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 		plugins.forEach(plugin -> plugin.onStartCreate(this));
 
-		List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
-		
-		
-		
+
 		MutableEntityStoreSet mapStore = null;
 		boolean initStore = true;
 		boolean migrateMapStore = true;
@@ -280,107 +276,123 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			} else {
 				migrateMapStore = true;
 				initStore = false;
-			}	
-		}	
-		
-		if (migrateMapStore) {
-			migrate(mapStore);
-		}	
-			
-			// convert maps to beans or create them new
-			for (MutableEntityStore<?> es : mapStore) {
-				ImmutableEntityStoreBase<AbstractPersistentObject> newEntityStore = new ImmutableEntityStoreBase<>();
-				String entityAlias = es.companion().alias();
-				Companion<AbstractPersistentObject> registeredEntityCompanion = companionSet.companionByAlias(entityAlias).get();
-				
-				newEntityStore.setNextInstanceId(es.getNextInstanceId());
-				newEntityStore.setCompanion(registeredEntityCompanion);
-				
-				if (registeredEntityCompanion.isMapCompanion()) {
-					newEntityStore.setObjectMap((Map) es.getObjectMap());
-				} else {
-					Map<Long, AbstractPersistentObject> initialEntityMap = new HashMap<>();
-					es.objects().forEach(mapObj -> {
-						AbstractPersistentObject newInstance = registeredEntityCompanion.newInstance();
-						newInstance.id(mapObj.id());
-						// copy all properties
-						registeredEntityCompanion.transferProperties(mapObj, newInstance);
-						
-						// set tags ref to entity
-						/*
-						if (isTaggedEntity) {
-							((AbstractTaggedEntity) newInstance).getTags().setEntity((AbstractTaggedEntity) newInstance);
-						}
-						*/
-						
-						newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
-						plugins.forEach(plugin -> plugin.validate(newBean));
-						initialEntityMap.put(newInstance.id(), newInstance);						
-					});
-					newEntityStore.setObjectMap(initialEntityMap);
-				}
 			}
-						
 		}
 
+		if (migrateMapStore) {
+			migrate(mapStore);
+		}
 		
+
+		List<ImmutableEntityStoreBase<?>> entityStoreBaseList = convertMapStoreToFinalStore(mapStore);
 		
-	}
-
-
+		// Create final store set
 		ImmutableEntityStoreSet finalStoreSet = 
-				new ImmutableEntityStoreSet(entityStoreBaseList.toArray(new ImmutableEntityStoreBase<AbstractPersistentObject>[entityStoreBaseList.size()])));
-				
-		if (dtw != null) {
+				new ImmutableEntityStoreSet(
+						entityStoreBaseList.toArray(new ImmutableEntityStoreBase[entityStoreBaseList.size()]));
+
+		if (initStore) {
+			initStore(finalStoreSet);
+		}
+		
+		if (deferredTransactionWriter != null) {
 			// persist migration transactions
 			// this is the first time that data gets written to the file
-			dtw.switchToNonDeferred();
+			deferredTransactionWriter.switchToNonDeferred();
 		}	
 		
 		StoreWriter finalStoreWriter = new StoreWriter();		
 		TransactionManager finalTxManager = new TaskQueueTransactionManager(finalStoreWriter);
 
 		Runnable onCloseStoreAction = () -> {try {
-			if (dtw != null) {
+			if (deferredTransactionWriter != null) {
 				log.info("Closing transaction writer");
-				dtw.close();
+				deferredTransactionWriter.close();
 			}	
 		} catch (Exception e) {
 			log.error("Error closing transaction writer", e);
 		}};			
 		
-		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, onCloseStoreAction);
+		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, finalStoreSet, onCloseStoreAction);
 
-		plugins.forEach(plugin -> plugin.onEndCreate(beanStoreImpl, new BeanStoreReadAccessImpl(store)));
+		BeanStoreReadAccessImpl readAccess = new BeanStoreReadAccessImpl(finalStoreSet);
+		plugins.forEach(plugin -> {
+			plugin.onEndCreate(beanStoreImpl, readAccess);
+		});
 		
 		return beanStoreImpl;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<ImmutableEntityStoreBase<?>> convertMapStoreToFinalStore(MutableEntityStoreSet mapStore) {
+		List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
+		
+		// convert maps to beans or create them new
+		for (MutableEntityStore<?> es : mapStore) {
+			ImmutableEntityStoreBase<AbstractPersistentObject> newEntityStore = new ImmutableEntityStoreBase<>();
+			entityStoreBaseList.add(newEntityStore);
+			
+			String entityAlias = es.companion().alias();			
+			Companion<? extends AbstractPersistentObject> registeredEntityCompanion = companionSet.companionByAlias(entityAlias)
+					.get();
+
+			newEntityStore.setNextInstanceId(es.getNextInstanceId());
+			newEntityStore.setCompanion((Companion) registeredEntityCompanion);
+
+			if (registeredEntityCompanion.isMapCompanion()) {
+				newEntityStore.setObjectMap((Map) es.getObjectMap());
+			} else {
+				Map<Long, AbstractPersistentObject> initialEntityMap = new HashMap<>();
+				es.objects().forEach(mapObj -> {
+					AbstractEntity newInstance = (AbstractEntity) registeredEntityCompanion.createInstance();
+					newInstance.id(mapObj.id());
+					// copy all properties
+					((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties((Map<String, Object>) mapObj, newInstance);
+					
+
+					// set tags ref to entity
+					/*
+					 * if (isTaggedEntity) { ((AbstractTaggedEntity)
+					 * newInstance).getTags().setEntity((AbstractTaggedEntity) newInstance); }
+					 */
+
+					newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
+					plugins.forEach(plugin -> plugin.validate(newInstance));
+					initialEntityMap.put(newInstance.id(), newInstance);
+				});
+				newEntityStore.setObjectMap(initialEntityMap);
+			}
+		}
+		
+		return entityStoreBaseList;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void load(MutableEntityStoreSet store, TransactionReader reader, List<AppliedMigration> appliedMigrations) {
 		reader.load(pt -> {
 			plugins.forEach(plugin -> plugin.onReadTransaction(pt));
-			
+
 			// log list of migration transactions
 			if (pt.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION) {
 				appliedMigrations.add(new AppliedMigration(Objects.requireNonNull(pt.getTransactionId())));
 			}
-			
+
 			PersistentInstanceTransaction[] instanceTransactions = pt.getInstanceTransactions();
 			if (instanceTransactions == null) {
 				if (pt.getTransactionId() == null) {
 					throw new RuntimeException("empty transaction");
 				} else {
-					instanceTransactions = new PersistentInstanceTransaction[0]; 
+					instanceTransactions = new PersistentInstanceTransaction[0];
 				}
 			}
-						
+
 			for (PersistentInstanceTransaction pit : instanceTransactions) {
 				@SuppressWarnings({ "rawtypes" })
-				MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias()).orElseGet(() -> {
-					return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
-				});	
-				
+				MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
+						.orElseGet(() -> {
+							return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
+						});
+
 				AbstractPersistentObject instance = null;
 				switch (pit.getType()) {
 				case PersistentInstanceTransaction.TYPE_CREATE:
@@ -390,7 +402,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				case PersistentInstanceTransaction.TYPE_DELETE:
 					if (entityStore.remove(pit.getId()) == null) {
 						throw new AssertionError();
-					}				
+					}
 					break;
 				case PersistentInstanceTransaction.TYPE_UPDATE:
 					instance = entityStore.get(pit.getId());
@@ -411,9 +423,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 						for (PersistentPropertyUpdate propertyUpdate : pit.getPropertyUpdates()) {
 							instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
 						}
-					}	
+					}
 				}
-				
+
 				switch (pit.getType()) {
 				case PersistentInstanceTransaction.TYPE_CREATE:
 					instance.applyTransition(Transition.INSTANTIATED_TO_READY);
@@ -422,8 +434,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				case PersistentInstanceTransaction.TYPE_UPDATE:
 					instance.applyTransition(Transition.INPLACEUPDATE_TO_READY);
 					break;
-				}	
-				
+				}
+
 			}
 		});
 	}
@@ -438,7 +450,4 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		this.acceptUnregisteredEntities = acceptUnregisteredEntities;
 	}
 
-
-	
-	
 }

@@ -129,6 +129,11 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		return false;
 	}
 
+	@Override
+	public EntityStoreSet<MutableEntityStore<?>> internalCloneStoreSet() {
+		return this;
+	}
+
 
 	
 	

@@ -8,10 +8,6 @@ import de.protubero.beanstore.base.entity.AbstractPersistentObject;
  */
 public interface BaseTransaction {
 
-	/**
-	 *  Read access to the underlying store
-	 */
-	BeanStoreReadAccess read();
 	
 	/**
 	 * Create a new instance of an entity with alias <i>alias</i>.<br>

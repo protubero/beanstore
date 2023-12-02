@@ -1,7 +1,6 @@
 package de.protubero.beanstore.store;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.Companion;
@@ -36,6 +35,9 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E>, C
 	default <T extends AbstractPersistentObject> Optional<Companion<T>> companionByAlias(String alias) {
 		return storeOptional(alias).map(s -> (Companion<T>) s.companion());
 	}
+
+
+	EntityStoreSet<E> internalCloneStoreSet();
 
 	
 }

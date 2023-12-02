@@ -32,5 +32,11 @@ public interface EntityStore<T extends AbstractPersistentObject> {
 
 	long getNextInstanceId();
 
+	T internalRemoveInplace(Long instanceId);
+
+	T internalUpdateInplace(AbstractPersistentObject newInstance);
+
+	T internalCreateInplace(AbstractPersistentObject newInstance);
+
 	
 }

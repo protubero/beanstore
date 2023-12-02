@@ -116,26 +116,32 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	}
 
 
+	/**
+	 * To optimize it, use dynamically generated code!
+	 * @param map
+	 * @param instance
+	 */
 	public void transferProperties(Map<String, Object> map, T instance) {
-		map.forEach((key, value) -> {
-			if (value != null) {
-				PropertyDescriptor desc = descriptorMap.get(key);
-				if (desc != null) {
-					instance.put(key, value);
-				} else {
-					System.out.println("discard n/a " + key + "/" + value);
-				}
-			} else {
-				System.out.println("discard null " + key);
-			}	
-		});
+		Set<String> allProps = map.keySet();
+		for (PropertyDescriptor desc : descriptors) {
+			Object value = map.get(desc.getName());
+			try {
+				desc.getWriteMethod().invoke(instance, value);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException("Error setting property: " + desc.getName(), e);
+			}
+			allProps.remove(desc.getName());
+		}
+		if (allProps.size() > 0) {
+			throw new RuntimeException("Invalid props: " + allProps);
+		}
 	}
 
 
 	@Override
 	public Map<String, Object> extractProperties(T instance) {
 		Map<String, Object> result = new HashMap<>();
-		for (var desc : descriptors) {
+		for (PropertyDescriptor desc : descriptors) {
 			try {
 				Object value = desc.getReadMethod().invoke(instance);
 				result.put(desc.getName(), value);
@@ -151,6 +157,8 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	public boolean isMapCompanion() {
 		return false;
 	}
+
+
 
 
 

@@ -169,6 +169,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		return true;
 	}
 
+	@Override
 	public ImmutableEntityStoreSet internalCloneStoreSet() {
 		ImmutableEntityStore<?>[] newStoreList = new ImmutableEntityStore<?>[storeList.length];
 		for (int idx = 0; idx < storeList.length; idx++) {

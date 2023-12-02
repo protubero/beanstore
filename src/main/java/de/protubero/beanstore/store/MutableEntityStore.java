@@ -122,6 +122,44 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	public long getAndIncreaseInstanceId() {
 		return nextInstanceId++;
 	}
+
+
+	@Override
+	public T internalRemoveInplace(Long instanceId) {
+		return remove(instanceId);
+	}
+
+
+	@Override
+	public T internalUpdateInplace(AbstractPersistentObject apo) {
+		if (apo.companion() != companion) {
+			throw new AssertionError();
+		}
+		
+		@SuppressWarnings("unchecked")
+		T result = objectMap.put(apo.id(), (T) apo);
+		if (result == null) {
+			throw new AssertionError();
+		}
+		return result;
+	}
+
+
+	@Override
+	public T internalCreateInplace(AbstractPersistentObject anInstance) {
+		if (anInstance.companion() != companion) {
+			throw new AssertionError();
+		}
+		if (nextInstanceId <= anInstance.id()) {
+			throw new AssertionError();
+		}
+		
+		T result = objectMap.put(anInstance.id(), (T) anInstance);
+		if (result != null) {
+			throw new AssertionError();
+		}
+		return result;
+	}
 	
 	
 }
