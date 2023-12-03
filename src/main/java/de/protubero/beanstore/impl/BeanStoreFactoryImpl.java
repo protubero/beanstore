@@ -144,7 +144,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		// always remember last migration id
 		var tx = Transaction.of(companionSet, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
 		initialMigration.accept(new BeanStoreTransactionImpl(tx));
-		createStoreWriter().execute(tx, aStoreSet);
+		aStoreSet = createStoreWriter().execute(tx, aStoreSet);
 
 		plugins.forEach(plugin -> plugin.onInitTransaction(tx));
 	}

@@ -19,8 +19,8 @@ class ThreadPoolTransactionManager extends AbstractTransactionManager {
 	/**
 	 * @param storeWriter
 	 */
-	public ThreadPoolTransactionManager(StoreWriter storeWriter, int threadPool) {
-		super(storeWriter);
+	public ThreadPoolTransactionManager(TransactionStoreContext context, int threadPool) {
+		super(context);
 		
 		executor = Executors.newFixedThreadPool(threadPool);		
 	}

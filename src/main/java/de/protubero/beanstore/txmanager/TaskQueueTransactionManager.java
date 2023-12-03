@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.GenericWrapper;
 import de.protubero.beanstore.base.tx.TransactionEvent;
+import de.protubero.beanstore.store.CompanionShip;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionStoreContext;
+import de.protubero.beanstore.writer.TransactionListener;
 
 public class TaskQueueTransactionManager extends AbstractTransactionManager {
 
@@ -25,8 +28,8 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 	};
 	
 
-	public TaskQueueTransactionManager(StoreWriter storeWriter) {
-		super(storeWriter);
+	public TaskQueueTransactionManager(TransactionStoreContext context) {
+		super(context);
 		
 		taskThread = new Thread(() -> {
 			boolean stopped = false;
@@ -137,5 +140,6 @@ public class TaskQueueTransactionManager extends AbstractTransactionManager {
 			immediate(consumer);
 		});
 	}
+
 
 }

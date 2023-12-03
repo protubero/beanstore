@@ -14,7 +14,6 @@ import de.protubero.beanstore.api.BeanStoreTransactionFactory;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.txmanager.TransactionManager;
-import de.protubero.beanstore.writer.StoreWriter;
 
 class BeanStoreImpl implements BeanStore {
 
@@ -28,6 +27,17 @@ class BeanStoreImpl implements BeanStore {
 		this.transactionManager = Objects.requireNonNull(transactionManager);
 		this.onCloseCallback = Objects.requireNonNull(onCloseCallback);
 		this.store = Objects.requireNonNull(store);
+		
+		transactionManager.transactionListener((source, target) -> {
+			if (source != store) {
+				throw new AssertionError();
+			} 
+			setStore(target);
+		});
+	}
+
+	private void setStore(ImmutableEntityStoreSet target) {
+		this.store = Objects.requireNonNull(target);
 	}
 
 	@Override

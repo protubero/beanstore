@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.Companion;
 
 public final class ImmutableEntityStore<T extends AbstractPersistentObject> implements EntityStore<T> {

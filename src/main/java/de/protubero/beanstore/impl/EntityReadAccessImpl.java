@@ -38,11 +38,6 @@ public class EntityReadAccessImpl<T extends AbstractPersistentObject> implements
 	}
 
 	@Override
-	public EntityReadAccess<T> snapshot() {
-		return new EntityReadAccessImpl<>(store.cloneStore());
-	}
-
-	@Override
 	public int count() {
 		return store.size();
 	}

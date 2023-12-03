@@ -8,7 +8,6 @@ import de.protubero.beanstore.base.tx.InstanceEventType;
 import de.protubero.beanstore.base.tx.InstancePropertyValue;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.store.EntityStore;
 
 public final class StoreInstanceTransaction<T extends AbstractPersistentObject> implements InstanceTransactionEvent<T> {
 

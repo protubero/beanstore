@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -22,15 +23,12 @@ import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.store.EntityStoreSet;
-import de.protubero.beanstore.store.ImmutableEntityStoreSet;
-import de.protubero.beanstore.store.CompanionShip;
 
 public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private CompanionShip companionShip;
+	private TransactionContext context;
 	public PersistentTransaction persistentTransaction;
 
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
@@ -40,20 +38,24 @@ public final class Transaction implements TransactionEvent {
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(CompanionShip aCompanionShip, PersistentTransaction persistentTransaction) {
-		this.companionShip = aCompanionShip;
-		this.persistentTransaction = persistentTransaction;
+	private Transaction(TransactionContext context, PersistentTransaction persistentTransaction) {
+		this.context = Objects.requireNonNull(context);
+		this.persistentTransaction = Objects.requireNonNull(persistentTransaction);
 	}
 	
-	public static Transaction of(CompanionShip iFactory, 
+	public static Transaction of(TransactionContext context, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
-		return new Transaction(iFactory, pt);
+		return new Transaction(context, pt);
 	}	
 
-	public static Transaction of(CompanionShip iFactory, 
+	public static Transaction of(TransactionContext context, 
 			String transactionId) {
-		return of(iFactory, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
+		return of(context, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
+	}	
+
+	public static Transaction of(TransactionContext context) {
+		return of(context, null, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 	
 	public boolean isEmpty() {
@@ -62,7 +64,7 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 	public <T extends AbstractPersistentObject> T create(String alias) {
-		Optional<Companion<T>> companion = companionShip.companionByAlias(alias);
+		Optional<Companion<T>> companion = context.companionSet().companionByAlias(alias);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid alias: " + alias);
 		}
@@ -83,7 +85,7 @@ public final class Transaction implements TransactionEvent {
 	
 	
 	public <T extends AbstractEntity> T create(Class<T> aClass) {
-		Optional<Companion<T>> companion = companionShip.companionByClass(aClass);
+		Optional<Companion<T>> companion = context.companionSet().companionByClass(aClass);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid entity class: " + aClass);
 		}
@@ -113,7 +115,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	private String verifyAlias(String alias) {
-		Optional<Companion<AbstractPersistentObject>> companion = companionShip.companionByAlias(alias);
+		Optional<Companion<AbstractPersistentObject>> companion = context.companionSet().companionByAlias(alias);
 		
 		if (companion.isEmpty()) {			
 			throw new BeanStoreException("unknown alias: " + alias);
@@ -123,7 +125,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		deleteTx(companionShip.companionByClass(aClass).map(c -> c.alias()).orElseThrow(() -> {
+		deleteTx(context.companionSet().companionByClass(aClass).map(c -> c.alias()).orElseThrow(() -> {
 			throw new RuntimeException("Invalid entity class: " + aClass);
 		}), id);
 	}

@@ -3,13 +3,14 @@ package de.protubero.beanstore.txmanager;
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.base.tx.TransactionEvent;
-import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.writer.TransactionStoreContext;
 
 public class LockedStoreTransactionManager extends AbstractTransactionManager {
 
-	public LockedStoreTransactionManager(StoreWriter storeWriter) {
-		super(storeWriter);
+	
+	public LockedStoreTransactionManager(TransactionStoreContext context) {
+		super(context);
 	}
 
 	@Override
@@ -18,12 +19,6 @@ public class LockedStoreTransactionManager extends AbstractTransactionManager {
 		if (consumer != null) {
 			consumer.accept(transaction);
 		}
-	}
-
-	@Override
-	public TransactionEvent execute(Transaction transaction) {
-		storeWriter.execute(transaction);
-		return transaction;
 	}
 
 	@Override
@@ -40,9 +35,11 @@ public class LockedStoreTransactionManager extends AbstractTransactionManager {
 	public void lockedAsync(Consumer<TransactionFactory> consumer) {
 		immediate(consumer);
 	}
-	
-	public static ExecutableTransaction transaction(StoreWriter writer) {
-		return new LockedStoreTransactionManager(writer).transaction();
+
+	@Override
+	public TransactionEvent execute(Transaction transaction) {
+		return context.execute(transaction);
 	}
+
 
 }

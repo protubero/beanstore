@@ -1,5 +1,14 @@
 # BeanStore - Persistent Java Bean Store
 
+## When to consider?
+
+PMI
+
+Wiki
+Knowlege Maangement Systems
+Personal Information Systems
+...
+
 BeanStore provides a data storage option when simplicity and flexibility are the primary requirements. All data is held in memory as immutable Java Beans. Changes to the data are expressed as transactions. After a transaction has been successfully applied to the in-memory store it is written to a persistent transaction log. When the store starts up the next time the transactions are applied sequentially to an empty store to recover the last state of the store.
 
 BeanStore should fit perfectly if one tries to quickly put together a little web application. On the client side you usually choose a JS lib like Vue.js or svelte but on the server side you want to stick with good ole' java. There are plenty of good and simple web server libs available, like [Javalin](https://javalin.io/) for example. But when it comes to data persistence there is nothing that fits really well. Here comes BeanStore for the rescue.

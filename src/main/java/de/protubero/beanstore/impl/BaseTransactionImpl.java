@@ -3,7 +3,6 @@ package de.protubero.beanstore.impl;
 import java.util.Objects;
 
 import de.protubero.beanstore.api.BaseTransaction;
-import de.protubero.beanstore.api.BeanStoreReadAccess;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.writer.Transaction;
 

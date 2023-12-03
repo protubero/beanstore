@@ -20,7 +20,7 @@ public class KryoDefaultSerializer extends ImmutableSerializer<CustomValueType> 
 		cvt.write(kryo, output);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public CustomValueType read (Kryo kryo, Input input, Class type) {
 		CustomValueType cvt;
 		try {

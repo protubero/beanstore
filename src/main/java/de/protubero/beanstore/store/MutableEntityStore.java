@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.pcollections.HashPMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,6 +153,7 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 			throw new AssertionError();
 		}
 		
+		@SuppressWarnings("unchecked")
 		T result = objectMap.put(anInstance.id(), (T) anInstance);
 		if (result != null) {
 			throw new AssertionError();

@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)

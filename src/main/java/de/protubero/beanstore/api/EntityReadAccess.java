@@ -59,11 +59,6 @@ public interface EntityReadAccess<T extends AbstractPersistentObject> extends It
 	Stream<T> stream();
 
 	/**
-	 * Create a read-only copy (a.k.a. snapshot) of this entity store
-	 */
-	EntityReadAccess<T> snapshot();
-
-	/**
 	 * Iterate over all entity instances
 	 */
 	default Iterator<T> iterator() {
