@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.base.entity.MapObject;
-import de.protubero.beanstore.impl.BeanStoreReadAccessImpl;
+import de.protubero.beanstore.impl.BeanStoreStateImpl;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.Store;
@@ -21,12 +21,13 @@ import de.protubero.beanstore.writer.Transaction;
 public class WriterTest {
 
 	
+	
 	@Test
 	public void happyPathMapStore()  {		
 		Store store = new Store();
 		StoreWriter storeWriter = new StoreWriter(store);
 
-		var storeReader = new BeanStoreReadAccessImpl(store);
+		var storeReader = new BeanStoreStateImpl(store);
 		var employeeStore = store.createMapStore("employee");
 
 				
@@ -83,7 +84,7 @@ public class WriterTest {
 	public void happyPathBeanStore()  {		
 		Store store = new Store();
 		StoreWriter storeWriter = new StoreWriter(store);
-		var storeReader = new BeanStoreReadAccessImpl(store);
+		var storeReader = new BeanStoreStateImpl(store);
 		
 		var employeeStore = store.createBeanStore(Employee.class);
 

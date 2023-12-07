@@ -23,12 +23,13 @@ import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.store.CompanionShip;
 
 public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private TransactionContext context;
+	private CompanionShip companionSet;
 	public PersistentTransaction persistentTransaction;
 
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
@@ -38,24 +39,24 @@ public final class Transaction implements TransactionEvent {
 	private boolean prepared;
 	private TransactionFailure failure;
 		
-	private Transaction(TransactionContext context, PersistentTransaction persistentTransaction) {
-		this.context = Objects.requireNonNull(context);
+	private Transaction(CompanionShip companionSet, PersistentTransaction persistentTransaction) {
+		this.companionSet = Objects.requireNonNull(companionSet);
 		this.persistentTransaction = Objects.requireNonNull(persistentTransaction);
 	}
 	
-	public static Transaction of(TransactionContext context, 
+	public static Transaction of(CompanionShip companionSet, 
 			String transactionId, int transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
-		return new Transaction(context, pt);
+		return new Transaction(companionSet, pt);
 	}	
 
-	public static Transaction of(TransactionContext context, 
+	public static Transaction of(CompanionShip companionSet, 
 			String transactionId) {
-		return of(context, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
+		return of(companionSet, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 
-	public static Transaction of(TransactionContext context) {
-		return of(context, null, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
+	public static Transaction of(CompanionShip companionSet) {
+		return of(companionSet, null, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 	
 	public boolean isEmpty() {
@@ -64,7 +65,7 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 	public <T extends AbstractPersistentObject> T create(String alias) {
-		Optional<Companion<T>> companion = context.companionSet().companionByAlias(alias);
+		Optional<Companion<T>> companion = companionSet.companionByAlias(alias);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid alias: " + alias);
 		}
@@ -85,7 +86,7 @@ public final class Transaction implements TransactionEvent {
 	
 	
 	public <T extends AbstractEntity> T create(Class<T> aClass) {
-		Optional<Companion<T>> companion = context.companionSet().companionByClass(aClass);
+		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid entity class: " + aClass);
 		}
@@ -115,7 +116,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	private String verifyAlias(String alias) {
-		Optional<Companion<AbstractPersistentObject>> companion = context.companionSet().companionByAlias(alias);
+		Optional<Companion<AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
 		
 		if (companion.isEmpty()) {			
 			throw new BeanStoreException("unknown alias: " + alias);
@@ -125,7 +126,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		deleteTx(context.companionSet().companionByClass(aClass).map(c -> c.alias()).orElseThrow(() -> {
+		deleteTx(companionSet.companionByClass(aClass).map(c -> c.alias()).orElseThrow(() -> {
 			throw new RuntimeException("Invalid entity class: " + aClass);
 		}), id);
 	}
@@ -221,7 +222,6 @@ public final class Transaction implements TransactionEvent {
 	public void setFailure(TransactionFailure failure) {
 		this.failure = failure;
 	}
-
 
 
 }	

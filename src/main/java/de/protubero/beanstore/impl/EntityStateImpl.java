@@ -4,16 +4,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import de.protubero.beanstore.api.EntityReadAccess;
+import de.protubero.beanstore.api.EntityState;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.store.EntityStore;
 
-public class EntityReadAccessImpl<T extends AbstractPersistentObject> implements EntityReadAccess<T> {
+public class EntityStateImpl<T extends AbstractPersistentObject> implements EntityState<T> {
 
 	private EntityStore<T> store;
 
-	EntityReadAccessImpl(EntityStore<T> store) {
+	EntityStateImpl(EntityStore<T> store) {
 		this.store = Objects.requireNonNull(store);
 	}
 

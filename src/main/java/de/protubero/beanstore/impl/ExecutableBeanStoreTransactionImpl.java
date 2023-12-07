@@ -1,29 +1,30 @@
 package de.protubero.beanstore.impl;
 
-import java.util.function.Consumer;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
+import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
-import de.protubero.beanstore.base.tx.TransactionEvent;
-import de.protubero.beanstore.txmanager.ExecutableTransaction;
+import de.protubero.beanstore.writer.Transaction;
 
 public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl implements ExecutableBeanStoreTransaction {
 
-	private ExecutableTransaction executableTransaction;
+	protected BeanStoreImpl beanStore;
 	
-	ExecutableBeanStoreTransactionImpl(ExecutableTransaction executableTransaction) {
-		super(executableTransaction.getTransaction());
+	ExecutableBeanStoreTransactionImpl(Transaction transaction, BeanStoreImpl beanStore) {		
+		super(transaction);
 		
-		this.executableTransaction = executableTransaction;
+		this.beanStore = Objects.requireNonNull(beanStore);
 	}
 
 	@Override
-	public void executeAsync(Consumer<TransactionEvent> consumer) {
-		executableTransaction.executeAsync(consumer);
+	public BeanStoreTransactionResult execute() {
+		return beanStore.executeSync(transaction);
 	}
 
 	@Override
-	public TransactionEvent execute() {
-		return executableTransaction.execute();
+	public CompletableFuture<BeanStoreTransactionResult> executeAsync() {
+		return beanStore.executeAsync(transaction);
 	}
 
 }

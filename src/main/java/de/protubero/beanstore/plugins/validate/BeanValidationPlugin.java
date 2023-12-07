@@ -4,7 +4,7 @@ import java.util.Set;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.api.BeanStoreReadAccess;
+import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.tx.InstanceEventType;
@@ -26,7 +26,7 @@ public class BeanValidationPlugin implements BeanStorePlugin {
 	}
 	
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
+	public void onEndCreate(BeanStore beanStore, BeanStoreState snapshot) {
 		// verify newly created and updated beans
 		beanStore.callbacks().verifyInstance(change -> {
 			if (change.entity().isBean()) {

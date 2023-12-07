@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.api.BeanStoreReadAccess;
+import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 
@@ -36,7 +36,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}
 
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
+	public void onEndCreate(BeanStore beanStore, BeanStoreState snapshot) {
 		this.beanStore = beanStore;
 		
 		// init search

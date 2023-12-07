@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreReadAccess;
-import de.protubero.beanstore.api.EntityReadAccess;
+import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.EntityState;
 import de.protubero.beanstore.model.Employee;
 
 public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
@@ -33,8 +33,8 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 	public void test() {
 		var store = addSampleData(createEmptyStore());
 
-		EntityReadAccess<Employee> employeeStore = store.read().entity(Employee.class);
-		BeanStoreReadAccess snapshot = store.read().snapshot();
+		EntityState<Employee> employeeStore = store.read().entity(Employee.class);
+		BeanStoreState snapshot = store.read().snapshot();
 		Stream<Employee> stream = employeeStore.stream();
 		
 		// in the meanwhile ...

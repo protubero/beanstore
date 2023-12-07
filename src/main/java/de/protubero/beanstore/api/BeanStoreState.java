@@ -15,7 +15,7 @@ import de.protubero.beanstore.base.entity.InstanceKey;
  * BeanStore read operations. 
  *
  */
-public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
+public interface BeanStoreState extends Iterable<EntityState<?>> {
 
 	/**
 	 * Entity meta information 
@@ -27,8 +27,8 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 * Throws a BeanStoreException if the alias is invalid. 
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends AbstractPersistentObject> EntityReadAccess<T> entity(String alias) {
-		return (EntityReadAccess<T>) entityOptional(alias).orElseThrow(() -> {
+	default <T extends AbstractPersistentObject> EntityState<T> entity(String alias) {
+		return (EntityState<T>) entityOptional(alias).orElseThrow(() -> {
 			throw new BeanStoreException("invalid alias");
 		});
 	}
@@ -37,7 +37,7 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	 * Access read operations of a single entity with the given Java Bean class.<br> 
 	 * Throws a BeanStoreException if the parameter is invalid. 
 	 */
-	default <T extends AbstractEntity> EntityReadAccess<T> entity(Class<T> aClass) {
+	default <T extends AbstractEntity> EntityState<T> entity(Class<T> aClass) {
 		return entityOptional(aClass).orElseThrow(() -> {
 			throw new BeanStoreException("invalid bean class: " + aClass.getName());
 		});
@@ -46,12 +46,12 @@ public interface BeanStoreReadAccess extends Iterable<EntityReadAccess<?>> {
 	/**
 	 * Access read operations of a single entity with the given <i>alias</i>
 	 */
-	<T extends AbstractPersistentObject> Optional<EntityReadAccess<T>> entityOptional(String alias);
+	<T extends AbstractPersistentObject> Optional<EntityState<T>> entityOptional(String alias);
 
 	/**
 	 * Access read operations of a single entity with the given Java Bean class. 
 	 */
-	<T extends AbstractEntity> Optional<EntityReadAccess<T>> entityOptional(Class<T> aClass);
+	<T extends AbstractEntity> Optional<EntityState<T>> entityOptional(Class<T> aClass);
 	
 	
 	/**

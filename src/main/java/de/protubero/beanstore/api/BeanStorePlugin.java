@@ -43,7 +43,7 @@ public interface BeanStorePlugin {
 	 * The snapshot parameter has the read-only version of the store at this point in time. 
 	 * Writes to the bean store will not affect the data of the snapshot.   
 	 */
-	default void onEndCreate(BeanStore beanStore, BeanStoreReadAccess snapshot) {
+	default void onEndCreate(BeanStore beanStore, BeanStoreState snapshot) {
 		
 	}
 	

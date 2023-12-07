@@ -1,4 +1,4 @@
-package de.protubero.beanstore.txmanager;
+package de.protubero.beanstore.impl;
 
 public class PoisonPillError extends Error {
 

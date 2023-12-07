@@ -38,7 +38,7 @@ public class BeanStorePersistenceTest {
 		
 		builder = createBuilder(tempDir);
 		builder.addMigration("eins", mTx -> {
-			mTx.read()
+			mTx.state()
 			.entity("employee")
 			.stream()
 			.filter(emp -> emp.get("firstName").equals("Paul"))
@@ -48,15 +48,15 @@ public class BeanStorePersistenceTest {
 		});
 		var beanStore2 = builder.create();
 				
-		assertEquals(2, beanStore2.read().entity(Employee.class).count());
+		assertEquals(2, beanStore2.state().entity(Employee.class).count());
 		
-		List<Employee> employees = beanStore2.read().entity(Employee.class).stream().sorted().collect(Collectors.toList());
+		List<Employee> employees = beanStore2.state().entity(Employee.class).stream().sorted().collect(Collectors.toList());
 		assertEquals(2, employees.size());
 		assertEquals(44, employees.get(0).getAge());
 		assertEquals(49, employees.get(1).getAge());
 		
-		assertEquals(44, beanStore2.read().find(employee1).getAge());
-		assertEquals(49, beanStore2.read().find(employee2).getAge());
+		assertEquals(44, beanStore2.state().find(employee1).getAge());
+		assertEquals(49, beanStore2.state().find(employee2).getAge());
 
 	}
 

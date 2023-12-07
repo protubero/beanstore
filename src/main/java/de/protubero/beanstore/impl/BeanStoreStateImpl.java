@@ -5,32 +5,33 @@ import java.util.Objects;
 import java.util.Optional;
 
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
-import de.protubero.beanstore.api.BeanStoreReadAccess;
-import de.protubero.beanstore.api.EntityReadAccess;
+import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.EntityState;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.store.EntityStore;
+import de.protubero.beanstore.store.EntityStoreSet;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 
-public class BeanStoreReadAccessImpl implements BeanStoreReadAccess {
+public class BeanStoreStateImpl implements BeanStoreState {
 
-	private ImmutableEntityStoreSet store;
+	private EntityStoreSet<?> store;
 
-	public BeanStoreReadAccessImpl(ImmutableEntityStoreSet store) {
+	public BeanStoreStateImpl(EntityStoreSet<?> store) {
 		this.store = Objects.requireNonNull(store);
 	}
 
 
 	@Override
-	public <T extends AbstractEntity> Optional<EntityReadAccess<T>> entityOptional(Class<T> aClass) {
-		return store.storeOptional(aClass).map(e -> new EntityReadAccessImpl<>(e));
+	public <T extends AbstractEntity> Optional<EntityState<T>> entityOptional(Class<T> aClass) {
+		return store.storeOptional(aClass).map(e -> new EntityStateImpl<>(e));
 	}
 
 	@Override
-	public <T extends AbstractPersistentObject> Optional<EntityReadAccess<T>> entityOptional(String alias) {
+	public <T extends AbstractPersistentObject> Optional<EntityState<T>> entityOptional(String alias) {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<EntityStore<T>> opt = (Optional) store.storeOptional(alias);
-		return opt.map(e -> new EntityReadAccessImpl<>(e));
+		return opt.map(e -> new EntityStateImpl<>(e));
 	}
 
 	@Override
@@ -39,9 +40,9 @@ public class BeanStoreReadAccessImpl implements BeanStoreReadAccess {
 	}
 
 	@Override
-	public Iterator<EntityReadAccess<?>> iterator() {
+	public Iterator<EntityState<?>> iterator() {
 		var baseIterator = store.iterator();
-		return new Iterator<EntityReadAccess<?>> () {
+		return new Iterator<EntityState<?>> () {
 
 			@Override
 			public boolean hasNext() {
@@ -49,8 +50,8 @@ public class BeanStoreReadAccessImpl implements BeanStoreReadAccess {
 			}
 
 			@Override
-			public EntityReadAccess<?> next() {
-				return new EntityReadAccessImpl<>(baseIterator.next());
+			public EntityState<?> next() {
+				return new EntityStateImpl<>(baseIterator.next());
 			}
 			
 		};

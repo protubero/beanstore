@@ -1,8 +1,10 @@
 package de.protubero.beanstore.store;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
@@ -53,12 +55,11 @@ public class CompanionSet implements CompanionShip {
 		return Optional.empty();
 	}
 	
-	public ImmutableEntityStoreSet buildImmutableStoreSet() {
-		return new ImmutableEntityStoreSet(companionList);
-	}
-	
-	public MutableEntityStoreSet buildMutableStoreSet() {
-		return new MutableEntityStoreSet(companionList);
+
+
+	@Override
+	public Stream<Companion<?>> companions() {
+		return companionList.stream();
 	}
 
 

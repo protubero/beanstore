@@ -1,6 +1,10 @@
 package de.protubero.beanstore.api;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
+import de.protubero.beanstore.writer.Transaction;
 
 /**
  *  
@@ -8,34 +12,43 @@ import java.util.function.Consumer;
  * 
  *
  */
-public interface BeanStore extends BeanStoreTransactionFactory {
+public interface BeanStore {
+	
 
 	/**
 	 * Meta information of the store, i.e. information about the entities in the store. 
 	 */
 	BeanStoreMetaInfo meta();
 	
+	/**
+	 * Access current persistent state of the store.
+	 * 
+	 * @return a BeanStoreState instance
+	 */
+	BeanStoreState state();
+	
 	
 	/**
-	 * Access sStore and execute transactions on a locked store.
+	 * Create a new executable transaction. 
+	 * 
+	 * @return a transaction
+	 */
+	ExecutableBeanStoreTransaction transaction();
+	
+	
+	/**
+	 * Access Store and execute transactions on a locked store.
 	 * The method blocks the calling thread until the operation is finished.   
 	 * 
 	 */
-	void locked(Consumer<BeanStoreTransactionFactory> consumer);
+	void locked(Consumer<ExecutableLockedBeanStoreTransaction> consumer);
 
 	/**
 	 * Access Store and execute transactions on a locked store.
 	 * The method does NOT block the calling thread.   
 	 */
-	void lockedAsync(Consumer<BeanStoreTransactionFactory> consumer);
+	void lockedAsync(Consumer<ExecutableLockedBeanStoreTransaction> consumer);
 	
-	/**
-	 * Returns an interface which provides access to all READ operations of the store.
-	 * 
-	 * @return a BeanStoreReadAccess instance
-	 */
-	BeanStoreReadAccess read();
-
 	/**
 	 * Returns an interface which provides access to the store callbacks.
 	 * 

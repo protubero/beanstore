@@ -11,7 +11,6 @@ skinparam component {
 [Base] <<de.protubero.beanstore.base..>>
 [Store] <<de.protubero.beanstore.store..>>
 [Writer] <<de.protubero.beanstore.writer..>>
-[TransactionManager] <<de.protubero.beanstore.txmanager..>>
 [Api] <<de.protubero.beanstore.api..>>
 [Impl] <<de.protubero.beanstore.impl..>>
 
@@ -27,15 +26,10 @@ skinparam component {
 [Writer] --> Base
 [Writer] --> Store
 
-[TransactionManager] --> Base
-[TransactionManager] --> Store
-[TransactionManager] --> Writer
-
 [Impl] --> Base
 [Impl] --> Api
 [Impl] --> Store
 [Impl] --> Writer
-[Impl] --> TransactionManager
 
 
 [PersistenceBase] --> Base
@@ -54,7 +48,6 @@ skinparam component {
 [Impl] --> PersistenceBase
 [Impl] --> PersistenceApi
 
-[TransactionManager] --> PersistenceBase
 
 [Plugins] --> Base
 [Plugins] --> Api

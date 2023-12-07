@@ -12,7 +12,7 @@ import de.protubero.beanstore.base.entity.BeanStoreEntity;
 /**
  * Read operations related to a single entity. 
  */
-public interface EntityReadAccess<T extends AbstractPersistentObject> extends Iterable<T> {
+public interface EntityState<T extends AbstractPersistentObject> extends Iterable<T> {
 
 	/**
 	 * Meta information about the entity. 

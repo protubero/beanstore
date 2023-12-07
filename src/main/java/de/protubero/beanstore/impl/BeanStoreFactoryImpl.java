@@ -36,8 +36,6 @@ import de.protubero.beanstore.store.ImmutableEntityStoreBase;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
-import de.protubero.beanstore.txmanager.TaskQueueTransactionManager;
-import de.protubero.beanstore.txmanager.TransactionManager;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 
@@ -247,7 +245,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 				var tx = Transaction.of(mapStore, mig.getMigrationId(),
 						PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-				mig.getMigration().accept(new MigrationTransactionImpl(tx));
+				mig.getMigration().accept(new MigrationTransactionImpl(tx, new BeanStoreStateImpl(mapStore)));
 				mapStore = migrationStoreWriter.execute(tx, mapStore);
 				plugins.forEach(plugin -> plugin.onMigrationTransaction(tx));
 
@@ -282,7 +280,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		if (migrateMapStore) {
 			migrate(mapStore);
 		}
-		
+		if (initStore) {
+			mapStore = new MutableEntityStoreSet(companionSet);
+		}
 
 		List<ImmutableEntityStoreBase<?>> entityStoreBaseList = convertMapStoreToFinalStore(mapStore);
 		
@@ -301,8 +301,6 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			deferredTransactionWriter.switchToNonDeferred();
 		}	
 		
-		StoreWriter finalStoreWriter = new StoreWriter();		
-		TransactionManager finalTxManager = new TaskQueueTransactionManager(finalStoreWriter);
 
 		Runnable onCloseStoreAction = () -> {try {
 			if (deferredTransactionWriter != null) {
@@ -313,9 +311,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			log.error("Error closing transaction writer", e);
 		}};			
 		
-		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalTxManager, finalStoreSet, onCloseStoreAction);
+		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalStoreSet, onCloseStoreAction);
 
-		BeanStoreReadAccessImpl readAccess = new BeanStoreReadAccessImpl(finalStoreSet);
+		BeanStoreStateImpl readAccess = new BeanStoreStateImpl(finalStoreSet);
 		plugins.forEach(plugin -> {
 			plugin.onEndCreate(beanStoreImpl, readAccess);
 		});

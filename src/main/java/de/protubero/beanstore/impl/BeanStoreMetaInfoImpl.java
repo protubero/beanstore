@@ -10,13 +10,13 @@ import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.ImmutableEntityStoreSet;
+import de.protubero.beanstore.store.EntityStoreSet;
 
 public class BeanStoreMetaInfoImpl implements BeanStoreMetaInfo {
 
-	private ImmutableEntityStoreSet store;
+	private EntityStoreSet<?> store;
 
-	BeanStoreMetaInfoImpl(ImmutableEntityStoreSet store) {
+	BeanStoreMetaInfoImpl(EntityStoreSet<?> store) {
 		this.store = Objects.requireNonNull(store);
 	}
 

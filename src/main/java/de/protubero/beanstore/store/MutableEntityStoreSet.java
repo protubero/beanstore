@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,20 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		
 	private List<MutableEntityStore<?>> storeList = new ArrayList<>();
 
-	MutableEntityStoreSet(List<Companion<?>> companionList) {
+	public MutableEntityStoreSet(Iterable<Companion<?>> companionList) {
 		for (Companion<?> companion : companionList) {
 			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
 			storeList.add(store);
 		}
 	}
 
+	public MutableEntityStoreSet(CompanionShip companionSet) {
+		companionSet.companions().forEach(companion -> {
+			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
+			storeList.add(store);
+		});
+	}
+	
 	public MutableEntityStoreSet() {
 	}
 
@@ -130,6 +138,11 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	@Override
 	public EntityStoreSet<MutableEntityStore<?>> internalCloneStoreSet() {
 		return this;
+	}
+
+	@Override
+	public Stream<Companion<?>> companions() {
+		return storeList.stream().map(s -> s.companion());
 	}
 
 

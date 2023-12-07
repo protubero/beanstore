@@ -1,11 +1,13 @@
 package de.protubero.beanstore.store;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.pcollections.HashTreePMap;
 import org.slf4j.Logger;
@@ -25,7 +27,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		this.storeList = Objects.requireNonNull(storeList);
 	}
 	
-	ImmutableEntityStoreSet(List<Companion<?>> companionList) {
+	ImmutableEntityStoreSet(Iterable<Companion<?>> companionList) {
 		List<ImmutableEntityStore<?>> tempStoreList = new ArrayList<>();
 		int idx = 0;
 		for (Companion<?> companion : companionList) {
@@ -176,6 +178,11 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 			newStoreList[idx] = storeList[idx].cloneStore();
 		}
 		return new ImmutableEntityStoreSet(newStoreList);
+	}
+
+	@Override
+	public Stream<Companion<?>> companions() {
+		return Arrays.stream(storeList).map(s -> s.companion());
 	}
 
 	
