@@ -79,7 +79,14 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	@SuppressWarnings("unchecked")
 	@Override
 	public BeanStoreEntity<T> entity() {
-		return (BeanStoreEntity<T>) replacedInstance.companion();
+		switch (getType()) {
+		case PersistentInstanceTransaction.TYPE_CREATE:
+			return (BeanStoreEntity<T>) newInstance.companion();
+		case PersistentInstanceTransaction.TYPE_UPDATE:
+			return (BeanStoreEntity<T>) replacedInstance.companion();
+		default:
+			throw new AssertionError();
+		}
 	}
 	
 }

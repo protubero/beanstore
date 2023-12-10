@@ -160,6 +160,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			return null;
 		} else {
 			MutableEntityStoreSet mapStore = new MutableEntityStoreSet();
+			mapStore.setAcceptNonGeneratedIds(true);
+			
 			load(mapStore, persistence.reader(), appliedMigrations);
 
 			// handle loaded entity stores which has not been registered
@@ -311,7 +313,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 			log.error("Error closing transaction writer", e);
 		}};			
 		
-		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalStoreSet, onCloseStoreAction);
+		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalStoreSet, onCloseStoreAction, createStoreWriter());
 
 		BeanStoreStateImpl readAccess = new BeanStoreStateImpl(finalStoreSet);
 		plugins.forEach(plugin -> {

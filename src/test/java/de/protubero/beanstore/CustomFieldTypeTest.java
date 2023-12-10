@@ -40,7 +40,7 @@ public class CustomFieldTypeTest {
 		factory = BeanStoreFactory.of(file);		
 		factory.registerEntity(Address.class);
 		store = factory.create();
-		var readAccess = store.read().entity(Address.class);
+		var readAccess = store.state().entity(Address.class);
 		
 		var addressList = readAccess.asList();
 		assertEquals(1, addressList.size());

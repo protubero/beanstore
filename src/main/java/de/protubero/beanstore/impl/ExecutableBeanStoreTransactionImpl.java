@@ -18,13 +18,8 @@ public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl
 	}
 
 	@Override
-	public BeanStoreTransactionResult execute() {
-		return beanStore.executeSync(transaction);
-	}
-
-	@Override
-	public CompletableFuture<BeanStoreTransactionResult> executeAsync() {
-		return beanStore.executeAsync(transaction);
+	public CompletableFuture<BeanStoreTransactionResult> execute() {
+		return beanStore.execute(transaction);
 	}
 
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.protubero.beanstore.api.BeanStore;
@@ -112,7 +113,11 @@ public abstract class AbstractBeanStoreTest {
 		for (AbstractEntity ae : SAMPLE_DATA) {
 			tx.create(ae);
 		}
-		tx.execute();
+		try {
+			tx.execute().get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 		return store;
 	}
 	

@@ -23,16 +23,15 @@ public class ExecutableLockedBeanStoreTransactionImpl extends ExecutableBeanStor
 	public BeanStoreState lockedStoreState() {
 		return lockedStoreState;
 	}
-	
-	@Override
+
+	/*
 	public BeanStoreTransactionResult execute() {
 		return beanStore.exec(transaction);
-	}
+	}*/
 
 	@Override
-	public CompletableFuture<BeanStoreTransactionResult> executeAsync() {
-		// TODO improve type safety
-		throw new UnsupportedOperationException();
+	public CompletableFuture<BeanStoreTransactionResult> execute() {
+		return CompletableFuture.completedFuture(beanStore.exec(transaction));
 	}
 
 	

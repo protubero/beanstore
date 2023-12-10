@@ -49,7 +49,7 @@ public class TagTest {
 		factory.registerEntity(Note.class);
 		store = factory.create();
 		
-		Note secondNote = store.read().entity(Note.class).find(note2Id);
+		Note secondNote = store.state().entity(Note.class).find(note2Id);
 		assertTrue(secondNote.getTags().contains(tag));
 		assertSame(tag, secondNote.getTags().findFirst(group).get());
 		assertFalse(secondNote.getTags().contains(otherTag));

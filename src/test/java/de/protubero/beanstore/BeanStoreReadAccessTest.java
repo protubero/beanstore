@@ -24,7 +24,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 	public void testFindMethods() {
 		var store = addSampleData(createEmptyStore());
 		
-		var readStore = store.read();
+		var readStore = store.state();
 
 		// data has been correctly stored
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));

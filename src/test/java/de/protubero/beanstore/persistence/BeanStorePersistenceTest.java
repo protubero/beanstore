@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import de.protubero.beanstore.model.Employee;
 public class BeanStorePersistenceTest {
 	
 	@Test
-	public void happyPathBeanStore(@TempDir File tempDir)  {
+	public void happyPathBeanStore(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
 		BeanStoreFactory builder = createBuilder(tempDir);
 		BeanStore beanStore = builder.create();
 		
@@ -34,7 +35,9 @@ public class BeanStorePersistenceTest {
 						
 		tx.execute();
 		
-		beanStore.close();
+		beanStore.close().get();
+
+		assertEquals(2, beanStore.state().entity(Employee.class).count());
 		
 		builder = createBuilder(tempDir);
 		builder.addMigration("eins", mTx -> {
@@ -57,7 +60,6 @@ public class BeanStorePersistenceTest {
 		
 		assertEquals(44, beanStore2.state().find(employee1).getAge());
 		assertEquals(49, beanStore2.state().find(employee2).getAge());
-
 	}
 
 	private BeanStoreFactory createBuilder(File tempDir) {

@@ -14,8 +14,8 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 	 * 
 	 * @return Information about the executed transaction, e.g. if it was successful.
 	 */
-	BeanStoreTransactionResult execute();
+	//BeanStoreTransactionResult execute();
 
-	CompletableFuture<BeanStoreTransactionResult> executeAsync();
+	CompletableFuture<BeanStoreTransactionResult> execute();
 	
 }

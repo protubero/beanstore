@@ -19,8 +19,7 @@ public class BeanStoreTest {
 		factory.registerEntity(Employee.class);
 		var store = factory.create();
 		
-		store.locked(ctx -> {
-			var tx = ctx.transaction();
+		store.locked(tx -> {
 			Employee emp = tx.create(Employee.class);
 			
 			emp.setFirstName("Erik");
@@ -29,8 +28,8 @@ public class BeanStoreTest {
 			tx.execute();
 		});
 		
-		assertEquals(1, store.read().entity(Employee.class).count());
-		Employee emp2 = store.read().entity(Employee.class).stream().findFirst().get();
+		assertEquals(1, store.state().entity(Employee.class).count());
+		Employee emp2 = store.state().entity(Employee.class).stream().findFirst().get();
 		
 		assertEquals("Erik", emp2.getFirstName());
 		assertEquals("Wikinger", emp2.getLastName());

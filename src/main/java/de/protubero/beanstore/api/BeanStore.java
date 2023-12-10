@@ -2,9 +2,7 @@ package de.protubero.beanstore.api;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
-import de.protubero.beanstore.writer.Transaction;
+import java.util.function.Supplier;
 
 /**
  *  
@@ -41,13 +39,13 @@ public interface BeanStore {
 	 * The method blocks the calling thread until the operation is finished.   
 	 * 
 	 */
-	void locked(Consumer<ExecutableLockedBeanStoreTransaction> consumer);
+	void locked(Consumer<Supplier<ExecutableLockedBeanStoreTransaction>> consumer);
 
 	/**
 	 * Access Store and execute transactions on a locked store.
 	 * The method does NOT block the calling thread.   
 	 */
-	void lockedAsync(Consumer<ExecutableLockedBeanStoreTransaction> consumer);
+	//void lockedAsync(Consumer<ExecutableLockedBeanStoreTransaction> consumer);
 	
 	/**
 	 * Returns an interface which provides access to the store callbacks.
@@ -68,7 +66,7 @@ public interface BeanStore {
 	 * Closing the store prevents further changes but the store is still readable.
 	 * 
 	 */
-	void close();
+	CompletableFuture<BeanStore> close();
 	
 	
 }

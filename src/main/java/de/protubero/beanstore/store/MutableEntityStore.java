@@ -76,8 +76,14 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 		if (modelObject.companion() != companion) {
 			throw new AssertionError();
 		}
-		if (nextInstanceId <= modelObject.id()) {
-			throw new AssertionError();
+		if (!storeSet.isAcceptNonGeneratedIds()) {
+			if (nextInstanceId <= modelObject.id()) {
+				throw new AssertionError();
+			}
+		} else {
+			if (nextInstanceId <= modelObject.id()) {
+				nextInstanceId = modelObject.id() + 1;
+			}
 		}
 		
 		if (modelObject.state() != State.READY) {

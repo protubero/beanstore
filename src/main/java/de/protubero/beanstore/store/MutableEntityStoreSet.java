@@ -17,6 +17,7 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	public static final Logger log = LoggerFactory.getLogger(MutableEntityStoreSet.class);
 		
 	private List<MutableEntityStore<?>> storeList = new ArrayList<>();
+	private boolean acceptNonGeneratedIds = false;
 
 	public MutableEntityStoreSet(Iterable<Companion<?>> companionList) {
 		for (Companion<?> companion : companionList) {
@@ -143,6 +144,14 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	@Override
 	public Stream<Companion<?>> companions() {
 		return storeList.stream().map(s -> s.companion());
+	}
+
+	public boolean isAcceptNonGeneratedIds() {
+		return acceptNonGeneratedIds;
+	}
+
+	public void setAcceptNonGeneratedIds(boolean acceptNonGeneratedIds) {
+		this.acceptNonGeneratedIds = acceptNonGeneratedIds;
 	}
 
 

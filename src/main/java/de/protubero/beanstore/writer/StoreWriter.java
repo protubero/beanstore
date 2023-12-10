@@ -218,11 +218,16 @@ public class StoreWriter  {
 				case PersistentInstanceTransaction.TYPE_DELETE:
 					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(sit.instanceId());
 					removedInstance.applyTransition(Transition.READY_TO_OUTDATED);
+					break;
 				case PersistentInstanceTransaction.TYPE_UPDATE:
 					AbstractPersistentObject origInstance = entityStore.internalUpdateInplace((AbstractPersistentObject) sit.newInstance());
 					origInstance.applyTransition(Transition.READY_TO_OUTDATED);
+					break;
 				case PersistentInstanceTransaction.TYPE_CREATE:
 					entityStore.internalCreateInplace((AbstractPersistentObject) sit.newInstance());
+					break;
+				default: 
+					throw new AssertionError(); 	
 				}
 			}
 			
