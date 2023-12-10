@@ -59,7 +59,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	// Fields are used at build time
 	private KryoPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
-	private List<AppliedMigration> appliedMigrations;
+	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
 
 	public BeanStoreFactoryImpl(File file) {
 		this.file = Objects.requireNonNull(file);
@@ -154,7 +154,6 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		persistence = new KryoPersistence(file);
 		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 
-		appliedMigrations = new ArrayList<>();
 		boolean noStoredTransactions = persistence.isEmpty();
 		if (noStoredTransactions) {
 			return null;
@@ -201,7 +200,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		if (appliedMigrations.size() == 0) {
 			throw new AssertionError("missing init migration");
 		} else {
-			log.info("No. of applied migration transations: " + appliedMigrations.size());
+			log.info("No. of applied migration transactions: " + appliedMigrations.size());
 		}
 
 		// find database state (i.e. last applied migration)
@@ -277,6 +276,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				migrateMapStore = true;
 				initStore = false;
 			}
+		} else {
+			migrateMapStore = false;
+			initStore = true;
 		}
 
 		if (migrateMapStore) {

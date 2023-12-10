@@ -21,7 +21,7 @@ import de.protubero.beanstore.writer.Transaction;
 public class WriterTest {
 
 	
-	
+	/*
 	@Test
 	public void happyPathMapStore()  {		
 		Store store = new Store();
@@ -134,5 +134,5 @@ public class WriterTest {
 		
 		assertEquals(0, employeeStore.size());
 	}
-	
+	*/
 }

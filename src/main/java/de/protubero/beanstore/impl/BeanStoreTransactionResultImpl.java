@@ -26,7 +26,7 @@ public class BeanStoreTransactionResultImpl implements BeanStoreTransactionResul
 	
 	@Override
 	public List<InstanceTransactionEvent<?>> getInstanceEvents() {
-		return getInstanceEvents();
+		return baseResult.getInstanceEvents();
 	}
 
 	@Override

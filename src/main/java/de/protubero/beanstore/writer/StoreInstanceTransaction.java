@@ -16,6 +16,9 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	@JsonIgnore
 	private T replacedInstance;
 	
+	@JsonIgnore
+	private BeanStoreEntity<T> entity;
+	
 
 	@JsonIgnore
 	private T newInstance;
@@ -76,17 +79,13 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public BeanStoreEntity<T> entity() {
-		switch (getType()) {
-		case PersistentInstanceTransaction.TYPE_CREATE:
-			return (BeanStoreEntity<T>) newInstance.companion();
-		case PersistentInstanceTransaction.TYPE_UPDATE:
-			return (BeanStoreEntity<T>) replacedInstance.companion();
-		default:
-			throw new AssertionError();
-		}
+		return entity;
+	}
+
+	public void entity(BeanStoreEntity<T> entity) {
+		this.entity = entity;
 	}
 	
 }

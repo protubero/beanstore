@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,7 +22,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 	File pFileDir;
 	
 	@Test
-	public void testFindMethods() {
+	public void testFindMethods() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
 		
 		var readStore = store.state();
@@ -42,9 +43,11 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 
 		var tx =store.transaction();
 		tx.update(emp1).setAge(121);
-		tx.execute();
+		tx.execute().get();
 		
-		var updatedObj = readStore.find(emp1);
+		
+		
+		var updatedObj = store.state().find(emp1);
 		
 		assertEquals(121, updatedObj.getAge());
 		assertEquals(updatedObj.getFirstName(), emp1.getFirstName());
@@ -60,7 +63,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 	public void testFindOptional()  {
 		var store = addSampleData(createEmptyStore());
 		
-		var readStore = store.read();
+		var readStore = store.state();
 		assertThrows(NullPointerException.class, () -> readStore.findOptional(null));
 		
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey(null, 1l)));		

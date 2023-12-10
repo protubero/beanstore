@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
@@ -18,6 +19,7 @@ import de.protubero.beanstore.base.tx.TransactionFailureType;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
+import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 import io.reactivex.schedulers.Schedulers;
@@ -188,6 +190,7 @@ public class StoreWriter  {
 				}
 				
 				StoreInstanceTransaction sit = new StoreInstanceTransaction();
+				sit.entity(entityStore.companion());
 				sit.setPersistentTransaction(pit);
 				sit.setNewInstance(newInstance);
 				sit.setReplacedInstance(origInstance);
@@ -199,7 +202,7 @@ public class StoreWriter  {
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
-		if (!aTransaction.isEmpty()) {		
+		if (!aTransaction.isEmpty() || (aTransaction.persistentTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
 			// 3. persist
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
@@ -217,14 +220,26 @@ public class StoreWriter  {
 				switch (sit.getType()) {
 				case PersistentInstanceTransaction.TYPE_DELETE:
 					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(sit.instanceId());
+					if (removedInstance == null) {
+						// this should have lead to an TransactionFeature already
+						throw new AssertionError();
+					}
 					removedInstance.applyTransition(Transition.READY_TO_OUTDATED);
 					break;
 				case PersistentInstanceTransaction.TYPE_UPDATE:
 					AbstractPersistentObject origInstance = entityStore.internalUpdateInplace((AbstractPersistentObject) sit.newInstance());
+					if (origInstance == null)  {
+						// this should have lead to an TransactionFeature already
+						throw new AssertionError();
+					}
 					origInstance.applyTransition(Transition.READY_TO_OUTDATED);
 					break;
 				case PersistentInstanceTransaction.TYPE_CREATE:
-					entityStore.internalCreateInplace((AbstractPersistentObject) sit.newInstance());
+					AbstractPersistentObject existingInstance = entityStore.internalCreateInplace((AbstractPersistentObject) sit.newInstance());
+					if (existingInstance != null) {
+						// instance id management went wrong
+						throw new AssertionError();
+					}
 					break;
 				default: 
 					throw new AssertionError(); 	

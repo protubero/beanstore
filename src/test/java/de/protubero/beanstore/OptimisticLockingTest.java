@@ -1,6 +1,7 @@
 package de.protubero.beanstore;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -19,7 +20,7 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 	File pFileDir;
 	
 	@Test
-	public void testFindMethods() {
+	public void testFindMethods() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
 		
 		var readStore = store.state();
@@ -36,9 +37,9 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		empUpd1.setAge(13);
 		empUpd2.setEmployeeNumber(14);
 		
-		tx1.execute();
-		TransactionFailure failure = assertThrows(TransactionFailure.class, () -> tx2.execute());
-		assertSame(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, failure.getType());
+		tx1.execute().get();
+		ExecutionException failure = assertThrows(ExecutionException.class, () -> tx2.execute().get());
+		assertSame(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, ((TransactionFailure) failure.getCause()).getType());
 	}
 
 	@Override

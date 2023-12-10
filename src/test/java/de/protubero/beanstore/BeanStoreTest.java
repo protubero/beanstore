@@ -18,15 +18,14 @@ public class BeanStoreTest {
 		var factory = BeanStoreFactory.createNonPersisted();
 		factory.registerEntity(Employee.class);
 		var store = factory.create();
+	
+		var tx = store.transaction();
+		Employee emp = tx.create(Employee.class);
 		
-		store.locked(tx -> {
-			Employee emp = tx.create(Employee.class);
-			
-			emp.setFirstName("Erik");
-			emp.setLastName("Wikinger");
-			emp.setAge(3);
-			tx.execute();
-		});
+		emp.setFirstName("Erik");
+		emp.setLastName("Wikinger");
+		emp.setAge(3);
+		tx.execute().get();
 		
 		assertEquals(1, store.state().entity(Employee.class).count());
 		Employee emp2 = store.state().entity(Employee.class).stream().findFirst().get();

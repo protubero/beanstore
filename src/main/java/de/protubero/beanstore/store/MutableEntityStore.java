@@ -135,21 +135,22 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T internalUpdateInplace(AbstractPersistentObject apo) {
 		if (apo.companion() != companion) {
 			throw new AssertionError();
 		}
 		
-		@SuppressWarnings("unchecked")
-		T result = objectMap.put(apo.id(), (T) apo);
-		if (result == null) {
-			throw new AssertionError();
-		}
+		T result = objectMap.get(apo.id());
+		if (result != null) {
+			objectMap.put(apo.id(), (T) apo);
+		}	
 		return result;
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T internalCreateInplace(AbstractPersistentObject anInstance) {
 		if (anInstance.companion() != companion) {
@@ -159,10 +160,9 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 			throw new AssertionError();
 		}
 		
-		@SuppressWarnings("unchecked")
-		T result = objectMap.put(anInstance.id(), (T) anInstance);
-		if (result != null) {
-			throw new AssertionError();
+		T result = objectMap.get(anInstance.id());
+		if (result == null) {
+			objectMap.put(anInstance.id(), (T) anInstance);
 		}
 		return result;
 	}

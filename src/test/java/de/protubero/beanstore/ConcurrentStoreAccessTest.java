@@ -22,13 +22,10 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 	@TempDir
 	File pFileDir;
 	
-	
-	
 	@Override
 	protected File getFileDir() {
 		return pFileDir;
 	}
-	
 	
 	@Test
 	public void test() throws InterruptedException, ExecutionException {

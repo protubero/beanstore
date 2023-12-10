@@ -164,8 +164,12 @@ class BeanStoreImpl implements BeanStore {
 		
 		CompletableFuture<BeanStoreTransactionResult> result = new CompletableFuture<>();
 		taskAsync(() -> {
-			BeanStoreTransactionResult transactionResult = exec(transaction);
-			result.complete(transactionResult);
+			try {
+				BeanStoreTransactionResult transactionResult = exec(transaction);
+				result.complete(transactionResult);
+			} catch (Exception e) {
+				result.completeExceptionally(e);
+			}
 		});
 		return result;
 	}

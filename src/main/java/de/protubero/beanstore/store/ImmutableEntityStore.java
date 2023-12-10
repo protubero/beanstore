@@ -107,9 +107,8 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	public T internalRemoveInplace(Long instanceId) {
 		T result = objectMap.get(instanceId);
 		if (result != null) {
-			throw new AssertionError();
-		}
-		objectMap = objectMap.minus(instanceId);
+			objectMap = objectMap.minus(instanceId);
+		}	
 		return result;
 	}
 
@@ -122,11 +121,10 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 		}
 		
 		T result = objectMap.get(apo.id());
-		if (result == null) {
-			throw new AssertionError();
+		if (result != null) {
+			objectMap = objectMap.plus(apo.id(), (T) apo);
 		}
 		
-		objectMap = objectMap.plus(apo.id(), (T) apo);
 		return result;
 	}
 
@@ -141,10 +139,9 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 		}
 		
 		T result = objectMap.get(anInstance.id());
-		if (result != null) {
-			throw new AssertionError();
+		if (result == null) {
+			objectMap = objectMap.plus(anInstance.id(), (T) anInstance);
 		}
-		objectMap = objectMap.plus(anInstance.id(), (T) anInstance);
 		return result;
 	}
 	
