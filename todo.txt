@@ -1,5 +1,4 @@
 prohibit Re-execution of transactions
-Poinson Pill handling is suspicious, check it
 protect main branch and work with feature branches in the future.
 Automated Tests
 Auto-Release, Protected Main branch

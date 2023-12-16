@@ -66,7 +66,7 @@ public interface BeanStore {
 	 * Closing the store prevents further changes but the store is still readable.
 	 * 
 	 */
-	CompletableFuture<BeanStore> close();
+	void close();
 	
 	
 }

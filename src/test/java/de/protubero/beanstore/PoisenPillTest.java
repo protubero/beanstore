@@ -9,13 +9,13 @@ import de.protubero.beanstore.model.Employee;
 
 class PoisenPillTest {
 
-	@Test
-	void test() {
+//	@Test
+//	void test() {
 //		var factory = BeanStoreFactory.of(new File("c:/work/pilltest.kryo"));
 //		factory.registerEntity(Employee.class);
 //		var store = factory.create();
 //		
-//		System.out.println("count = " + store.read().entity(Employee.class).count());
+//		System.out.println("count = " + store.state().entity(Employee.class).count());
 //		
 //		for (int i = 0; i < 10; i++) {
 //			var tx = store.transaction();
@@ -24,13 +24,13 @@ class PoisenPillTest {
 //			emp.setFirstName("Erik");
 //			emp.setLastName("Wikinger");
 //			emp.setAge(3);
-//			tx.executeAsync();
+//			tx.execute();
 //		}	
 //		
 //		System.out.println("#####################################");
-//		store.close();
+//		// store.close();
 //		
 //		System.out.println("#####################################");
-	}
+//	}
 
 }

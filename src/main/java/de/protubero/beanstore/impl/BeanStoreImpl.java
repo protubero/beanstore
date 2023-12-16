@@ -3,6 +3,7 @@ package de.protubero.beanstore.impl;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -33,7 +34,7 @@ class BeanStoreImpl implements BeanStore {
 	private Thread taskThread;
 	private boolean closed;
 	
-	private CompletableFuture<BeanStore> closedStoreFuture;
+	private CompletableFuture<Integer> closedStoreFuture = new CompletableFuture<>();
 		
 	BeanStoreImpl(ImmutableEntityStoreSet store, Runnable onCloseCallback, StoreWriter aStoreWriter) {
 		this.store = Objects.requireNonNull(store);
@@ -48,7 +49,7 @@ class BeanStoreImpl implements BeanStore {
 					try {
 						task.run();
 					} catch (PoisonPillError ppe) {
-						log.info("All tasks executed");
+						log.info("Stopping Task Execution");
 						stopped = true;
 					} catch (Exception e) {
 						log.error("Exception during task execution", e);
@@ -57,18 +58,18 @@ class BeanStoreImpl implements BeanStore {
 					log.error("Task taking interrupted", e);
 				}				
 			}
-			log.info("Task execution thread stopped");
+			log.info("Task execution stopped");
 			onCloseCallback.run();
 			
-			if (closedStoreFuture != null) {
-				closedStoreFuture.complete(this);
-			}	
+			closedStoreFuture.complete(0);
 		});
 		taskThread.setUncaughtExceptionHandler((thread, throwable) -> {
 			log.error("Uncaught task execution exception", throwable);
 		});
 		taskThread.start();
-		
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			close();
+		}));
 
 	}
 	
@@ -80,54 +81,26 @@ class BeanStoreImpl implements BeanStore {
 		}
 	}
 	
-	/*
-	private void taskSync(Runnable func) {
-		var countDownLatch = new CountDownLatch(1);
-		GenericWrapper<Exception> exceptionWrapper = new GenericWrapper<>();  
-		try {
-			log.debug("Insert sync task into task execution thread");
-			taskQueue.put(() -> {
-				try {
-					func.run();
-				} catch (Exception e) {
-					exceptionWrapper.setWrappedObject(e);
-				} finally {
-					log.debug("Sync Task has been executed ");
-					countDownLatch.countDown();
-				}
-			});
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}		
-		// wait until termination
-		try {
-			countDownLatch.await();
-			
-			if (exceptionWrapper.getWrappedObject() != null) {
-				if (exceptionWrapper.getWrappedObject() instanceof RuntimeException) {
-					throw (RuntimeException) exceptionWrapper.getWrappedObject();
-				} else {
-					throw new RuntimeException(exceptionWrapper.getWrappedObject());
-				}	
-			}
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	*/
 	
 	@Override
-	public CompletableFuture<BeanStore> close() {
-		if (closed) {
-			throw new RuntimeException("already closed");
-		} else {
-			closed = true;
-			closedStoreFuture = new CompletableFuture<>();
-			taskAsync(() -> {
-				throw new PoisonPillError();
-			});
-			return closedStoreFuture;
-		}	
+	public void close() {
+		synchronized (closedStoreFuture) {
+			
+			if (!closedStoreFuture.isDone()) {
+				log.info("Closing Bean Store");
+				
+				closed = true;
+				taskAsync(() -> {
+					throw new PoisonPillError();
+				});
+				try {
+					closedStoreFuture.get();
+				} catch (InterruptedException | ExecutionException e) {
+					log.error("Error closing bean store", e);
+				}
+			}	
+		}
+		
 	}
 		
 	@Override
@@ -146,16 +119,6 @@ class BeanStoreImpl implements BeanStore {
 		store = resultStoreSet;
 		return result;
 	}
-
-	/*
-	BeanStoreTransactionResult executeSync(Transaction transaction) {
-		GenericWrapper<BeanStoreTransactionResult> resultWrapper = new GenericWrapper<>();
-		taskSync(() -> {
-			resultWrapper.setWrappedObject(exec(transaction));
-		});
-		return resultWrapper.getWrappedObject();
-	}
-	*/
 	
 	CompletableFuture<BeanStoreTransactionResult> execute(Transaction transaction) {
 		if (closed) {
@@ -193,18 +156,7 @@ class BeanStoreImpl implements BeanStore {
 			});	
 		});
 	}
-/*
-	@Override
-	public void lockedAsync(
-			Consumer<ExecutableLockedBeanStoreTransaction> consumer) {
-		taskAsync(() -> {
-			// the creation of the transaction has to be within the task
-			Transaction transaction = Transaction.of(store);
-			ExecutableLockedBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, this);
-			consumer.accept(bsTransaction);	
-		});
-	}
-*/	
+
 	@Override
 	public BeanStoreState state() {
 		return new BeanStoreStateImpl(store);
@@ -219,8 +171,6 @@ class BeanStoreImpl implements BeanStore {
 	public BeanStoreMetaInfo meta() {
 		return new BeanStoreMetaInfoImpl(store);
 	}
-
-
 
 
 }
