@@ -11,9 +11,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
-import de.protubero.beanstore.persistence.base.Tag;
-import de.protubero.beanstore.persistence.base.TagGroup;
-import de.protubero.beanstore.persistence.base.TagManager;
+import de.protubero.beanstore.plugins.tags.Tag;
+import de.protubero.beanstore.plugins.tags.TagGroup;
+import de.protubero.beanstore.plugins.tags.TagManager;
 
 public class TagTest {
 

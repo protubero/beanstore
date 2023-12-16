@@ -1,4 +1,4 @@
-package de.protubero.beanstore.persistence.base;
+package de.protubero.beanstore.plugins.tags;
 
 import java.util.Optional;
 import java.util.Set;

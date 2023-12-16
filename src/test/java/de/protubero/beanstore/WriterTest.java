@@ -14,7 +14,6 @@ import de.protubero.beanstore.base.entity.MapObject;
 import de.protubero.beanstore.impl.BeanStoreStateImpl;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.store.Store;
 import de.protubero.beanstore.writer.StoreWriter;
 import de.protubero.beanstore.writer.Transaction;
 

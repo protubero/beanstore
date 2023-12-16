@@ -1,8 +1,8 @@
-package de.protubero.beanstore.persistence.base;
+package de.protubero.beanstore.plugins.tags;
 
 import java.util.Objects;
 
-public class Tag {
+public final class Tag {
 
 	private TagGroup group;
 	private String name;

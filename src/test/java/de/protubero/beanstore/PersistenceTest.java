@@ -14,6 +14,7 @@ import org.junit.jupiter.api.io.TempDir;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.persistence.impl.KryoConfiguration;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
 
 class PersistenceTest {
@@ -23,7 +24,7 @@ class PersistenceTest {
 	void test(@TempDir File tempDir) {
 		File tempFile = new File(tempDir, "kryoFile.kry");
 		
-		KryoPersistence persistence = new KryoPersistence(tempFile);
+		KryoPersistence persistence = new KryoPersistence(new KryoConfiguration(), tempFile);
 
 		Instant now = Instant.now();
 				
@@ -74,7 +75,7 @@ class PersistenceTest {
 	void test2(@TempDir File tempDir) {
 		File tempFile = new File(tempDir, "kryoFile2.kry");
 		
-		KryoPersistence persistence = new KryoPersistence(tempFile);
+		KryoPersistence persistence = new KryoPersistence(new KryoConfiguration(), tempFile);
 
 		Instant now = Instant.now();
 				

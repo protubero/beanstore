@@ -1,11 +1,13 @@
-package de.protubero.beanstore.base.entity;
+package de.protubero.beanstore.plugins.tags;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AbstractTaggedEntity extends AbstractEntity {
+import de.protubero.beanstore.base.entity.AbstractEntity;
+
+public class AbstractTaggedEntity extends AbstractEntity implements Tagged {
 
 	@JsonProperty("tags")
-	private Tags tags = new Tags(this);
+	private Tags tags = new Tags();
 	
 	public Tags getTags() {
 		return tags;

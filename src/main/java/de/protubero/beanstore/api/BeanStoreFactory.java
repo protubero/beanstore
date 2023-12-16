@@ -3,6 +3,9 @@ package de.protubero.beanstore.api;
 import java.io.File;
 import java.util.function.Consumer;
 
+import com.esotericsoftware.kryo.kryo5.Registration;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.impl.BeanStoreFactoryImpl;
@@ -82,4 +85,12 @@ public interface BeanStoreFactory {
 	void setAcceptUnregisteredEntities(boolean acceptUnregisteredEntities);
 	
 
+	/**
+	 * Register Kryo Serializer
+	 * 
+	 * @param type
+	 * @param serializer
+	 * @return
+	 */
+	<T> Registration register (Class<T> type, Serializer<T> serializer, int id);
 }

@@ -21,39 +21,23 @@ import de.protubero.beanstore.persistence.api.TransactionWriter;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.persistence.base.Tag;
-import de.protubero.beanstore.persistence.base.TagSerializer;
+import de.protubero.beanstore.plugins.tags.Tag;
+import de.protubero.beanstore.plugins.tags.TagSerializer;
 
 public class KryoPersistence implements TransactionPersistence {
 
-	private Kryo kryo;
-	private TransactionWriter writer;
 	private File file;
-
+	private TransactionWriter writer;
+	private KryoConfiguration config;
 	
-	public KryoPersistence(File file) {
+	public KryoPersistence(KryoConfiguration config, File file) {
+		this.config = Objects.requireNonNull(config);
 		this.file = Objects.requireNonNull(file);
 		
 		// path must not be a directory path
 		if (file.isDirectory()) {
 			throw new PersistenceException("path parameter is a directory");
 		}
-		
-
-		kryo = new Kryo();
-		kryo.setRegistrationRequired(false);
-		kryo.setWarnUnregisteredClasses(true);
-		
-		kryo.register(PersistentTransaction.class, 20);
-		kryo.register(PersistentInstanceTransaction.class, 21);
-		kryo.register(PersistentInstanceTransaction[].class, 22);
-		kryo.register(PersistentPropertyUpdate[].class, 23);
-		kryo.register(PersistentPropertyUpdate.class, 24);
-		kryo.register(Instant.class, 25);
-
-		kryo.register(Tag.class, new TagSerializer());
-		
-		kryo.addDefaultSerializer(Object.class, KryoDefaultSerializer.class);
 		
 		writer = new TransactionWriter() {
 
@@ -66,7 +50,7 @@ public class KryoPersistence implements TransactionPersistence {
 				}
 				try (Output output = output()) {
 					while (transactions.hasNext()) {
-						kryo.writeObject(output, transactions.next());
+						config.getKryo().writeObject(output, transactions.next());
 					}
 				}
 			}
@@ -103,10 +87,6 @@ public class KryoPersistence implements TransactionPersistence {
 		}
 	}
 
-	public Kryo getKryo() {
-		return kryo;
-	}
-
 	@Override
 	public TransactionReader reader() {
 		return new TransactionReader() {
@@ -121,7 +101,7 @@ public class KryoPersistence implements TransactionPersistence {
 
 				try (Input input = tInput) {
 					while (true) {
-						PersistentTransaction po = kryo.readObject(input, PersistentTransaction.class);
+						PersistentTransaction po = config.getKryo().readObject(input, PersistentTransaction.class);
 						transactionConsumer.accept(po);
 					}
 				} catch (KryoException exc) {
@@ -137,13 +117,13 @@ public class KryoPersistence implements TransactionPersistence {
 	}
 
 	@Override
-	public TransactionWriter writer() {
-		return writer;
+	public boolean isEmpty() {
+		return !file.exists();
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return !file.exists();
+	public TransactionWriter writer() {
+		return writer;
 	}
 
 

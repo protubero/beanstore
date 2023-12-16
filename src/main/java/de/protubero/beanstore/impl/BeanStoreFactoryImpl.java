@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.kryo5.Registration;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.api.BeanStorePlugin;
@@ -30,6 +33,7 @@ import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
+import de.protubero.beanstore.persistence.impl.KryoConfiguration;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
 import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.store.ImmutableEntityStoreBase;
@@ -57,15 +61,21 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
 
 	// Fields are used at build time
+	private KryoConfiguration kryoConfig = new KryoConfiguration();
 	private KryoPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
 
 	public BeanStoreFactoryImpl(File file) {
 		this.file = Objects.requireNonNull(file);
+		init();
+	}
+
+	private void init() {
 	}
 
 	public BeanStoreFactoryImpl() {
+		init();
 	}
 
 	@Override
@@ -151,7 +161,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		plugins.forEach(plugin -> plugin.onOpenFile(file));
 
 		// load transactions
-		persistence = new KryoPersistence(file);
+		persistence = new KryoPersistence(kryoConfig, file);
 		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 
 		boolean noStoredTransactions = persistence.isEmpty();
@@ -450,6 +460,14 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	@Override
 	public void setAcceptUnregisteredEntities(boolean acceptUnregisteredEntities) {
 		this.acceptUnregisteredEntities = acceptUnregisteredEntities;
+	}
+
+	@Override
+	public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
+		if (id < 100) {
+			throw new RuntimeException("IDs < 100 are reserved");
+		}
+		return kryoConfig.getKryo().register(type, serializer, id);
 	}
 
 }

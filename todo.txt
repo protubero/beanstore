@@ -1,3 +1,47 @@
 prohibit Re-execution of transactions
 Poinson Pill handling is suspicious, check it
 protect main branch and work with feature branches in the future.
+Automated Tests
+Auto-Release, Protected Main branch
+CompareTo EclipseStore
+Lock File
+
+
+Tags Refactoring
+
+------------------------------------- 0.8.5
+
+File Reference Manager
+
+Ignore Annotation
+
+# KeyValue Store
+Meta Config Map Persistence 
+tags.groups.xx.description=
+tx.config("tags").put("groups.xx.description", xyz);
+or KeyValueEntity
+
+# Links
+
+LinkAndPartEntity
+	alias
+	id
+	info
+	seqNo NULLS
+	ref
+	
+Links
+
+Parts
+
+PartList<LinkAndPartEntity> partList = store.partsOf(doc)
+tx.update(partList)
+
+Links links = LinkHandler.linksOf(doc, store)
+LinkHandler.unLink(tx, link)
+LinkHandler.link(tx, source, target, "");
+
+tx.appendPart(source, target)
+tx.insertPartAt(source, target, idx) // concurrent?
+
+storeState.partInfos().filter(pi -> pi.source.alias == 'xx')

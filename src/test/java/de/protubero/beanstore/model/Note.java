@@ -1,7 +1,7 @@
 package de.protubero.beanstore.model;
 
-import de.protubero.beanstore.base.entity.AbstractTaggedEntity;
 import de.protubero.beanstore.base.entity.Entity;
+import de.protubero.beanstore.plugins.tags.AbstractTaggedEntity;
 
 @Entity(alias = "note")
 public class Note extends AbstractTaggedEntity {
