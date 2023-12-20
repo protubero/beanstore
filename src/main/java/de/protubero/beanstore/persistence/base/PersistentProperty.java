@@ -2,7 +2,7 @@ package de.protubero.beanstore.persistence.base;
 
 import de.protubero.beanstore.base.tx.InstancePropertyValue;
 
-public class PersistentPropertyUpdate implements InstancePropertyValue {
+public class PersistentProperty implements InstancePropertyValue {
 
 	private String property;
 	private Object value;
@@ -23,11 +23,16 @@ public class PersistentPropertyUpdate implements InstancePropertyValue {
 		this.value = value;
 	} 
 	
-	public static PersistentPropertyUpdate of(String property, Object value) {
-		PersistentPropertyUpdate ppu = new PersistentPropertyUpdate();
+	public static PersistentProperty of(String property, Object value) {
+		PersistentProperty ppu = new PersistentProperty();
 		ppu.setProperty(property);
 		ppu.setValue(value);
 		
 		return ppu;
+	}
+	
+	@Override
+	public String toString() {
+		return property + ": " + String.valueOf(value);
 	}
 }

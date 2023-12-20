@@ -21,7 +21,7 @@ import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
+import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.CompanionShip;
 
@@ -149,16 +149,16 @@ public final class Transaction implements TransactionEvent {
 		return detachedInstance;
 	}
 	
-	private PersistentPropertyUpdate[] asPropertyUpdates(Map<String, Object> changes) {
+	private PersistentProperty[] asPropertyUpdates(Map<String, Object> changes) {
 		if (changes == null || changes.size() == 0) {
 			return null;
 		}
 		
-		PersistentPropertyUpdate[] propertyUpdates = new PersistentPropertyUpdate[changes.size()];
+		PersistentProperty[] propertyUpdates = new PersistentProperty[changes.size()];
 		
 		int idx = 0;
 		for (Map.Entry<String, Object> entry : changes.entrySet()) {
-			propertyUpdates[idx++] = PersistentPropertyUpdate.of(entry.getKey(), entry.getValue());
+			propertyUpdates[idx++] = PersistentProperty.of(entry.getKey(), entry.getValue());
 		}
 		
 		return propertyUpdates;

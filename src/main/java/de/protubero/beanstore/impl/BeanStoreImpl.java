@@ -95,6 +95,11 @@ class BeanStoreImpl implements BeanStore {
 				});
 				try {
 					closedStoreFuture.get();
+					
+					int remainingTasks = taskQueue.size();
+					if (remainingTasks > 0) {
+						log.warn("Number of remaining task: " + remainingTasks);
+					}
 				} catch (InterruptedException | ExecutionException e) {
 					log.error("Error closing bean store", e);
 				}
@@ -105,7 +110,7 @@ class BeanStoreImpl implements BeanStore {
 		
 	@Override
 	public ExecutableBeanStoreTransaction transaction() {
-		Transaction transaction = Transaction.of(store);
+		Transaction transaction = Transaction.of(store.companionsShip());
 		return new ExecutableBeanStoreTransactionImpl(transaction, this);
 	}
 
@@ -148,7 +153,7 @@ class BeanStoreImpl implements BeanStore {
 				@Override
 				public ExecutableLockedBeanStoreTransaction get() {
 					// the creation of the transaction has to be within the task
-					Transaction transaction = Transaction.of(store);
+					Transaction transaction = Transaction.of(store.companionsShip());
 					ExecutableLockedBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, BeanStoreImpl.this);
 					return bsTransaction;
 				}

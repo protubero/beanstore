@@ -16,7 +16,7 @@ public class PersistentInstanceTransaction {
 	@JsonIgnore
 	private transient Object ref;
 
-	private PersistentPropertyUpdate[] propertyUpdates;
+	private PersistentProperty[] propertyUpdates;
 
 	public int getType() {
 		return type;
@@ -45,11 +45,11 @@ public class PersistentInstanceTransaction {
 		this.id = id;
 	}
 
-	public PersistentPropertyUpdate[] getPropertyUpdates() {
+	public PersistentProperty[] getPropertyUpdates() {
 		return propertyUpdates;
 	}
 
-	public void setPropertyUpdates(PersistentPropertyUpdate[] propertyUpdates) {
+	public void setPropertyUpdates(PersistentProperty[] propertyUpdates) {
 		this.propertyUpdates = propertyUpdates;
 	}
 
@@ -61,5 +61,31 @@ public class PersistentInstanceTransaction {
 		this.ref = ref;
 	}
 	
+	@Override
+	public String toString() {
+		String updates = "";
+		if (propertyUpdates != null) {
+			for (int i = 0; i < propertyUpdates.length; i++) {
+				if (i > 0) {
+					updates += ", ";
+				}
+				updates += propertyUpdates[i];
+			}
+		}
+		return typeAsString(type) + "-" + alias + "[" + id + "] " + updates;
+	}
+
+	public static String typeAsString(int aType) {
+		switch (aType) {
+		case TYPE_CREATE:
+			return "create";
+		case TYPE_UPDATE:
+			return "update";
+		case TYPE_DELETE:
+			return "delete";
+		default:
+			throw new AssertionError();
+		}
+	}
 	
 }

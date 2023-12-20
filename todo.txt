@@ -2,23 +2,15 @@ prohibit Re-execution of transactions
 protect main branch and work with feature branches in the future.
 Automated Tests
 Auto-Release, Protected Main branch
-CompareTo EclipseStore
-Lock File
-
+fix architecture tests
 
 Tags Refactoring
+Enums
+transactional write to file
+property beans
 
+Init Store Logic | init MapStore with all entities of companionship
 ------------------------------------- 0.8.5
-
-File Reference Manager
-
-Ignore Annotation
-
-# KeyValue Store
-Meta Config Map Persistence 
-tags.groups.xx.description=
-tx.config("tags").put("groups.xx.description", xyz);
-or KeyValueEntity
 
 # Links
 
@@ -44,3 +36,29 @@ tx.appendPart(source, target)
 tx.insertPartAt(source, target, idx) // concurrent?
 
 storeState.partInfos().filter(pi -> pi.source.alias == 'xx')
+
+------------------------------------- 0.8.6
+
+
+# KeyValue Store
+Option A: Map Object
+Option B: KeyValue Beans
+Meta Config Map Persistence 
+tags.groups.xx.description=
+tx.config("tags").put("groups.xx.description", xyz);
+or KeyValueEntity
+
+
+Lock File
+
+Generated Entities
+	Yaml
+	JavaPoet & Code Generation Plugin
+	https://github.com/drewctaylor/javapoet-maven-plugin
+	
+
+File Reference Manager
+
+Ignore Annotation
+
+

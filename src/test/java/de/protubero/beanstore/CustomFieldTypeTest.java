@@ -3,6 +3,7 @@ package de.protubero.beanstore;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,10 +22,11 @@ public class CustomFieldTypeTest {
 	
 	
 	@Test
-	public void test() {
+	public void test() throws InterruptedException, ExecutionException {
 		File file = new File(pFileDir, "beanstore_" + getClass().getSimpleName() + ".kryo");
 		BeanStoreFactory factory = BeanStoreFactory.of(file);
 		factory.registerEntity(Address.class);
+		factory.kryoConfig().registerProperyBean(PostCode.class);
 		var store = factory.create();
 		
 		var address = new Address();
@@ -39,6 +41,7 @@ public class CustomFieldTypeTest {
 		
 		factory = BeanStoreFactory.of(file);		
 		factory.registerEntity(Address.class);
+		factory.kryoConfig().registerProperyBean(PostCode.class);
 		store = factory.create();
 		var readAccess = store.state().entity(Address.class);
 		

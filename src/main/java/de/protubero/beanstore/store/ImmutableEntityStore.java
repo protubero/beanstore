@@ -155,5 +155,10 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	public long getNextInstanceId() {
 		return nextInstanceId;
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return objectMap.size() == 0;
+	}
 	
 }

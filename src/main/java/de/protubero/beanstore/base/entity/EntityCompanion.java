@@ -32,6 +32,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	
 	@SuppressWarnings("unchecked")
 	public EntityCompanion(Class<T> originalBeanClass) {
+		if (!AbstractEntity.class.isAssignableFrom(originalBeanClass)) {
+			throw new RuntimeException("No tricks, dude.");
+		}
+		
 		this.originalBeanClass = originalBeanClass;
 		Entity entityAnnotytion = originalBeanClass.getAnnotation(Entity.class);
 		alias = entityAnnotytion.alias();

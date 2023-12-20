@@ -27,7 +27,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		this.storeList = Objects.requireNonNull(storeList);
 	}
 	
-	ImmutableEntityStoreSet(Iterable<Companion<?>> companionList) {
+	public ImmutableEntityStoreSet(Iterable<Companion<?>> companionList) {
 		List<ImmutableEntityStore<?>> tempStoreList = new ArrayList<>();
 		int idx = 0;
 		for (Companion<?> companion : companionList) {
@@ -131,15 +131,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		return (ImmutableEntityStore<T>) store(AbstractPersistentObject.aliasOf(ref));
 	}	
 	
-	public boolean isEmpty() {
-		for (ImmutableEntityStore<?> store : storeList) {
-			if (store.size() > 0) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	<T extends AbstractPersistentObject> ImmutableEntityStoreSet exchangeEntityStore(ImmutableEntityStore<T> immutableEntityStore,
 			ImmutableEntityStore<T> newEntityStore) {
 		ImmutableEntityStore<?>[] newStoreList = new ImmutableEntityStore[storeList.length];
@@ -157,7 +148,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 
 
 	@Override
-	public boolean empty() {
+	public boolean hasNoData() {
 		for (ImmutableEntityStore<?> store : storeList) {
 			if (store.size() > 0) {
 				return false;
@@ -166,6 +157,11 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		return true;
 	}
 
+	@Override
+	public boolean hasNoEntityStores() {
+		return storeList.length == 0;
+	}
+	
 	@Override
 	public boolean isImmutable() {
 		return true;
@@ -180,10 +176,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		return new ImmutableEntityStoreSet(newStoreList);
 	}
 
-	@Override
-	public Stream<Companion<?>> companions() {
-		return Arrays.stream(storeList).map(s -> s.companion());
-	}
 
 	
 }

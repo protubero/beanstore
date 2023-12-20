@@ -72,4 +72,8 @@ public class TagGroup {
 		registered = aRegistered;
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

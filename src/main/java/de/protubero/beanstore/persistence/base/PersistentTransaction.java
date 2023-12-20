@@ -41,7 +41,7 @@ public class PersistentTransaction {
 		return it;
 	}
 	
-	public PersistentInstanceTransaction create(String alias, Long id, PersistentPropertyUpdate ... propertyUpdates) {
+	public PersistentInstanceTransaction create(String alias, Long id, PersistentProperty ... propertyUpdates) {
 		PersistentInstanceTransaction it = new PersistentInstanceTransaction();
 		it.setAlias(alias);
 		it.setId(id);
@@ -52,7 +52,7 @@ public class PersistentTransaction {
 		return it;
 	}
 
-	public PersistentInstanceTransaction create(String alias, long id, PersistentPropertyUpdate ... propertyUpdates) {
+	public PersistentInstanceTransaction create(String alias, long id, PersistentProperty ... propertyUpdates) {
 		PersistentInstanceTransaction it = new PersistentInstanceTransaction();
 		it.setAlias(alias);
 		it.setId(id);
@@ -63,7 +63,7 @@ public class PersistentTransaction {
 		return it;
 	}
 	
-	public PersistentInstanceTransaction update(String alias, long id, PersistentPropertyUpdate ... propertyUpdates) {
+	public PersistentInstanceTransaction update(String alias, long id, PersistentProperty ... propertyUpdates) {
 		PersistentInstanceTransaction it = new PersistentInstanceTransaction();
 		it.setAlias(alias);
 		it.setId(id);

@@ -1,4 +1,4 @@
-package de.protubero.beanstore.persistence;
+package de.protubero.beanstore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +35,7 @@ public class BeanStorePersistenceTest {
 						
 		tx.execute();
 		
-		beanStore.close().get();
+		beanStore.close();
 
 		assertEquals(2, beanStore.state().entity(Employee.class).count());
 		

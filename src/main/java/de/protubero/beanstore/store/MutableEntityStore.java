@@ -66,6 +66,12 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	public int size() {
 		return objectMap.size();
 	}	
+
+	
+	@Override
+	public boolean isEmpty() {
+		return objectMap.size() == 0;
+	}
 	
 	@Override
 	public String toString() {

@@ -8,15 +8,4 @@ public interface Tagged {
 
 	void setTags(Tags tags);
 	
-	default Tags nonNullTags() {
-		Tags tags = getTags();
-		if (tags == null) {
-			return EMPTY_TAGS;
-		} else {
-			return tags;
-		}
-	}
-	
-	default AutoSetTags autoSetTags() {
-	}
 }

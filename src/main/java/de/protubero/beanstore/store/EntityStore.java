@@ -62,5 +62,7 @@ public interface EntityStore<T extends AbstractPersistentObject> {
 	 */
 	T internalCreateInplace(AbstractPersistentObject newInstance);
 
+	boolean isEmpty();
+
 	
 }

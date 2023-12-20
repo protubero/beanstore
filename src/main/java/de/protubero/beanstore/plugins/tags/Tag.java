@@ -30,7 +30,7 @@ public final class Tag {
 	
 	@Override
 	public String toString() {
-		return group.name() + ":" + name;
+		return group.toString() + ":" + name;
 	}
 
 }

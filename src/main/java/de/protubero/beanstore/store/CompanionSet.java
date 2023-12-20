@@ -17,11 +17,13 @@ public class CompanionSet implements CompanionShip {
 	private List<Companion<?>> companionList = new ArrayList<>();
 	
 
-	public void addMapEntity(String alias) {
+	public MapObjectCompanion addMapEntity(String alias) {
 		if (companionByAlias(alias) != null) {
 			throw new RuntimeException("Companion with alias already exists: " + alias);
 		}
-		companionList.add(new MapObjectCompanion(alias));		
+		MapObjectCompanion comp = new MapObjectCompanion(alias);
+		companionList.add(comp);		
+		return comp;
 	}
 
 
@@ -60,6 +62,18 @@ public class CompanionSet implements CompanionShip {
 	@Override
 	public Stream<Companion<?>> companions() {
 		return companionList.stream();
+	}
+
+
+	@Override
+	public boolean isEmpty() {
+		return companionList.isEmpty();
+	}
+
+
+	@Override
+	public Iterator<Companion<?>> iterator() {
+		return companionList.iterator();
 	}
 
 

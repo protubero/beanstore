@@ -18,7 +18,7 @@ import de.protubero.beanstore.base.tx.TransactionFailure;
 import de.protubero.beanstore.base.tx.TransactionFailureType;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
+import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
@@ -112,6 +112,7 @@ public class StoreWriter  {
 			try {
 				aTransactionListener.accept(transaction);
 			} catch (Exception e) {
+				log.error("Error in transaction listener", e);
 				exceptionHandler.accept(e);
 			}
 		}
@@ -120,6 +121,7 @@ public class StoreWriter  {
 				try {
 					aTransactionListener.accept(sit);
 				} catch (Exception e) {
+					log.error("Error in instance transaction listener", e);
 					exceptionHandler.accept(e);
 				}
 			}
@@ -165,7 +167,7 @@ public class StoreWriter  {
 					
 					if (pit.getType() == PersistentInstanceTransaction.TYPE_UPDATE && pit.getPropertyUpdates() != null) {
 						// set properties
-						for (PersistentPropertyUpdate ppu : pit.getPropertyUpdates()) {
+						for (PersistentProperty ppu : pit.getPropertyUpdates()) {
 							newInstance.put(ppu.getProperty(), ppu.getValue());						
 						}
 					}
@@ -177,7 +179,7 @@ public class StoreWriter  {
 					if (pit.getRef() == null) {
 						newInstance = companion.createInstance(newInstanceId);
 						// set properties
-						for (PersistentPropertyUpdate ppu : pit.getPropertyUpdates()) {
+						for (PersistentProperty ppu : pit.getPropertyUpdates()) {
 							newInstance.put(ppu.getProperty(), ppu.getValue());						
 						}
 						pit.setRef(newInstance);

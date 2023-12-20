@@ -9,6 +9,8 @@ import org.pcollections.PSet;
 
 public final class Tags {
 		
+	public static final Tags EMPTY = new Tags();
+	
 	PSet<Tag> tagSet;
 	
 	public Tags() {
@@ -52,5 +54,4 @@ public final class Tags {
 		return tagSet.stream().filter(tag -> tag.group() == group).findFirst();
 	}
 
-	
 }

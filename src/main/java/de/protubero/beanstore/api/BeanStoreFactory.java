@@ -8,7 +8,9 @@ import com.esotericsoftware.kryo.kryo5.Serializer;
 
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreFactoryImpl;
+import de.protubero.beanstore.persistence.impl.KryoConfiguration;
 
 /**
  * The factory class for BeanStore instances.
@@ -16,6 +18,19 @@ import de.protubero.beanstore.impl.BeanStoreFactoryImpl;
  */
 public interface BeanStoreFactory {
 
+	public static enum Mode {
+		/**
+		 * After migration only registered entities must exist
+		 */
+		RegisteredEntities, 
+		
+		/**
+		 * Only MapObject companions allowed. Unknown entities from persistence will be added automatically
+		 */
+		LoadedMaps
+	}
+	
+	
 	/**
 	 * The BeanStore created by this BeanStoreFactory will not store transactions.  
 	 * 
@@ -31,16 +46,28 @@ public interface BeanStoreFactory {
 	 * @return a BeanStore factory
 	 */
 	public static BeanStoreFactory of(File file) {
-		return new BeanStoreFactoryImpl(file);
+		return new BeanStoreFactoryImpl(Mode.RegisteredEntities, file);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static BeanStoreFactory createMapStore(File file) {
+		return new BeanStoreFactoryImpl(Mode.LoadedMaps, file);
+	}
+	
+	
 	/**
 	 * Register a Java Bean entity. Remember: The class must inherit from AbstractEntity
 	 * and is required to be annotated with the Entity annotation, which sets the <i>alias</i>
 	 * of the entity. 
 	 */
 	<X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass);
-
+	
+	
 	void addMigration(String migrationId, Consumer<MigrationTransaction> migration);
 
 	/**
@@ -66,31 +93,8 @@ public interface BeanStoreFactory {
 	 * </p> 
 	 */
 	BeanStore create();
-	
-	
-	/**
-	 * How to handle an entity that is found during the load process but has not been registered.
-	 * If <i>false<i> (Default) an exception is thrown. If <i>true</i> the entity is kept as MapObject entity.
-	 * 
-	 * @return
-	 */
-	boolean isAcceptUnregisteredEntities();
 
-	/**
-	 * How to handle an entity that is found during the load process but has not been registered.
-	 * If <i>false<i> (Default) an exception is thrown. If <i>true</i> the entity is kept as MapObject entity.
-	 * 
-	 * @param acceptUnregisteredEntities
-	 */
-	void setAcceptUnregisteredEntities(boolean acceptUnregisteredEntities);
-	
+	MapObjectCompanion registerMapEntity(String alias);
 
-	/**
-	 * Register Kryo Serializer
-	 * 
-	 * @param type
-	 * @param serializer
-	 * @return
-	 */
-	<T> Registration register (Class<T> type, Serializer<T> serializer, int id);
+	KryoConfiguration kryoConfig();
 }

@@ -87,7 +87,7 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	}
 
 	@Override
-	public boolean empty() {
+	public boolean hasNoData() {
 		for (MutableEntityStore<?> store : storeList) {
 			if (store.size() > 0) {
 				return false;
@@ -141,11 +141,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		return this;
 	}
 
-	@Override
-	public Stream<Companion<?>> companions() {
-		return storeList.stream().map(s -> s.companion());
-	}
-
 	public boolean isAcceptNonGeneratedIds() {
 		return acceptNonGeneratedIds;
 	}
@@ -153,6 +148,13 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	public void setAcceptNonGeneratedIds(boolean acceptNonGeneratedIds) {
 		this.acceptNonGeneratedIds = acceptNonGeneratedIds;
 	}
+
+
+	@Override
+	public boolean hasNoEntityStores() {
+		return storeList.isEmpty();
+	}
+
 
 
 	

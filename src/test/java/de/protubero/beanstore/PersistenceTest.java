@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
+import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.persistence.impl.KryoConfiguration;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
@@ -29,11 +29,11 @@ class PersistenceTest {
 		Instant now = Instant.now();
 				
 		PersistentTransaction pt = new PersistentTransaction();
-		pt.create("ealias", 55, PersistentPropertyUpdate.of("eins", now));
+		pt.create("ealias", 55, PersistentProperty.of("eins", now));
 		persistence.writer().append(pt);
 		
 		pt = new PersistentTransaction();
-		pt.update("ealias", 55, PersistentPropertyUpdate.of("eins", 5));
+		pt.update("ealias", 55, PersistentProperty.of("eins", 5));
 		persistence.writer().append(pt);
 
 		pt = new PersistentTransaction();
@@ -80,8 +80,8 @@ class PersistenceTest {
 		Instant now = Instant.now();
 				
 		PersistentTransaction pt = new PersistentTransaction();
-		pt.create("ealias", 55, PersistentPropertyUpdate.of("eins", now));
-		pt.update("ealias", 55, PersistentPropertyUpdate.of("eins", 5));
+		pt.create("ealias", 55, PersistentProperty.of("eins", now));
+		pt.update("ealias", 55, PersistentProperty.of("eins", 5));
 		pt.delete("ealias", 55);
 		persistence.writer().append(pt);
 		

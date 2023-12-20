@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.time.Instant;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.esotericsoftware.kryo.kryo5.Kryo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.esotericsoftware.kryo.kryo5.KryoException;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
@@ -18,14 +20,13 @@ import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.api.TransactionWriter;
-import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentPropertyUpdate;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.plugins.tags.Tag;
-import de.protubero.beanstore.plugins.tags.TagSerializer;
 
 public class KryoPersistence implements TransactionPersistence {
 
+	public static final Logger log = LoggerFactory.getLogger(KryoPersistence.class);
+	
+	
 	private File file;
 	private TransactionWriter writer;
 	private KryoConfiguration config;
@@ -33,6 +34,12 @@ public class KryoPersistence implements TransactionPersistence {
 	public KryoPersistence(KryoConfiguration config, File file) {
 		this.config = Objects.requireNonNull(config);
 		this.file = Objects.requireNonNull(file);
+		
+//		for (Map.Entry<Integer, Class<?>> entry : config.getPropertyBeanMap().entrySet()) {
+//			log.info("Registering property bean class " + entry.getValue() + "[" + entry.getKey() + "]");
+//
+//			config.getKryo().register(entry.getValue(), new PropertyBeanSerializer(config.getKryo(), entry.getValue()), entry.getKey());
+//		}
 		
 		// path must not be a directory path
 		if (file.isDirectory()) {

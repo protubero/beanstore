@@ -1,10 +1,9 @@
 package de.protubero.beanstore.model;
 
-import com.tngtech.archunit.thirdparty.com.google.common.base.Charsets;
+import de.protubero.beanstore.persistence.api.PropertyBean;
 
-import de.protubero.beanstore.persistence.api.CustomValueType;
-
-public class PostCode implements CustomValueType {
+@PropertyBean(300)
+public class PostCode  {
 
 	private String code;
 	
@@ -12,11 +11,6 @@ public class PostCode implements CustomValueType {
 	public PostCode() {
 	}
 	
-	public PostCode(byte[] byteArray) {
-		if (byteArray != null) {
-			code = new String(byteArray, Charsets.UTF_8);			
-		}
-	}
 
 	public PostCode(String aCode) {
 		this.code = aCode;
@@ -26,19 +20,6 @@ public class PostCode implements CustomValueType {
 		return code;
 	}
 
-	@Override
-	public void bytes(byte[] aByteArray) {
-		if (aByteArray != null) {
-			code = new String(aByteArray, Charsets.UTF_8);			
-		}
-	}
 	
-	@Override
-	public byte[] bytes() {
-		if (code == null) {
-			return null;
-		}
-		return code.getBytes(Charsets.UTF_8);
-	}
 	
 }
