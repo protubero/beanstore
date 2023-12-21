@@ -3,19 +3,14 @@ package de.protubero.beanstore.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.kryo5.Registration;
-import com.esotericsoftware.kryo.kryo5.Serializer;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
@@ -30,13 +25,13 @@ import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.entity.EntityCompanion;
 import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.base.tx.TransactionPhase;
-import de.protubero.beanstore.persistence.api.PropertyBean;
+import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
-import de.protubero.beanstore.persistence.impl.KryoConfiguration;
+import de.protubero.beanstore.persistence.impl.KryoConfigurationImpl;
 import de.protubero.beanstore.persistence.impl.KryoPersistence;
 import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.store.ImmutableEntityStoreBase;
@@ -65,7 +60,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
 
 	// Fields are used at build time
-	private KryoConfiguration kryoConfig = new KryoConfiguration();
+	private KryoConfigurationImpl kryoConfig = new KryoConfigurationImpl();
 	private KryoPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();

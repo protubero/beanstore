@@ -4,11 +4,13 @@ Automated Tests
 Auto-Release, Protected Main branch
 fix architecture tests
 
-Tags Refactoring
-Enums
-transactional write to file
-property beans
+Kryo Expert
+-> Enums
+-> transactional write to file
 
+-- Done --
+Tags Refactoring
+property beans
 Init Store Logic | init MapStore with all entities of companionship
 ------------------------------------- 0.8.5
 

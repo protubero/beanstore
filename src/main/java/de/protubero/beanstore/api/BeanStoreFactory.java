@@ -3,14 +3,11 @@ package de.protubero.beanstore.api;
 import java.io.File;
 import java.util.function.Consumer;
 
-import com.esotericsoftware.kryo.kryo5.Registration;
-import com.esotericsoftware.kryo.kryo5.Serializer;
-
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreFactoryImpl;
-import de.protubero.beanstore.persistence.impl.KryoConfiguration;
+import de.protubero.beanstore.persistence.api.KryoConfiguration;
 
 /**
  * The factory class for BeanStore instances.

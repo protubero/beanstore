@@ -7,6 +7,7 @@ import de.protubero.beanstore.plugins.tags.AbstractTaggedEntity;
 public class Note extends AbstractTaggedEntity {
 
 	private String text;
+	private Priority priority;
 
 	public String getText() {
 		return text;
@@ -14,6 +15,14 @@ public class Note extends AbstractTaggedEntity {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public Priority getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Priority priority) {
+		this.priority = priority;
 	}
 	
 }

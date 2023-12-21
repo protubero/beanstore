@@ -29,9 +29,9 @@ public class KryoPersistence implements TransactionPersistence {
 	
 	private File file;
 	private TransactionWriter writer;
-	private KryoConfiguration config;
+	private KryoConfigurationImpl config;
 	
-	public KryoPersistence(KryoConfiguration config, File file) {
+	public KryoPersistence(KryoConfigurationImpl config, File file) {
 		this.config = Objects.requireNonNull(config);
 		this.file = Objects.requireNonNull(file);
 		

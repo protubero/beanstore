@@ -2,6 +2,7 @@ package de.protubero.beanstore.base.tx;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.persistence.base.KeyValuePair;
 
 /**
  * 
@@ -33,7 +34,7 @@ public interface InstanceTransactionEvent<T extends AbstractPersistentObject> {
 	/**
 	 *  
 	 */
-	InstancePropertyValue[] values();
+	KeyValuePair[] values();
 
 	/**
 	 * Gives you some meta information about the 'type' of the instance, entity

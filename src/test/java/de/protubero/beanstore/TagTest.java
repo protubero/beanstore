@@ -13,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
+import de.protubero.beanstore.model.Priority;
 import de.protubero.beanstore.plugins.tags.Tag;
 import de.protubero.beanstore.plugins.tags.TagExtension;
 import de.protubero.beanstore.plugins.tags.TagGroup;
@@ -42,6 +43,7 @@ public class TagTest {
 		
 		var note2 = tx.create(Note.class);
 		note2.setText("someOtherText");
+		// note2.setPriority(Priority.High);
 		note2.tagWith(tag);
 		
 		tx.execute().get();
@@ -57,6 +59,7 @@ public class TagTest {
 		
 		Note secondNote = store.state().entity(Note.class).find(note2Id);
 		assertEquals(1, secondNote.getTags().size());
+		// assertEquals(Priority.High, secondNote.getPriority());
 		assertTrue(secondNote.getTags().contains(tag));
 		assertSame(tag, secondNote.getTags().findFirst(group).get());
 		assertFalse(secondNote.getTags().contains(otherTag));

@@ -1,8 +1,8 @@
 package de.protubero.beanstore.model;
 
-import de.protubero.beanstore.persistence.api.PropertyBean;
+import de.protubero.beanstore.persistence.api.KryoId;
 
-@PropertyBean(300)
+@KryoId(300)
 public class PostCode  {
 
 	private String code;
@@ -20,6 +20,6 @@ public class PostCode  {
 		return code;
 	}
 
-	
+
 	
 }

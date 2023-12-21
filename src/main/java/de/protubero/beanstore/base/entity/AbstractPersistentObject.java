@@ -111,9 +111,9 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 
 	@Override
 	public Long id() {
-		if (id == null ) {
-			throw new RuntimeException("entity id has not been set yet");
-		}
+//		if (id == null ) {
+//			throw new RuntimeException("entity id has not been set yet");
+//		}
 		return id;
 	}
 	 

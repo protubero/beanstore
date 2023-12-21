@@ -11,22 +11,21 @@ import com.esotericsoftware.kryo.kryo5.Kryo;
 import com.esotericsoftware.kryo.kryo5.Registration;
 import com.esotericsoftware.kryo.kryo5.Serializer;
 
-import de.protubero.beanstore.persistence.api.PropertyBean;
+import de.protubero.beanstore.persistence.api.KryoConfiguration;
+import de.protubero.beanstore.persistence.api.KryoId;
 import de.protubero.beanstore.persistence.base.PersistentBean;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 
-public class KryoConfiguration {
+public class KryoConfigurationImpl implements KryoConfiguration {
 
-	public static final Logger log = LoggerFactory.getLogger(KryoConfiguration.class);
+	public static final Logger log = LoggerFactory.getLogger(KryoConfigurationImpl.class);
 	
 	private Kryo kryo;
 
-//	private Map<Integer, Class<?>> propertyBeanMap = new HashMap<>();
 	
-	
-	public KryoConfiguration() {
+	public KryoConfigurationImpl() {
 		kryo = new Kryo();
 		kryo.setRegistrationRequired(true);
 		kryo.setWarnUnregisteredClasses(true);
@@ -41,8 +40,9 @@ public class KryoConfiguration {
 		
 	}
 	
-	public void registerProperyBean(Class<?> propertyBeanClass) {
-		PropertyBean pbAnnotation = propertyBeanClass.getAnnotation(PropertyBean.class);
+	@Override
+	public void register(Class<?> propertyBeanClass) {
+		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
 		if (pbAnnotation == null) {
 			throw new RuntimeException("Property bean classes must be annotated with PropertyBean annotation");
 		}
@@ -52,13 +52,9 @@ public class KryoConfiguration {
 		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
 
 		kryo.register(propertyBeanClass, new PropertyBeanSerializer(kryo, propertyBeanClass), serializationId);		
-		
-//		if (propertyBeanMap.containsKey(serializationId)) {
-//			throw new RuntimeException("Duplicate property bean with serialization id: " + serializationId);
-//		}
-//		propertyBeanMap.put(serializationId, propertyBeanClass);
 	}
 	
+	@Override
 	public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
 		if (id < 100) {
 			throw new RuntimeException("IDs < 100 are reserved");
@@ -71,10 +67,5 @@ public class KryoConfiguration {
 		return kryo;
 	}
 
-//	public Map<Integer, Class<?>> getPropertyBeanMap() {
-//		return propertyBeanMap;
-//	}
-	
-	
 	
 }

@@ -77,7 +77,7 @@ public class EntityMapCompanionTest {
 		assertSame(companion, otherInstance.companion());
 		assertNull(otherInstance.refInstance());
 		assertEquals(null, otherInstance.changes());
-		assertThrows(Exception.class, () -> {otherInstance.id();});
+		assertNull(otherInstance.id());
 		assertEquals("employee", otherInstance.alias());
 		assertEquals(0, otherInstance.size());
 		assertEquals(State.NEW, otherInstance.state());

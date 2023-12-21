@@ -8,11 +8,11 @@ skinparam component {
 }
 
 
+[Api] <<de.protubero.beanstore.api..>>
 [Base] <<de.protubero.beanstore.base..>>
+[Impl] <<de.protubero.beanstore.impl..>>
 [Store] <<de.protubero.beanstore.store..>>
 [Writer] <<de.protubero.beanstore.writer..>>
-[Api] <<de.protubero.beanstore.api..>>
-[Impl] <<de.protubero.beanstore.impl..>>
 
 [PersistenceApi] <<de.protubero.beanstore.persistence.api..>>
 [PersistenceBase] <<de.protubero.beanstore.persistence.base..>>
@@ -20,6 +20,7 @@ skinparam component {
 
 [Plugins] <<de.protubero.beanstore.plugins..>>
 
+[Base] --> PersistenceBase
 
 [Store] --> Base
 
@@ -32,7 +33,6 @@ skinparam component {
 [Impl] --> Writer
 
 
-[PersistenceBase] --> Base
 [PersistenceApi] --> PersistenceBase
 [PersistenceImpl] --> PersistenceApi
 [PersistenceImpl] --> PersistenceBase
@@ -43,6 +43,7 @@ skinparam component {
 [Api] --> Impl
 [Api] --> Base
 [Api] --> PersistenceBase
+[Api] --> PersistenceApi
 
 [Impl] --> PersistenceImpl
 [Impl] --> PersistenceBase

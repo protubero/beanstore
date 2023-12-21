@@ -1,8 +1,6 @@
 package de.protubero.beanstore.persistence.base;
 
-import de.protubero.beanstore.base.tx.InstancePropertyValue;
-
-public class PersistentProperty implements InstancePropertyValue {
+public class PersistentProperty implements KeyValuePair {
 
 	private String property;
 	private Object value;

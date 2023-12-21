@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.tx.InstanceEventType;
-import de.protubero.beanstore.base.tx.InstancePropertyValue;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.persistence.base.KeyValuePair;
 import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
 
 public final class StoreInstanceTransaction<T extends AbstractPersistentObject> implements InstanceTransactionEvent<T> {
@@ -74,7 +74,7 @@ public final class StoreInstanceTransaction<T extends AbstractPersistentObject> 
 	}
 
 	@Override
-	public InstancePropertyValue[] values() {
+	public KeyValuePair[] values() {
 		return persistentTransaction.getPropertyUpdates();
 	}
 

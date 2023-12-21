@@ -9,13 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreFactory;
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.model.Address;
-import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.model.PostCode;
+import de.protubero.beanstore.model.PostCode2;
 
-public class CustomFieldTypeTest {
+public class PropertyBeanTest {
 
 	@TempDir
 	File pFileDir;	
@@ -26,7 +24,7 @@ public class CustomFieldTypeTest {
 		File file = new File(pFileDir, "beanstore_" + getClass().getSimpleName() + ".kryo");
 		BeanStoreFactory factory = BeanStoreFactory.of(file);
 		factory.registerEntity(Address.class);
-		factory.kryoConfig().registerProperyBean(PostCode.class);
+		factory.kryoConfig().register(PostCode.class);
 		var store = factory.create();
 		
 		var address = new Address();
@@ -41,7 +39,7 @@ public class CustomFieldTypeTest {
 		
 		factory = BeanStoreFactory.of(file);		
 		factory.registerEntity(Address.class);
-		factory.kryoConfig().registerProperyBean(PostCode.class);
+		factory.kryoConfig().register(PostCode.class);
 		store = factory.create();
 		var readAccess = store.state().entity(Address.class);
 		
