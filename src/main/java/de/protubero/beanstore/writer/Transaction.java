@@ -45,7 +45,7 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 	public static Transaction of(CompanionShip companionSet, 
-			String transactionId, int transactionType) {
+			String transactionId, byte transactionType) {
 		var pt = new PersistentTransaction(transactionType, transactionId);
 		return new Transaction(companionSet, pt);
 	}	

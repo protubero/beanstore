@@ -1,8 +1,6 @@
 package de.protubero.beanstore.persistence.impl;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +8,10 @@ import org.slf4j.LoggerFactory;
 import com.esotericsoftware.kryo.kryo5.Kryo;
 import com.esotericsoftware.kryo.kryo5.Registration;
 import com.esotericsoftware.kryo.kryo5.Serializer;
+import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.InstantSerializer;
 
 import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.KryoId;
-import de.protubero.beanstore.persistence.base.PersistentBean;
-import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentProperty;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 
 public class KryoConfigurationImpl implements KryoConfiguration {
@@ -30,13 +26,13 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.setRegistrationRequired(true);
 		kryo.setWarnUnregisteredClasses(true);
 		
-		kryo.register(PersistentTransaction.class, 20);
-		kryo.register(PersistentInstanceTransaction.class, 21);
-		kryo.register(PersistentInstanceTransaction[].class, 22);
-		kryo.register(PersistentProperty[].class, 23);
-		kryo.register(PersistentProperty.class, 24);
-		kryo.register(Instant.class, 25);
-		kryo.register(PersistentBean.class, 26);
+		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(),  20);
+//		kryo.register(PersistentInstanceTransaction.class, 21);
+//		kryo.register(PersistentInstanceTransaction[].class, 22);
+//		kryo.register(PersistentProperty[].class, 23);
+//		kryo.register(PersistentProperty.class, 24);
+		kryo.register(Instant.class, new InstantSerializer(), 25);
+//		kryo.register(PersistentBean.class, new PersistentBeanSerializer(), 26);
 		
 	}
 	

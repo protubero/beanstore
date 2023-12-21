@@ -1,9 +1,11 @@
 package de.protubero.beanstore.persistence.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -30,17 +32,12 @@ public class KryoPersistence implements TransactionPersistence {
 	private File file;
 	private TransactionWriter writer;
 	private KryoConfigurationImpl config;
+	private FileOutputStream fileOutputStream; 
 	
 	public KryoPersistence(KryoConfigurationImpl config, File file) {
 		this.config = Objects.requireNonNull(config);
 		this.file = Objects.requireNonNull(file);
-		
-//		for (Map.Entry<Integer, Class<?>> entry : config.getPropertyBeanMap().entrySet()) {
-//			log.info("Registering property bean class " + entry.getValue() + "[" + entry.getKey() + "]");
-//
-//			config.getKryo().register(entry.getValue(), new PropertyBeanSerializer(config.getKryo(), entry.getValue()), entry.getKey());
-//		}
-		
+								
 		// path must not be a directory path
 		if (file.isDirectory()) {
 			throw new PersistenceException("path parameter is a directory");
@@ -55,16 +52,37 @@ public class KryoPersistence implements TransactionPersistence {
 				if (closed) {
 					throw new PersistenceException("writing to a closed writer");
 				}
-				try (Output output = output()) {
+					
+				// conservative implementation, subject to performance optimization
+				ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
+				try (Output output = new Output(out)) {
 					while (transactions.hasNext()) {
 						config.getKryo().writeObject(output, transactions.next());
 					}
 				}
+				try (FileOutputStream fileOutputStream = new FileOutputStream(file, true)) {
+					fileOutputStream.write(out.toByteArray());
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+					
 			}
 
 			@Override
 			public void close() throws Exception {
+				if (closed) {
+					throw new PersistenceException("Re-closing closed writer");
+				}
 				closed = true;
+				if (fileOutputStream != null) {
+					log.info("Closing output stream");
+					try {
+						fileOutputStream.close();
+					} catch (IOException e) {
+						log.error("Error closing output stream", e);
+					}
+				}
+				
 			}
 
 			@Override
@@ -73,14 +91,6 @@ public class KryoPersistence implements TransactionPersistence {
 			}
 
 		};
-	}
-
-	private Output output() {
-		try {
-			return new Output(new FileOutputStream(file, true));
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private Input input() {

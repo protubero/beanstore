@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class PersistentInstanceTransaction {
 
-	public static final int TYPE_CREATE = 0;
-	public static final int TYPE_UPDATE = 1;
-	public static final int TYPE_DELETE = 2;
+	public static final byte TYPE_CREATE = 0;
+	public static final byte TYPE_UPDATE = 1;
+	public static final byte TYPE_DELETE = 2;
 
-	private int type;
+	private byte type;
 	private String alias;
 	private Long id;
 	
@@ -18,11 +18,11 @@ public class PersistentInstanceTransaction {
 
 	private PersistentProperty[] propertyUpdates;
 
-	public int getType() {
+	public byte getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(byte type) {
 		this.type = type;
 	}
 
@@ -75,7 +75,7 @@ public class PersistentInstanceTransaction {
 		return typeAsString(type) + "-" + alias + "[" + id + "] " + updates;
 	}
 
-	public static String typeAsString(int aType) {
+	public static String typeAsString(byte aType) {
 		switch (aType) {
 		case TYPE_CREATE:
 			return "create";

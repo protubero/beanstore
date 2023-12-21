@@ -11,36 +11,20 @@ import com.esotericsoftware.kryo.kryo5.Kryo;
 import com.esotericsoftware.kryo.kryo5.Serializer;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
-import com.esotericsoftware.kryo.kryo5.serializers.DefaultArraySerializers;
-import com.esotericsoftware.kryo.kryo5.serializers.DefaultArraySerializers.ObjectArraySerializer;
 
 import de.protubero.beanstore.persistence.api.SetPropertyValue;
-import de.protubero.beanstore.persistence.base.PersistentProperty;
 
 public class PropertyBeanSerializer extends Serializer {
 
 	public static final Logger log = LoggerFactory.getLogger(PropertyBeanSerializer.class);
 	
-	
-	// geht vermutlich eleganter :-)
-	private static PersistentProperty[] DUMMY_ARRAY = new PersistentProperty[] {};		
-	
-	
 	private Class<?> beanClass;
 	private Field[] fields;
 	private boolean implementsSetPropertyValue;
-
-	private ObjectArraySerializer arraySerializer;
 	
 	
 	public PropertyBeanSerializer(Kryo kryo, Class<?> aBeanClass) {
 		beanClass = Objects.requireNonNull(aBeanClass);
-		
-		arraySerializer = new DefaultArraySerializers.ObjectArraySerializer(kryo, DUMMY_ARRAY.getClass());
-		arraySerializer.setAcceptsNull(false);
-		arraySerializer.setElementsAreSameType(true);
-		arraySerializer.setElementsCanBeNull(false);
-		
 			
 		try {
 			if (aBeanClass.getConstructor() == null) {
@@ -60,36 +44,40 @@ public class PropertyBeanSerializer extends Serializer {
 
 	@Override
 	public void write(Kryo kryo, Output output, Object object) {
-		PersistentProperty[] propertyArray = new PersistentProperty[fields.length];
+		output.writeVarInt(fields.length, true);
+		
 		for (int idx = 0; idx < fields.length; idx++) {
 			Field field = fields[idx];
 			try {				
 				Object value = field.get(object);
-				propertyArray[idx] = PersistentProperty.of(field.getName(), value);
+
+				output.writeString(field.getName());
+				kryo.writeClassAndObject(output, value);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException("Error reading property bean value " + field.getName(), e);
 			}
 		}
-
-		arraySerializer.write(kryo, output, propertyArray);
 	}
 
 	@Override
 	public Object read(Kryo kryo, Input input, Class type) {
-		PersistentProperty[] propertyArray = (PersistentProperty[]) arraySerializer.read(kryo, input, DUMMY_ARRAY.getClass());
+		int numFields = input.readVarInt(true);
 		
 		try {
 			Object newInstance = beanClass.getConstructor().newInstance();
 			
-			for (PersistentProperty property : propertyArray) {
+			for (int i = 0; i < numFields; i++) {
+				String key = input.readString();
+				Object value = kryo.readClassAndObject(input);
+				
 				if (implementsSetPropertyValue) {
-						((SetPropertyValue) newInstance).setPropertyValue(property.getProperty(), property.getValue());
+						((SetPropertyValue) newInstance).setPropertyValue(key, value);
 				} else {
-					Field field = fieldByName(property.getProperty());
+					Field field = fieldByName(key);
 					if (field == null) {
-						throw new RuntimeException("Invalid PropertyBean property " + property.getProperty()  + " of " + beanClass);
+						throw new RuntimeException("Invalid PropertyBean property " + key  + " of " + beanClass);
 					}
-					field.set(newInstance, property.getValue());
+					field.set(newInstance, value);
 				}
 			}	
 

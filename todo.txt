@@ -7,7 +7,7 @@ fix architecture tests
 Kryo Expert
 -> Enums
 -> transactional write to file
-
+-> all explicit serializers
 -- Done --
 Tags Refactoring
 property beans

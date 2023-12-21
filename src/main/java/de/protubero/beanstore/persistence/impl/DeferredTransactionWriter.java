@@ -35,7 +35,6 @@ public class DeferredTransactionWriter implements TransactionWriter {
 	
 	public void switchToNonDeferred() {
 		flush();
-		writeTransactions();	
 		deferralActive = false;
 	}
 

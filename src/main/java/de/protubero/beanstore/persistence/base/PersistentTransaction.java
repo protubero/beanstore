@@ -4,21 +4,21 @@ import java.time.Instant;
 
 public class PersistentTransaction {
 
-	public static final int TRANSACTION_TYPE_DEFAULT = 0;
-	public static final int TRANSACTION_TYPE_MIGRATION = 1;
+	public static final byte TRANSACTION_TYPE_DEFAULT = 0;
+	public static final byte TRANSACTION_TYPE_MIGRATION = 1;
 	
 	
 	private PersistentInstanceTransaction[] instanceTransactions;
 
 	private Instant timestamp;
 	private String transactionId;
-	private int transactionType = TRANSACTION_TYPE_DEFAULT;
+	private byte transactionType = TRANSACTION_TYPE_DEFAULT;
 	
 
 	public PersistentTransaction() {
 	}
 	
-	public PersistentTransaction(int transactionType, String transactionId) {
+	public PersistentTransaction(byte transactionType, String transactionId) {
 		this.transactionType = transactionType;
 		this.transactionId = transactionId;
 	}
@@ -111,11 +111,11 @@ public class PersistentTransaction {
 		this.transactionId = transactionId;
 	}
 
-	public int getTransactionType() {
+	public byte getTransactionType() {
 		return transactionType;
 	}
 
-	public void setTransactionType(int transactionType) {
+	public void setTransactionType(byte transactionType) {
 		this.transactionType = transactionType;
 	}
 
