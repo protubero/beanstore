@@ -4,31 +4,12 @@ Automated Tests
 Auto-Release, Protected Main branch
 fix architecture tests
 
-store all fields of newly created Entities (por causa do Initialization Values)
+all fields must be without default value.
 oder null bei create nicht setzen
  
 work with boolean, int, u.s.w 
  
 update ohne ref auf Objekt 
-dynamic proxy or kryo generated
-
-
-
-public final Task extends AbstractEntity {
-	String text;
-	Boolean bool;
-
-	public String getText() {
-		return text;
-	}	
-}
-
-public class TaskTemplate extends Task  {
-	
-	public void setText(String value) {
-		text = value;
-	}
-}
  
 ------------------------------------- 0.8.5
 

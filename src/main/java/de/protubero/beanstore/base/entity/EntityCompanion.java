@@ -4,6 +4,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.management.RuntimeErrorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,8 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	private Map<String, PropertyDescriptor> descriptorMap;
 	private String alias;
 	private Class<T> originalBeanClass;
+	private Constructor<T> constructor;
+
 	
 	@SuppressWarnings("unchecked")
 	public EntityCompanion(Class<T> originalBeanClass) {
@@ -36,11 +41,20 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 			throw new RuntimeException("No tricks, dude.");
 		}
 		
+		try {
+			if (originalBeanClass.getConstructor() == null) {
+				throw new RuntimeException("Missing no-arg constructor in entity class " + originalBeanClass);
+			}
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+		
 		this.originalBeanClass = originalBeanClass;
 		Entity entityAnnotytion = originalBeanClass.getAnnotation(Entity.class);
 		alias = entityAnnotytion.alias();
 		
 		this.beanClass = (Class<T>) new ByteBuddy().subclass(originalBeanClass)
+				.implement(GeneratedClass.class)
 	            .method(ElementMatchers.isSetter())
 	            .intercept(MethodDelegation.to(new GenericInterceptor()))
 	            .make()
@@ -48,17 +62,11 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	            .getLoaded();		
 		
 		try {
-			beanInfo = Introspector.getBeanInfo(beanClass, AbstractEntity.class);
+			beanInfo = Introspector.getBeanInfo(originalBeanClass, AbstractEntity.class);
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}        
-        descriptors = Arrays.asList(beanInfo.getPropertyDescriptors()).stream().filter(desc -> {
-        	if (desc.getPropertyType().getName().startsWith("groovy.lang.MetaClass")) {
-        		log.info("Omit groovy metaClass property");
-        		return false;
-        	}        	
-        	return true;
-        }).collect(Collectors.toList());
+        descriptors = Arrays.asList(beanInfo.getPropertyDescriptors());
         log.info("Number properties of entity " + alias + ":" + descriptors.size());
         
         descriptorMap = new HashMap<>();
@@ -75,22 +83,41 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 			descriptorMap.put(desc.getName(), desc);
 		});
 		
+		try {
+			constructor = beanClass.getConstructor();
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new AssertionError();
+		}
+		
+		// Initial values must all be null
+		T newInstance = createInstance();
+		descriptors.forEach(desc -> {
+			 try {
+				Object defaultValue = desc.getReadMethod().invoke(newInstance);
+				if (defaultValue != null) {
+					throw new RuntimeException("Non-null default value of property " + desc.getName());
+				}
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		
+		
 	}
-	
 
 	public Class<T> beanClass() {
 		return beanClass;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public T createInstance() {
 		T newInstance;
 		try {
-			newInstance = beanClass().newInstance();
+			newInstance = constructor.newInstance();
 			newInstance.companion(this);
 			return newInstance;
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -113,12 +140,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		return descriptorMap.containsKey(property);
 	}
 
-
 	@Override
 	public Class<T> entityClass() {
 		return originalBeanClass;
 	}
-
 
 	/**
 	 * To optimize it, use dynamically generated code!
@@ -126,19 +151,9 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	 * @param instance
 	 */
 	public void transferProperties(Map<String, Object> map, T instance) {
-		Set<String> allProps = map.keySet();
-		for (PropertyDescriptor desc : descriptors) {
-			Object value = map.get(desc.getName());
-			try {
-				desc.getWriteMethod().invoke(instance, value);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new RuntimeException("Error setting property: " + desc.getName(), e);
-			}
-			allProps.remove(desc.getName());
-		}
-		if (allProps.size() > 0) {
-			throw new RuntimeException("Invalid props: " + allProps);
-		}
+		map.entrySet().forEach(entry -> {
+			setProperty(instance, entry.getKey(), entry.getValue());
+		});
 	}
 
 
@@ -157,10 +172,40 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	}
 
 
+	public Object getProperty(AbstractEntity entity, Object key) {
+		PropertyDescriptor desc = descriptorMap.get(key);
+		if (desc != null) {
+			throw new RuntimeException("Invalid bean property: " + key);
+		} else {
+			try {
+				return desc.getReadMethod().invoke(entity);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}	
+	}
+
+	public void setProperty(AbstractEntity entity, String key, Object value) {
+		PropertyDescriptor desc = descriptorMap.get(key);
+		if (desc != null) {
+			throw new RuntimeException("Invalid bean property: " + key);
+		} else {
+			try {
+				desc.getWriteMethod().invoke(entity, value);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}	
+	}
+	
+	
 	@Override
 	public boolean isMapCompanion() {
 		return false;
 	}
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 package de.protubero.beanstore.base.entity;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,100 +10,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
 
 	public static enum State {
-		INSTANTIATED(false, false),
-		INPLACEUPDATE(false, false),
-		NEW(false, true), 		 
-		DETACHED(false, true), 		 
-		READY(true, false),  	
-		OUTDATED(true, false); 	
+		INSTANTIATED,
 		
-		private boolean immutable;
-		private boolean recordChanges;
-
-		private State(boolean immutable, boolean recordChanges) {
-			this.recordChanges = recordChanges;
-			this.immutable = immutable;
-			
-			if (immutable && recordChanges) {
-				throw new AssertionError();
-			}
-		}
-
-		public boolean isImmutable() {
-			return immutable;
-		}
-
-		public boolean isRecordChanges() {
-			return recordChanges;
-		}
-	}
-
-	public static enum Transition {
-		INSTANTIATED_TO_NEW(State.INSTANTIATED, State.NEW),
-		INSTANTIATED_TO_READY(State.INSTANTIATED, State.READY),
-		INSTANTIATED_TO_DETACHED(State.INSTANTIATED, State.DETACHED),
-		NEW_TO_READY(State.NEW, State.READY),
-		READY_TO_OUTDATED(State.READY, State.OUTDATED),
-		READY_TO_INPLACEUPDATE(State.READY, State.INPLACEUPDATE),
-		INPLACEUPDATE_TO_READY(State.INPLACEUPDATE, State.READY);
-		
-		private State fromState;
-		private State toState;
-		
-		private Transition(State fromState, State toState) {
-			this.fromState = fromState;
-			this.toState = toState;
-		}
-
-		public State getFromState() {
-			return fromState;
-		}
-
-		public State getToState() {
-			return toState;
-		}
+		// nulls means 'delete'
+		RECORD,
+		PREPARE, 		 
+		STORED,  	
+		OUTDATED; 	
 	}
 	
 	@JsonProperty("id")
 	protected Long id;
+	
+	@JsonProperty("version")
+	protected int version;
 	
 	@JsonIgnore	
 	protected Companion<?> companion;
 	
 	@JsonIgnore	
 	protected State state = State.INSTANTIATED;
-	
-	@JsonIgnore	
-	protected AbstractPersistentObject refInstance;
-	
-	@JsonIgnore	
-	private Map<String, Object> changes;
-	
-	public <T extends AbstractPersistentObject> T detach() {
-		verifyState(State.READY);
-		
-		@SuppressWarnings({ "unchecked" })
-		T result = ((Companion<T>) companion).cloneInstance((T) this);
-		result.applyTransition(Transition.INSTANTIATED_TO_DETACHED);
-		result.refInstance(this);
-		
-		return result;
-	}
 
-	protected void checkIfCreatedByStore() {
-		if (companion == null) {
-			throw new BeanStoreException("Java Bean Instance has not been created by a Bean Store");
-		}
-	}
-	
-	protected void verifyState(State aState) {
-		if (state != aState) {
-			throw new RuntimeException("invalid state, must me " + aState);
+	public AbstractPersistentObject() {
+		if (!(this instanceof GeneratedClass)) {
+			throw new RuntimeException("Entities are always instantiated by the BeanStore");
 		}
 	}
 
+	protected abstract void onStateChange(State state2, State newState);
+
+	public abstract Map<String, Object> recordedValues();
+
+	protected abstract void recordChange(String fieldName);
+	
 	public void id(long aId) {
-		if (id != null) {
+		if (id != null && !(state == State.PREPARE)) {
 			throw new AssertionError();
 		}
 		id = aId;
@@ -116,9 +57,6 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
-		if (companion == null) {
-			return null;
-		}
 	    return ((Companion) companion).toString(this);
 	}
 
@@ -132,58 +70,90 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 
 	void onBeforeSetValue(String fieldName, Object object) {
-		if (state.immutable) {
+		switch (state) {
+		case INSTANTIATED:
+			throw new RuntimeException("changing value on instantiated instance is prohibited " + fieldName + " -> " + object);
+		case STORED:
+		case OUTDATED:
 			throw new RuntimeException("changing value on immutable instance is prohibited " + fieldName + " -> " + object);
+		default:
+			// NOP
 		}
 	}
 
+	
 	void onBeforeChange() {
-		if (state.immutable) {
-			throw new RuntimeException("changing value on immutable instance is prohibited");
+		switch (state) {
+		case INSTANTIATED:
+			throw new RuntimeException("changing values on instaniated instance is prohibited");
+		case STORED:
+		case OUTDATED:
+			throw new RuntimeException("changing values on immutable instances is prohibited");
+		default:
+			// NOP
 		}
 	}
 	
 	void onAfterValueSet(String fieldName, Object object) {
-		if (state.recordChanges) {
-			if (changes == null) {
-				changes = new HashMap<>();
-			}
-			changes.put(fieldName, object);
+		switch (state) {
+		case RECORD:
+			recordChange(fieldName);
+		case PREPARE:
+			break;
+		default:
+			throw new AssertionError();
 		}
 	}
 
-	public Map<String, Object> changes() {
-		return changes;
-	}
-	
-	public AbstractPersistentObject refInstance() {
-		return refInstance;
-	}
-
-	public void refInstance(AbstractPersistentObject refInstance) {
-		this.refInstance = refInstance;
-	}
 
 	public State state() {
 		return state;
 	}
 
-	public void applyTransition(Transition transition) {
-		if (transition.fromState != state) {
-			throw new RuntimeException("state does not match");
+	public void state(State newState) {
+		switch (state) {
+		case INSTANTIATED:
+			switch (newState) {
+			case RECORD:
+			case PREPARE:
+				state = newState;
+				onStateChange(state, newState);
+				return;
+			default:
+				throw new AssertionError();
+			}
+		case PREPARE:
+			switch (newState) {
+			case STORED:
+				state = newState;
+				onStateChange(state, newState);
+				return;
+			default:
+				throw new AssertionError();
+			}
+		case STORED:
+			switch (newState) {
+			case OUTDATED:
+				state = newState;
+				onStateChange(state, newState);
+				return;
+			default:
+				throw new AssertionError();
+			}
+		default:
+			throw new AssertionError();
 		}
-		this.state = transition.getToState();
-		this.changes = null;
-	}
-	
-	public void resetChanges() {
-		changes = null;
 	}
 
-	public abstract Companion<?> companion();
+	public Companion<?> companion() {
+		return companion;
+	}
 
 	public void companion(Companion<?> companion) {
-		this.companion = companion;
+		if (this.companion != null) {
+			throw new AssertionError();
+		}
+		this.companion = Objects.requireNonNull(companion);
 	}
 
 	public String getString(String key) {
@@ -204,11 +174,15 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	
 	@Override
 	public String alias() {
-		if (companion == null) {
-			return AbstractPersistentObject.aliasOf(this);
-		} else {
-			return companion.alias();
-		}	
+		return companion.alias();
+	}
+	
+	public int version() {
+		return version;
+	}
+
+	public void version(int version) {
+		this.version = version;
 	}
 	
 	public static String aliasOf(AbstractPersistentObject apo) {
@@ -222,5 +196,5 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		}
 		return entityAnnotation.alias();
 	}
-	
+
 }

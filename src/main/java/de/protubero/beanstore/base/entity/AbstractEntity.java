@@ -3,6 +3,7 @@ package de.protubero.beanstore.base.entity;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -10,12 +11,13 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
 public class AbstractEntity extends AbstractPersistentObject {
 
-	public static class MapEntry implements Map.Entry<String, Object> {
+	public class MapEntry implements Map.Entry<String, Object> {
 
 		private String key;
 		private Object value;
@@ -36,8 +38,10 @@ public class AbstractEntity extends AbstractPersistentObject {
 		}
 
 		@Override
-		public Object setValue(Object value) {
-			throw new UnsupportedOperationException();
+		public Object setValue(Object aValue) {
+			Object result = AbstractEntity.this.put(key, aValue);
+			this.value = aValue;
+			return result;
 		}
 		
 		@Override
@@ -46,6 +50,10 @@ public class AbstractEntity extends AbstractPersistentObject {
 		}
 		
 	}
+	
+	@JsonIgnore	
+	private Set<String> changedFields;
+
 	
 	public EntityCompanion<?> companion() {
 		return (EntityCompanion<?>) super.companion;
@@ -67,7 +75,6 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public boolean containsKey(Object key) {
-		checkIfCreatedByStore();
 		return companion().hasProperty((String) key);
 	}
 
@@ -78,28 +85,16 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Object get(Object key) {
-		try {
-			return PropertyUtils.getSimpleProperty(this, (String) key);
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		}
+		return companion().getProperty(this, key);
 	}
 
 	@Override
 	public Object put(String key, Object value) {
-		try {
-			Object result = PropertyUtils.getSimpleProperty(this, (String) key);
-			PropertyUtils.setSimpleProperty(this, key, value);
-			return result;
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		}
+		Object result = companion().getProperty(this, key);
+		companion().setProperty(this, key, value);
+		return result;
 	}
 
-	@Override
-	public Object remove(Object key) {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public void putAll(Map<? extends String, ? extends Object> map) {
@@ -115,7 +110,6 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Set<String> keySet() {
-		checkIfCreatedByStore();
 		return companion().propertySet();
 	}
 
@@ -126,13 +120,50 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
-		checkIfCreatedByStore();
 		Set<Entry<String, Object>> resultSet = new HashSet<>();
 		for (PropertyDescriptor descriptor : companion().getDescriptors()) {
 				resultSet.add(new MapEntry(descriptor.getName(), 
 						get(descriptor.getName())));
 		};
 		return resultSet;
+	}
+
+	@Override
+	public Map<String, Object> recordedValues()  {
+		if (state != State.RECORD) {
+			throw new AssertionError();
+		}
+		Map<String, Object> map = new HashMap<>();
+		
+		changedFields.forEach(fieldName -> {
+			map.put(fieldName, get(fieldName));
+		});
+		return map;
+	}
+
+
+	@Override
+	public Object remove(Object key) {
+		if (key == null || !(key instanceof String)) {
+			throw new RuntimeException("Null or non-string key");
+		}
+		return put((String) key, null);
+	}
+
+
+	@Override
+	protected void onStateChange(State fromState, State newState) {
+		switch (newState) {
+		case RECORD:
+			changedFields = new HashSet<>();
+		default:
+			// NOP
+		}
+	}
+	
+	@Override
+	protected void recordChange(String fieldName) {
+		changedFields.add(fieldName);
 	}
 
 
