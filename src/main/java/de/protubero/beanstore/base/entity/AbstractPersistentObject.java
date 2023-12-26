@@ -32,11 +32,6 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	@JsonIgnore	
 	protected State state = State.INSTANTIATED;
 
-	public AbstractPersistentObject() {
-		if (!(this instanceof GeneratedClass)) {
-			throw new RuntimeException("Entities are always instantiated by the BeanStore");
-		}
-	}
 
 	protected abstract void onStateChange(State state2, State newState);
 
@@ -134,7 +129,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				onStateChange(state, newState);
 				return;
 			default:
-				throw new AssertionError();
+				throw new AssertionError(newState);
 			}
 		case STORED:
 			switch (newState) {

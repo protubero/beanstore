@@ -1,8 +1,6 @@
 package de.protubero.beanstore.impl;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;

@@ -1,6 +1,5 @@
 package de.protubero.beanstore.api;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 

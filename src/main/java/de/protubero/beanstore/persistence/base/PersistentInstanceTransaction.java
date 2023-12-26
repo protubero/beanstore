@@ -11,6 +11,7 @@ public class PersistentInstanceTransaction {
 	private byte type;
 	private String alias;
 	private Long id;
+	private int version;
 	
 	// use for optimistic locking
 	@JsonIgnore
@@ -53,13 +54,6 @@ public class PersistentInstanceTransaction {
 		this.propertyUpdates = propertyUpdates;
 	}
 
-	public Object getRef() {
-		return ref;
-	}
-
-	public void setRef(Object ref) {
-		this.ref = ref;
-	}
 	
 	@Override
 	public String toString() {
@@ -86,6 +80,14 @@ public class PersistentInstanceTransaction {
 		default:
 			throw new AssertionError();
 		}
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 	
 }

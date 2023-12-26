@@ -11,15 +11,8 @@ public interface BaseTransaction {
 	
 	/**
 	 * Create a new instance of an entity with alias <i>alias</i>.<br>
-	 *  
 	 */
 	<T extends AbstractPersistentObject> T create(String alias);
-
-	/**
-	 * Use an existing instance (which has not been created by the store) to create a new entity instance 
-	 */
-	void create(AbstractPersistentObject apo);
-	
 	
 	/**
 	 * Update an existing instance. To update any properties, 

@@ -14,6 +14,7 @@ import com.esotericsoftware.kryo.kryo5.io.Output;
 
 import de.protubero.beanstore.persistence.api.SetPropertyValue;
 
+@SuppressWarnings("rawtypes")
 public class PropertyBeanSerializer extends Serializer {
 
 	public static final Logger log = LoggerFactory.getLogger(PropertyBeanSerializer.class);

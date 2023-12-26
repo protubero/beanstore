@@ -19,11 +19,12 @@ import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.api.MigrationTransaction;
 import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.entity.EntityCompanion;
 import de.protubero.beanstore.base.entity.MapObjectCompanion;
+import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionPhase;
 import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.TransactionReader;
@@ -71,11 +72,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		this.mode = Objects.requireNonNull(mode);
 	}
 
-
 	public BeanStoreFactoryImpl() {
 	}
-
-	
 	
 	@Override
 	public void addPlugin(BeanStorePlugin plugin) {
@@ -193,9 +191,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
 			PersistentTransaction pTransaction = createTransaction(t);
 			
-			plugins.forEach(plugin -> plugin.onWriteTransaction(t.persistentTransaction));
+			plugins.forEach(plugin -> plugin.onWriteTransaction(pTransaction));
 			if (deferredTransactionWriter != null) {
-				deferredTransactionWriter.append(t.persistentTransaction);
+				deferredTransactionWriter.append(pTransaction);
 			}
 		});
 		
@@ -206,7 +204,35 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		PersistentTransaction pt = new PersistentTransaction(transaction.getTransactionType(), transaction.getTransactionId());		
 		pt.setTimestamp(Objects.requireNonNull(transaction.getTimestamp()));
 		
-		
+		PersistentInstanceTransaction[] eventArray = new PersistentInstanceTransaction[transaction.getInstanceEvents().size()];
+		int idx = 0;
+		for (InstanceTransactionEvent<?> event : transaction.getInstanceEvents()) {
+			PersistentInstanceTransaction pit = new PersistentInstanceTransaction();
+			eventArray[idx++] = pit;
+			pit.setAlias(event.entity().alias());
+			switch (event.type()) {
+			case Delete:
+				pit.setType(PersistentInstanceTransaction.TYPE_DELETE);
+				pit.setId(event.replacedInstance().id());
+				pit.setVersion(event.replacedInstance().version());
+				break;
+			case Update:
+				pit.setType(PersistentInstanceTransaction.TYPE_UPDATE);
+				pit.setId(event.newInstance().id());
+				pit.setPropertyUpdates((PersistentProperty[]) event.values());
+				pit.setVersion(event.newInstance().version());
+				
+				break;
+			case Create:
+				pit.setType(PersistentInstanceTransaction.TYPE_CREATE);
+				pit.setId(event.newInstance().id());
+				pit.setPropertyUpdates((PersistentProperty[]) event.values());
+				pit.setVersion(event.newInstance().version());
+
+				break;
+			}
+		}
+		pt.setInstanceTransactions(eventArray);
 		
 		return pt;
 	}
@@ -284,6 +310,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public BeanStore create() {
 		throwExceptionIfAlreadyCreated();
@@ -337,10 +364,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				
 				switch (mode) {
 				case LoadedMaps:
+					throw new RuntimeException("to be implemented");
 //					newEntityStore.setCompanion(es.companion());
 //					newEntityStore.setObjectMap(null);
-					// TBD
-					throw new RuntimeException("TBD");
 				case RegisteredEntities:
 					String entityAlias = es.companion().alias();	
 					Optional<Companion<AbstractPersistentObject>> registeredEntityCompanionOpt = companionSet.companionByAlias(entityAlias);
@@ -353,7 +379,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 					} else {
 						final Companion<? extends AbstractPersistentObject> registeredEntityCompanion = registeredEntityCompanionOpt.get();
 						newEntityStore.setNextInstanceId(es.getNextInstanceId());
-						newEntityStore.setCompanion((Companion) registeredEntityCompanion);
+						newEntityStore.setCompanion((Companion<AbstractPersistentObject>) registeredEntityCompanion);
 						if (registeredEntityCompanion.isMapCompanion()) {
 							newEntityStore.setObjectMap((Map<Long, AbstractPersistentObject>) es.getObjectMap());
 						} else {
@@ -362,10 +388,11 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 							es.objects().forEach(mapObj -> {
 								AbstractEntity newInstance = (AbstractEntity) registeredEntityCompanion.createInstance();
 								newInstance.id(mapObj.id());
+								newInstance.state(State.PREPARE);
 								// copy all properties
 								((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties((Map<String, Object>) mapObj, newInstance);
 
-								newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
+								newInstance.state(State.STORED);
 								plugins.forEach(plugin -> plugin.validate(newInstance));
 								initialEntityMap.put(newInstance.id(), newInstance);
 							});
@@ -458,6 +485,9 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				case PersistentInstanceTransaction.TYPE_CREATE:
 					instance = entityStore.companion().createInstance();
 					instance.id(pit.getId());
+					instance.state(State.PREPARE);
+					entityStore.put(instance);
+					
 					break;
 				case PersistentInstanceTransaction.TYPE_DELETE:
 					if (entityStore.remove(pit.getId()) == null) {
@@ -469,7 +499,6 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 					if (instance == null) {
 						throw new AssertionError();
 					}
-					instance.applyTransition(Transition.READY_TO_INPLACEUPDATE);
 					break;
 				default:
 					throw new AssertionError();
@@ -479,6 +508,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				switch (pit.getType()) {
 				case PersistentInstanceTransaction.TYPE_CREATE:
 				case PersistentInstanceTransaction.TYPE_UPDATE:
+					instance.version(pit.getVersion());
 					if (pit.getPropertyUpdates() != null) {
 						for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
 							instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
@@ -486,27 +516,18 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 					}
 				}
 
-				switch (pit.getType()) {
-				case PersistentInstanceTransaction.TYPE_CREATE:
-					instance.applyTransition(Transition.INSTANTIATED_TO_READY);
-					entityStore.put(instance);
-					break;
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					instance.applyTransition(Transition.INPLACEUPDATE_TO_READY);
-					break;
-				}
-
 			}
 		});
+		
+		// set state of all instances to 'Stored'
+		store.forEach(es -> {
+			es.objects().forEach(instance -> instance.state(State.STORED));
+		});
 	}
-
-
-
 
 	public Mode getMode() {
 		return mode;
 	}
-
 
 	@Override
 	public KryoConfiguration kryoConfig() {

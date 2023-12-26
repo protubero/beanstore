@@ -190,17 +190,25 @@ public class StoreWriter  {
 						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
 					}
 					
-					newInstance = companion.cloneInstance(origInstance);
-					
-					// set properties
+					newInstance = companion.createInstance();
 					newInstance.state(State.PREPARE);
+					newInstance.id(origInstance.id());
+					newInstance.version(origInstance.version() + 1);
+
+					// transfer all properties from original instance
+					companion.transferProperties(origInstance, newInstance);
+					
+					// overwrite updated properties
+					elt.getRecordInstance().state(State.RECORDED);
 					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
 						newInstance.put(kvp.getProperty(), kvp.getValue());						
 					}
 					
 					((TransactionElement) elt).setReplacedInstance(origInstance);
 					((TransactionElement) elt).setNewInstance(newInstance);
-	
+
+					elt.getRecordInstance().version(newInstance.version());
+					
 					break;
 				case Create:
 					if (elt.getId() != null || elt.getVersion() != null || elt.getRefInstance() != null) {
@@ -211,11 +219,16 @@ public class StoreWriter  {
 					newInstance = companion.createInstance(newInstanceId);
 					// set properties
 					newInstance.state(State.PREPARE);
+					
+					elt.getRecordInstance().state(State.RECORDED);					
 					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
 						newInstance.put(kvp.getProperty(), kvp.getValue());						
 					}
 
 					((TransactionElement) elt).setNewInstance(newInstance);
+					elt.getRecordInstance().id(newInstanceId);
+					elt.getRecordInstance().version(newInstance.version());
+					
 					break;
 				}
 				

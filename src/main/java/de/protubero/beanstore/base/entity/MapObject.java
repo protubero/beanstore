@@ -96,6 +96,8 @@ public final class MapObject extends AbstractPersistentObject {
 				recordedValues[idx++]= PersistentProperty.of(entry.getKey(), entry.getValue());
 			}
 			properties = null;
+			break;
+		case RECORD:
 		case PREPARE:
 			properties = new HashMap<>();
 			break;

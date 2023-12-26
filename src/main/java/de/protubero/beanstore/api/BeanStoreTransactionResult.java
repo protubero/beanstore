@@ -8,7 +8,7 @@ import de.protubero.beanstore.base.tx.TransactionPhase;
 
 public interface BeanStoreTransactionResult {
 	
-	List<InstanceTransactionEvent<?>> getInstanceEvents();
+	List<? extends InstanceTransactionEvent<?>> getInstanceEvents();
 	
 	default boolean success() {
 		return !failed();

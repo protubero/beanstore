@@ -1,13 +1,11 @@
 package de.protubero.beanstore.store;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.pcollections.HashTreePMap;
 import org.slf4j.Logger;

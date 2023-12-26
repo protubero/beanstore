@@ -136,6 +136,7 @@ class BeanStoreImpl implements BeanStore {
 				BeanStoreTransactionResult transactionResult = exec(transaction);
 				result.complete(transactionResult);
 			} catch (Exception e) {
+				log.error("Error executing transaction", e);
 				result.completeExceptionally(e);
 			}
 		});

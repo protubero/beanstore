@@ -20,10 +20,6 @@ public class BaseTransactionImpl implements BaseTransaction {
 		return transaction.create(alias);
 	}
 
-	@Override
-	public void create(AbstractPersistentObject apo) {
-		transaction.create(apo);
-	}
 	
 	
 	@Override

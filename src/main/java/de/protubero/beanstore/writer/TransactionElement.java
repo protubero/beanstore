@@ -1,7 +1,5 @@
 package de.protubero.beanstore.writer;
 
-import java.time.Instant;
-
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreEntity;
 import de.protubero.beanstore.base.entity.Companion;

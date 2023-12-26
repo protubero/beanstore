@@ -2,7 +2,6 @@ package de.protubero.beanstore.base.entity;
 
 import java.beans.PropertyDescriptor;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +56,12 @@ public class AbstractEntity extends AbstractPersistentObject {
 	@JsonIgnore	
 	private Set<String> changedFields;
 
+	
+	public AbstractEntity() {
+		if (!(this instanceof GeneratedClass)) {
+			throw new RuntimeException("Entities are always instantiated by the BeanStore");
+		}
+	}
 	
 	public EntityCompanion<?> companion() {
 		return (EntityCompanion<?>) super.companion;

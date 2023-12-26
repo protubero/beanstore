@@ -65,6 +65,7 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 				return storeOptional(entityClazz).map(store -> (Companion<T>) store.companion());
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public <T extends AbstractPersistentObject> Optional<Companion<T>> companionByAlias(String alias) {
 				return storeOptional(alias).map(store -> (Companion<T>) store.companion());

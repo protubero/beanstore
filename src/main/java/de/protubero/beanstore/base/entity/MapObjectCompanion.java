@@ -38,4 +38,9 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 		return true;
 	}
 
+	@Override
+	public void transferProperties(MapObject origInstance, MapObject newInstance) {
+		newInstance.putAll(origInstance);
+	}
+
 }

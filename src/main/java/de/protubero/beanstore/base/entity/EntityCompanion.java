@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.management.RuntimeErrorException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,9 +170,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	}
 
 
+	@SuppressWarnings("null")
 	public Object getProperty(AbstractEntity entity, Object key) {
 		PropertyDescriptor desc = descriptorMap.get(key);
-		if (desc != null) {
+		if (desc == null) {
 			throw new RuntimeException("Invalid bean property: " + key);
 		} else {
 			try {
@@ -185,9 +184,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		}	
 	}
 
+	@SuppressWarnings("null")
 	public void setProperty(AbstractEntity entity, String key, Object value) {
 		PropertyDescriptor desc = descriptorMap.get(key);
-		if (desc != null) {
+		if (desc == null) {
 			throw new RuntimeException("Invalid bean property: " + key);
 		} else {
 			try {
@@ -202,6 +202,18 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	@Override
 	public boolean isMapCompanion() {
 		return false;
+	}
+
+	@Override
+	public void transferProperties(T origInstance, T newInstance) {
+		for (PropertyDescriptor desc : descriptors) {
+			try {
+				Object value = desc.getReadMethod().invoke(origInstance);
+				newInstance.put(desc.getName(), value);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 

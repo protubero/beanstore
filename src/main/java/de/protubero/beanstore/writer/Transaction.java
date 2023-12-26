@@ -250,6 +250,8 @@ public final class Transaction implements TransactionEvent {
 		
 		T recordInstance = (T) companion.get().createInstance();
 		recordInstance.state(State.RECORD);
+		recordInstance.id(id);
+		recordInstance.version(version);
 
 		TransactionElement<T> elt = new TransactionElement<>(
 				InstanceEventType.Update,
@@ -272,6 +274,7 @@ public final class Transaction implements TransactionEvent {
 		}
 		
 		T recordInstance = (T) companion.get().createInstance();
+		recordInstance.id(id);
 		recordInstance.state(State.RECORD);
 
 		TransactionElement<T> elt = new TransactionElement<>(
@@ -286,44 +289,6 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 	
-	/*
-	private PersistentProperty[] asPropertyUpdates(Map<String, Object> changes) {
-		if (changes == null || changes.size() == 0) {
-			return null;
-		}
-		
-		PersistentProperty[] propertyUpdates = new PersistentProperty[changes.size()];
-		
-		int idx = 0;
-		for (Map.Entry<String, Object> entry : changes.entrySet()) {
-			propertyUpdates[idx++] = PersistentProperty.of(entry.getKey(), entry.getValue());
-		}
-		
-		return propertyUpdates;
-	}
-	
-	public void prepare() {
-		if (prepared) {
-			return;
-		}
-		prepared = true;
-		
-		persistentTransaction.setTimestamp(Instant.now());
-		if (persistentTransaction.getInstanceTransactions() != null) {
-			for (PersistentInstanceTransaction pit : persistentTransaction.getInstanceTransactions()) {
-				AbstractPersistentObject apoRef = (AbstractPersistentObject) pit.getRef();
-				if (pit.getType() == PersistentInstanceTransaction.TYPE_CREATE && pit.getRef() != null) {
-					pit.setPropertyUpdates(asPropertyUpdates(apoRef.changes()));
-				} else if (pit.getType() == PersistentInstanceTransaction.TYPE_UPDATE && pit.getRef() != null) {
-					pit.setPropertyUpdates(asPropertyUpdates(apoRef.changes()));
-					pit.setRef(apoRef.refInstance());
-				}
-			}
-		}	
-		
-		instanceTransactions = new ArrayList<>();
-	}*/
-	
 	@Override
 	public TransactionPhase phase() {
 		return transactionPhase;
@@ -332,25 +297,6 @@ public final class Transaction implements TransactionEvent {
 	public void setTransactionPhase(TransactionPhase transactionPhase) {
 		this.transactionPhase = transactionPhase;
 	}
-
-	/*
-	public List<StoreInstanceTransaction<?>> getInstanceTransactions() {
-		return instanceTransactions;
-	}*/
-
-	/*
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public List<InstanceTransactionEvent<?>> getInstanceEvents() {
-		return (List) instanceTransactions;
-	}
-	*/
-
-	/*
-	public boolean isPrepared() {
-		return prepared;
-	}
-	*/
 
 	@Override
 	public boolean failed() {

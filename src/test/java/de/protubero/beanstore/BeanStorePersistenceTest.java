@@ -45,8 +45,9 @@ public class BeanStorePersistenceTest {
 			.entity("employee")
 			.stream()
 			.filter(emp -> emp.get("firstName").equals("Paul"))
-			.map(e -> mTx.update(e)).forEach(e -> {
-				e.put("age", e.getInteger("age") + 3);
+			.forEach(e -> {
+				var update = mTx.update(e);
+				update.put("age", e.getInteger("age") + 3);
 			});
 		});
 		var beanStore2 = builder.create();

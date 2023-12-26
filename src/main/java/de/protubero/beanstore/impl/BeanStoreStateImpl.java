@@ -11,7 +11,6 @@ import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
-import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 
 public class BeanStoreStateImpl implements BeanStoreState {
 

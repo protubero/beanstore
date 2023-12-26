@@ -40,6 +40,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 			for (PersistentInstanceTransaction pit : pt.getInstanceTransactions()) {
 				output.writeByte(pit.getType());
 				output.writeVarLong(pit.getId(), true);
+				output.writeVarInt(pit.getVersion(), true);
 				output.writeString(Objects.requireNonNull(pit.getAlias()));
 				
 				if (pit.getPropertyUpdates() == null) {
@@ -83,6 +84,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 				pitArray[i] = pit;
 				pit.setType(input.readByte());
 				pit.setId(input.readVarLong(true));
+				pit.setVersion(input.readVarInt(true));
 				pit.setAlias(input.readString());
 				
 				int numProperties = input.readVarInt(true);
