@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface TransactionEvent {
 	
-	List<InstanceTransactionEvent<?>> getInstanceEvents();
+	List<? extends InstanceTransactionEvent<?>> getInstanceEvents();
 	
 	default boolean success() {
 		return !failed();

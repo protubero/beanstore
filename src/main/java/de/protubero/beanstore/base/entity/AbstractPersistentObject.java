@@ -6,14 +6,15 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.protubero.beanstore.persistence.base.KeyValuePair;
+
 
 public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
 
 	public static enum State {
 		INSTANTIATED,
-		
-		// nulls means 'delete'
 		RECORD,
+		RECORDED,
 		PREPARE, 		 
 		STORED,  	
 		OUTDATED; 	
@@ -39,9 +40,9 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 
 	protected abstract void onStateChange(State state2, State newState);
 
-	public abstract Map<String, Object> recordedValues();
-
 	protected abstract void recordChange(String fieldName);
+	
+	public abstract KeyValuePair[] changes(); 
 	
 	public void id(long aId) {
 		if (id != null && !(state == State.PREPARE)) {
@@ -76,6 +77,8 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		case STORED:
 		case OUTDATED:
 			throw new RuntimeException("changing value on immutable instance is prohibited " + fieldName + " -> " + object);
+		case RECORDED:
+			throw new RuntimeException("changing value aftre recording is prohibited " + fieldName + " -> " + object);
 		default:
 			// NOP
 		}
@@ -89,6 +92,8 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		case STORED:
 		case OUTDATED:
 			throw new RuntimeException("changing values on immutable instances is prohibited");
+		case RECORDED:
+			throw new RuntimeException("changing values on instance afetr Recording is prohibited");
 		default:
 			// NOP
 		}
@@ -134,6 +139,15 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		case STORED:
 			switch (newState) {
 			case OUTDATED:
+				state = newState;
+				onStateChange(state, newState);
+				return;
+			default:
+				throw new AssertionError();
+			}
+		case RECORD:
+			switch (newState) {
+			case RECORDED:
 				state = newState;
 				onStateChange(state, newState);
 				return;

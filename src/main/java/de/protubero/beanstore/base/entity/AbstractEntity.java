@@ -1,17 +1,17 @@
 package de.protubero.beanstore.base.entity;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.protubero.beanstore.persistence.base.KeyValuePair;
+import de.protubero.beanstore.persistence.base.PersistentProperty;
 
 
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
@@ -50,6 +50,9 @@ public class AbstractEntity extends AbstractPersistentObject {
 		}
 		
 	}
+	
+	@JsonIgnore	
+	private PersistentProperty[] changes;
 	
 	@JsonIgnore	
 	private Set<String> changedFields;
@@ -129,20 +132,6 @@ public class AbstractEntity extends AbstractPersistentObject {
 	}
 
 	@Override
-	public Map<String, Object> recordedValues()  {
-		if (state != State.RECORD) {
-			throw new AssertionError();
-		}
-		Map<String, Object> map = new HashMap<>();
-		
-		changedFields.forEach(fieldName -> {
-			map.put(fieldName, get(fieldName));
-		});
-		return map;
-	}
-
-
-	@Override
 	public Object remove(Object key) {
 		if (key == null || !(key instanceof String)) {
 			throw new RuntimeException("Null or non-string key");
@@ -156,6 +145,15 @@ public class AbstractEntity extends AbstractPersistentObject {
 		switch (newState) {
 		case RECORD:
 			changedFields = new HashSet<>();
+			break;
+		case RECORDED:
+			changes = new PersistentProperty[changedFields.size()];
+			int idx = 0;
+			for (String fieldName : changedFields) {
+				changes[idx++] = PersistentProperty.of(fieldName, get(fieldName)); 
+			}
+			
+			break;
 		default:
 			// NOP
 		}
@@ -164,6 +162,12 @@ public class AbstractEntity extends AbstractPersistentObject {
 	@Override
 	protected void recordChange(String fieldName) {
 		changedFields.add(fieldName);
+	}
+
+
+	@Override
+	public KeyValuePair[] changes() {
+		return changes;
 	}
 
 

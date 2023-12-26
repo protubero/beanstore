@@ -4,12 +4,14 @@ Automated Tests
 Auto-Release, Protected Main branch
 fix architecture tests
 
-all fields must be without default value.
 oder null bei create nicht setzen
  
-work with boolean, int, u.s.w 
+all fields must be without default value.
+work with boolean, int, u.s.w: Verboten! Default Value muss null sein 
  
-update ohne ref auf Objekt 
+update ohne ref auf Objekt, instead use 'version' für Opt. locking 
+ 
+explicit sync transaction method 
  
 ------------------------------------- 0.8.5
 

@@ -191,6 +191,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		StoreWriter storeWriter = new StoreWriter();
 
 		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
+			PersistentTransaction pTransaction = createTransaction(t);
+			
 			plugins.forEach(plugin -> plugin.onWriteTransaction(t.persistentTransaction));
 			if (deferredTransactionWriter != null) {
 				deferredTransactionWriter.append(t.persistentTransaction);
@@ -199,6 +201,16 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		
 		return storeWriter;
 	}
+
+	private PersistentTransaction createTransaction(Transaction transaction) {
+		PersistentTransaction pt = new PersistentTransaction(transaction.getTransactionType(), transaction.getTransactionId());		
+		pt.setTimestamp(Objects.requireNonNull(transaction.getTimestamp()));
+		
+		
+		
+		return pt;
+	}
+
 
 	private void migrate(final MutableEntityStoreSet mapStore) {
 		// fill up map store with registered entities without any persisted instances

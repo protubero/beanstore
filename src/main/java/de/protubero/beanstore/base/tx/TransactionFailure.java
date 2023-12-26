@@ -1,6 +1,7 @@
 package de.protubero.beanstore.base.tx;
 
 import de.protubero.beanstore.base.entity.BeanStoreException;
+import de.protubero.beanstore.writer.TransactionElement;
 
 public final class TransactionFailure extends BeanStoreException {
 
@@ -10,13 +11,11 @@ public final class TransactionFailure extends BeanStoreException {
 	private static final long serialVersionUID = -8068520425192668938L;
 
 	private TransactionFailureType type;
-	private String alias;
-	private Long id;
+	private TransactionElement<?> elt;
 
-	public TransactionFailure(TransactionFailureType type, String alias, Long id) {
+	public TransactionFailure(TransactionFailureType type, TransactionElement<?> elt) {
 		this.type = type;
-		this.alias = alias;
-		this.id = id;
+		this.elt = elt;
 	}
 
 	public TransactionFailure(TransactionFailureType type, Exception e) {
@@ -36,7 +35,7 @@ public final class TransactionFailure extends BeanStoreException {
 	}
 
 	public String getAlias() {
-		return alias;
+		return elt.getCompanion().alias();
 	}
 
 	public TransactionFailureType getType() {
@@ -44,6 +43,6 @@ public final class TransactionFailure extends BeanStoreException {
 	}
 
 	public Long getId() {
-		return id;
+		return elt.getId();
 	}
 }

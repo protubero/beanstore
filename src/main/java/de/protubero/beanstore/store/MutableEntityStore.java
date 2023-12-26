@@ -92,7 +92,7 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 			}
 		}
 		
-		if (modelObject.state() != State.READY) {
+		if (modelObject.state() != State.STORED) {
 			throw new AssertionError("invalid state: " + modelObject.state());
 		}
 		Objects.requireNonNull(modelObject.id());

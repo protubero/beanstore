@@ -1,5 +1,6 @@
 package de.protubero.beanstore.writer;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,16 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject.Transition;
-import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.Companion;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionFailure;
 import de.protubero.beanstore.base.tx.TransactionFailureType;
 import de.protubero.beanstore.base.tx.TransactionPhase;
-import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentProperty;
+import de.protubero.beanstore.persistence.base.KeyValuePair;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
@@ -31,19 +30,18 @@ public class StoreWriter  {
 	
 	// synchronous callbacks
 	private List<Consumer<Transaction>> transactionListener = new ArrayList<>();
-	private List<Consumer<StoreInstanceTransaction<?>>> instanceTransactionListener = new ArrayList<>();	
+	private List<Consumer<InstanceTransactionEvent<?>>> instanceTransactionListener = new ArrayList<>();	
 
 	// async callbacks
 	private PublishSubject<Transaction> transactionSubject = PublishSubject.create(); 	
-	private PublishSubject<StoreInstanceTransaction<?>> instanceTransactionSubject = PublishSubject.create(); 	
+	private PublishSubject<InstanceTransactionEvent<?>> instanceTransactionSubject = PublishSubject.create(); 	
 	
 		
 
 	public StoreWriter() {
-		
 		transactionSubject.
 			subscribe(tx -> {
-			List<StoreInstanceTransaction<?>> instanceTransactions = tx.getInstanceTransactions();
+			List<? extends InstanceTransactionEvent<?>> instanceTransactions = tx.getInstanceEvents();
 			if (instanceTransactions != null) {
 				instanceTransactions.forEach(itx -> instanceTransactionSubject.onNext(itx));
 			}
@@ -102,7 +100,7 @@ public class StoreWriter  {
 	public void registerSyncInstanceTransactionListener(TransactionPhase phase, final Consumer<InstanceTransactionEvent<?>> listener) {
 		transactionListener.add((transaction) -> {
 			if (transaction.phase() == phase) {
-				transaction.getInstanceTransactions().forEach(listener);
+				transaction.getInstanceEvents().forEach(listener);
 			}
 		});
 	}
@@ -116,8 +114,8 @@ public class StoreWriter  {
 				exceptionHandler.accept(e);
 			}
 		}
-		for (Consumer<StoreInstanceTransaction<?>> aTransactionListener : this.instanceTransactionListener) {
-			for (var sit : transaction.getInstanceTransactions()) {
+		for (Consumer<InstanceTransactionEvent<?>> aTransactionListener : this.instanceTransactionListener) {
+			for (var sit : transaction.getInstanceEvents()) {
 				try {
 					aTransactionListener.accept(sit);
 				} catch (Exception e) {
@@ -131,8 +129,8 @@ public class StoreWriter  {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public synchronized <E extends EntityStore<?>, S extends EntityStoreSet<E>> S execute(Transaction aTransaction, S aStoreSet) throws TransactionFailure {
-		aTransaction.prepare();		
-
+		aTransaction.setTimestamp(Instant.now());
+		
 		// Clone Store Set
 		S workStoreSet = (S) Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
 		S result = aStoreSet;
@@ -141,62 +139,86 @@ public class StoreWriter  {
 		if (!aTransaction.isEmpty()) {		
 					
 			// 1. Create instance clones and check optimistic locking (Wrap with StoreInstanceTransaction)
-			for (PersistentInstanceTransaction pit : aTransaction.persistentTransaction.getInstanceTransactions()) {
-				EntityStore<?> entityStore = workStoreSet.store(pit.getAlias());
+			for (TransactionElement<?> elt : aTransaction.elements()) {
+				EntityStore<?> entityStore = workStoreSet.store(elt.getAlias());
+				if (entityStore == null) {
+					throw new AssertionError();
+				}
+				
 				Companion companion = ((Companion) entityStore.companion());
+				if (elt.getCompanion() != null && elt.getCompanion() != companion) {
+					throw new AssertionError();
+				}
+				
 				AbstractPersistentObject newInstance = null;
 				AbstractPersistentObject origInstance = null;
-				if (pit.getType() == PersistentInstanceTransaction.TYPE_DELETE ||
-						pit.getType() == PersistentInstanceTransaction.TYPE_UPDATE) {
+				switch (elt.type()) {
+				case Delete:
+					if (elt.getId() == null) {
+						throw new AssertionError();
+					}
 					
-					origInstance = entityStore.get(pit.getId());
+					origInstance = entityStore.get(elt.getId());
+					
 					// fail if referenced instance doesn't exist or has already been deleted
 					if (origInstance == null) {
-						throw new TransactionFailure(TransactionFailureType.INSTANCE_NOT_FOUND, pit.getAlias(), pit.getId());
+						throw new TransactionFailure(TransactionFailureType.INSTANCE_NOT_FOUND, elt);
 					} 
 					
 					// check optimistic locking
-					if (pit.getRef() != null && pit.getRef() != origInstance) {
-						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, pit.getAlias(),  pit.getId());
+					if (elt.isOptimisticLocking() && elt.getVersion().intValue() != origInstance.version()) {
+						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
 					}
 					
-					if (!origInstance.state().isImmutable()) {
+					((TransactionElement) elt).setReplacedInstance(origInstance);
+					
+					break;
+				case Update:
+					if (elt.getId() == null) {
 						throw new AssertionError();
 					}
+					
+					origInstance = entityStore.get(elt.getId());
+					
+					// fail if referenced instance doesn't exist or has already been deleted
+					if (origInstance == null) {
+						throw new TransactionFailure(TransactionFailureType.INSTANCE_NOT_FOUND, elt);
+					} 
+					
+					// check optimistic locking
+					if (elt.isOptimisticLocking() && elt.getVersion().intValue() != origInstance.version()) {
+						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
+					}
+					
 					newInstance = companion.cloneInstance(origInstance);
 					
-					if (pit.getType() == PersistentInstanceTransaction.TYPE_UPDATE && pit.getPropertyUpdates() != null) {
-						// set properties
-						for (PersistentProperty ppu : pit.getPropertyUpdates()) {
-							newInstance.put(ppu.getProperty(), ppu.getValue());						
-						}
+					// set properties
+					newInstance.state(State.PREPARE);
+					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
+						newInstance.put(kvp.getProperty(), kvp.getValue());						
 					}
-					newInstance.applyTransition(Transition.INSTANTIATED_TO_READY);
+					
+					((TransactionElement) elt).setReplacedInstance(origInstance);
+					((TransactionElement) elt).setNewInstance(newInstance);
 	
-				} else {
+					break;
+				case Create:
+					if (elt.getId() != null || elt.getVersion() != null || elt.getRefInstance() != null) {
+						throw new AssertionError();
+					}
 					long newInstanceId =  entityStore.getAndIncreaseInstanceId();	
 					
-					if (pit.getRef() == null) {
-						newInstance = companion.createInstance(newInstanceId);
-						// set properties
-						for (PersistentProperty ppu : pit.getPropertyUpdates()) {
-							newInstance.put(ppu.getProperty(), ppu.getValue());						
-						}
-						pit.setRef(newInstance);
-					} else {
-						newInstance = (AbstractPersistentObject) pit.getRef(); 
-						newInstance.id(newInstanceId);
+					newInstance = companion.createInstance(newInstanceId);
+					// set properties
+					newInstance.state(State.PREPARE);
+					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
+						newInstance.put(kvp.getProperty(), kvp.getValue());						
 					}
-					pit.setId(newInstanceId);
-					newInstance.applyTransition(Transition.NEW_TO_READY);
+
+					((TransactionElement) elt).setNewInstance(newInstance);
+					break;
 				}
 				
-				StoreInstanceTransaction sit = new StoreInstanceTransaction();
-				sit.entity(entityStore.companion());
-				sit.setPersistentTransaction(pit);
-				sit.setNewInstance(newInstance);
-				sit.setReplacedInstance(origInstance);
-				aTransaction.getInstanceTransactions().add(sit);
 			}
 			
 			// 2. Verify Transaction / check invariants
@@ -204,7 +226,7 @@ public class StoreWriter  {
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
-		if (!aTransaction.isEmpty() || (aTransaction.persistentTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
+		if (!aTransaction.isEmpty() || (aTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
 			// 3. persist
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
@@ -217,34 +239,34 @@ public class StoreWriter  {
 			result = workStoreSet;
 			
 			// 4. apply changes
-			for (StoreInstanceTransaction<?> sit : aTransaction.getInstanceTransactions()) {
-				EntityStore<?> entityStore = workStoreSet.store(sit.entity().alias());
-				switch (sit.getType()) {
-				case PersistentInstanceTransaction.TYPE_DELETE:
-					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(sit.instanceId());
+			for (TransactionElement<?> elt : aTransaction.elements()) {
+				EntityStore<?> entityStore = workStoreSet.store(elt.getAlias());
+				switch (elt.type()) {
+				case Delete:
+					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(elt.replacedInstance().id());
 					if (removedInstance == null) {
-						// this should have lead to an TransactionFeature already
+						// this should have lead to an Transaction Failure already
 						throw new AssertionError();
 					}
-					removedInstance.applyTransition(Transition.READY_TO_OUTDATED);
+					removedInstance.state(State.OUTDATED);
 					break;
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					AbstractPersistentObject origInstance = entityStore.internalUpdateInplace((AbstractPersistentObject) sit.newInstance());
+				case Update:
+					elt.newInstance().state(State.STORED);
+					AbstractPersistentObject origInstance = entityStore.internalUpdateInplace((AbstractPersistentObject) elt.newInstance());
 					if (origInstance == null)  {
 						// this should have lead to an TransactionFeature already
 						throw new AssertionError();
 					}
-					origInstance.applyTransition(Transition.READY_TO_OUTDATED);
+					origInstance.state(State.OUTDATED);
 					break;
-				case PersistentInstanceTransaction.TYPE_CREATE:
-					AbstractPersistentObject existingInstance = entityStore.internalCreateInplace((AbstractPersistentObject) sit.newInstance());
+				case Create:
+					elt.newInstance().state(State.STORED);
+					AbstractPersistentObject existingInstance = entityStore.internalCreateInplace((AbstractPersistentObject) elt.newInstance());
 					if (existingInstance != null) {
 						// instance id management went wrong
 						throw new AssertionError();
 					}
 					break;
-				default: 
-					throw new AssertionError(); 	
 				}
 			}
 			

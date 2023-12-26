@@ -6,9 +6,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.protubero.beanstore.persistence.base.KeyValuePair;
+import de.protubero.beanstore.persistence.base.PersistentProperty;
+
 public final class MapObject extends AbstractPersistentObject {
 
 	private Map<String, Object> properties;
+	
+	@JsonIgnore
+	private PersistentProperty[] recordedValues;
 	
 	@Override
 	public int size() {
@@ -81,7 +89,13 @@ public final class MapObject extends AbstractPersistentObject {
 	@Override
 	protected void onStateChange(State fromState, State toState) {
 		switch (toState) {
-		case RECORD:
+		case RECORDED:
+			recordedValues = new PersistentProperty[properties.size()];
+			int idx = 0;
+			for (var entry : properties.entrySet()) {
+				recordedValues[idx++]= PersistentProperty.of(entry.getKey(), entry.getValue());
+			}
+			properties = null;
 		case PREPARE:
 			properties = new HashMap<>();
 			break;
@@ -98,15 +112,17 @@ public final class MapObject extends AbstractPersistentObject {
 		return (MapObjectCompanion) super.companion();
 	}
 	
-	@Override
-	public Map<String, Object> recordedValues() {
-		return properties;
-	}
 
 	@Override
 	protected void recordChange(String fieldName) {
 		// ignore
 	}
+
+	@Override
+	public KeyValuePair[] changes() {
+		return recordedValues;
+	}
+
 
 
 }
