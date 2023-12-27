@@ -6,12 +6,10 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.api.EntityState;
 import de.protubero.beanstore.model.Employee;
 

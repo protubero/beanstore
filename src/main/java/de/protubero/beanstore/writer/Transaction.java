@@ -85,7 +85,7 @@ public final class Transaction implements TransactionEvent {
 		return create(companion.get());
 	}
 
-	public <T extends AbstractPersistentObject> T create(Class<T> aClass) {
+	public <T extends AbstractEntity> T create(Class<T> aClass) {
 		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid entity class: " + aClass);
@@ -93,6 +93,22 @@ public final class Transaction implements TransactionEvent {
 		return create(companion.get());
 	}
 
+	public <T extends AbstractPersistentObject> T create(T instance) {
+		@SuppressWarnings("unchecked")
+		Companion<T> companion = (Companion<T>) instance.companion();
+		if (companion == null) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Optional<Companion<T>> companionOpt = companionSet.companionByClass((Class) instance.getClass());
+			if (companionOpt.isEmpty()) {
+				throw new RuntimeException("Invalid entity class: " + instance.getClass());
+			} else {
+				companion = companionOpt.get();
+			}
+		}
+		T result = create(companion);
+		companion.transferProperties(instance, result);
+		return result;
+	}
 	
 
 	public <T extends AbstractPersistentObject> void deleteOptLocked(String alias, long id, int version) {
@@ -242,7 +258,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	
-	public <T extends AbstractPersistentObject> T updateOptLocked(Class<T> aClass, long id, int version) {
+	public <T extends AbstractEntity> T updateOptLocked(Class<T> aClass, long id, int version) {
 		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid entity class: " + aClass);
@@ -267,7 +283,7 @@ public final class Transaction implements TransactionEvent {
 		
 	}
 	
-	public <T extends AbstractPersistentObject> T update(Class<T> aClass, long id) {
+	public <T extends AbstractEntity> T update(Class<T> aClass, long id) {
 		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid entity class: " + aClass);

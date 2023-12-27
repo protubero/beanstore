@@ -15,6 +15,10 @@ public final class MapObject extends AbstractPersistentObject {
 
 	private Map<String, Object> properties;
 	
+	public MapObject() {
+		state(State.INSTANTIATED);
+	}
+	
 	@JsonIgnore
 	private PersistentProperty[] recordedValues;
 	

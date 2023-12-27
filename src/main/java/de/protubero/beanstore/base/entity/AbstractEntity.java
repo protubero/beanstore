@@ -58,13 +58,15 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	
 	public AbstractEntity() {
-		if (!(this instanceof GeneratedClass)) {
-			throw new RuntimeException("Entities are always instantiated by the BeanStore");
+		if (this instanceof GeneratedClass) {
+			state(State.INSTANTIATED);			
+		} else {
+			state(State.UNMANAGED);	
 		}
 	}
 	
 	public EntityCompanion<?> companion() {
-		return (EntityCompanion<?>) super.companion;
+		return (EntityCompanion<?>) super.companion();
 	}
 
 	

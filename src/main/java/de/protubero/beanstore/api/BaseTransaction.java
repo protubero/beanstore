@@ -14,6 +14,9 @@ public interface BaseTransaction {
 	 */
 	<T extends AbstractPersistentObject> T create(String alias);
 	
+	<T extends AbstractPersistentObject> T create(T instance);
+	
+	
 	/**
 	 * Update an existing instance. To update any properties, 
 	 * just set them on the instance returned by this method. 
@@ -30,5 +33,7 @@ public interface BaseTransaction {
 	 * Delete the given instance. If it has already been deleted, the transaction fails.
 	 */
 	<T extends AbstractPersistentObject> void delete(T instance);
+	
+	
 	
 }

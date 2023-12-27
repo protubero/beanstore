@@ -18,4 +18,5 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 
 	CompletableFuture<BeanStoreTransactionResult> execute();
 	
+	BeanStoreTransactionResult executeBlocking();
 }

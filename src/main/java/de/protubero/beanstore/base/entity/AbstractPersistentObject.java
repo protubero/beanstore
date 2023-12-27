@@ -12,6 +12,7 @@ import de.protubero.beanstore.persistence.base.KeyValuePair;
 public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
 
 	public static enum State {
+		UNMANAGED,
 		INSTANTIATED,
 		RECORD,
 		RECORDED,
@@ -21,16 +22,16 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 	
 	@JsonProperty("id")
-	protected Long id;
+	private Long id;
 	
 	@JsonProperty("version")
-	protected int version;
+	private int version;
 	
 	@JsonIgnore	
-	protected Companion<?> companion;
+	private Companion<?> companion;
 	
 	@JsonIgnore	
-	protected State state = State.INSTANTIATED;
+	private State state;
 
 
 	protected abstract void onStateChange(State state2, State newState);
@@ -38,6 +39,9 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	protected abstract void recordChange(String fieldName);
 	
 	public abstract KeyValuePair[] changes(); 
+	
+	public AbstractPersistentObject() {
+	}
 	
 	public void id(long aId) {
 		if (id != null && !(state == State.PREPARE)) {
@@ -53,7 +57,11 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
-	    return ((Companion) companion).toString(this);
+		if (state == State.UNMANAGED) {
+			return null;
+		} else {
+			return ((Companion) companion).toString(this);
+		}	
 	}
 
 	public boolean outdated() {
@@ -99,6 +107,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		case RECORD:
 			recordChange(fieldName);
 		case PREPARE:
+		case UNMANAGED:
 			break;
 		default:
 			throw new AssertionError();
@@ -111,7 +120,14 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 
 	public void state(State newState) {
+		if (state == null) {
+			state = newState;
+			return;
+		}
+		
 		switch (state) {
+		case UNMANAGED:
+			throw new AssertionError();
 		case INSTANTIATED:
 			switch (newState) {
 			case RECORD:
@@ -158,8 +174,8 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return companion;
 	}
 
-	public void companion(Companion<?> companion) {
-		if (this.companion != null) {
+	public void companion(Companion<?> companion) {		
+		if (state == State.UNMANAGED || this.companion != null) {
 			throw new AssertionError();
 		}
 		this.companion = Objects.requireNonNull(companion);
@@ -183,7 +199,11 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	
 	@Override
 	public String alias() {
-		return companion.alias();
+		if (state == State.UNMANAGED) {
+			return aliasOf(this);
+		} else {
+			return companion.alias();
+		}	
 	}
 	
 	public int version() {

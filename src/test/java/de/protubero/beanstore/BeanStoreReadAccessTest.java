@@ -56,7 +56,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		assertEquals(updatedObj.alias(), emp1.alias());
 		
 		assertEquals(State.OUTDATED, emp1.state());
-		assertEquals(State.READY, updatedObj.state());
+		assertEquals(State.STORED, updatedObj.state());
 	}
 
 	@Test

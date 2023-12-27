@@ -22,8 +22,8 @@ public class SearchTest {
 	@Test
 	public void test() {
 		SearchEngine engine = new SearchEngine();
-		engine.index(SearchEngineAction.create("employee", "1", "Erik the Wikinger"));
-		engine.index(SearchEngineAction.create("employee", "2", "Robin the the Hood"));
+		engine.index(SearchEngineAction.create("employee", 1, "Erik the Wikinger"));
+		engine.index(SearchEngineAction.create("employee", 2, "Robin the the Hood"));
 		
 		List<SearchResult> searchResult = engine.query("Erik");
 		
@@ -39,13 +39,13 @@ public class SearchTest {
 		assertEquals("1", searchResult.get(1).getId());
 		assertEquals("employee", searchResult.get(1).getType());
 		
-		engine.index(SearchEngineAction.update("employee", "1", "Erik Wikinger"));
+		engine.index(SearchEngineAction.update("employee", 1, "Erik Wikinger"));
 		searchResult = engine.query("the");
 		assertEquals(1, searchResult.size());
 		assertEquals("2", searchResult.get(0).getId());
 		assertEquals("employee", searchResult.get(0).getType());
 		
-		engine.index(SearchEngineAction.delete("employee", "1"));
+		engine.index(SearchEngineAction.delete("employee", 1));
 		searchResult = engine.query("Erik");
 		assertEquals(0, searchResult.size());
 		

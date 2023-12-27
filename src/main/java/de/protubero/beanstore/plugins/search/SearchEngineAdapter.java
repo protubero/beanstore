@@ -75,17 +75,17 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 			if (content == null) {
 				return;
 			}
-			action = SearchEngineAction.create(it.entity().alias(), it.instanceId(), content);
+			action = SearchEngineAction.create(it.entity().alias(), it.newInstance().id(), content);
 			break;
 		case Update:
 			content = contentOf(it.newInstance());
 			if (content == null) {
 				return;
 			}
-			action = SearchEngineAction.update(it.entity().alias(), it.instanceId(), content);
+			action = SearchEngineAction.update(it.entity().alias(), it.newInstance().id(), content);
 			break;
 		case Delete:
-			action = SearchEngineAction.delete(it.entity().alias(), it.instanceId());
+			action = SearchEngineAction.delete(it.entity().alias(), it.replacedInstance().id());
 			break;
 		default:
 			throw new AssertionError();

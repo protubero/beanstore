@@ -38,4 +38,10 @@ public class BaseTransactionImpl implements BaseTransaction {
 	}
 
 
+	@Override
+	public <T extends AbstractPersistentObject> T create(T instance) {
+		return transaction.create(instance);
+	}
+
+
 }

@@ -10,7 +10,7 @@ public abstract class AbstractCompanion<T extends AbstractPersistentObject> impl
 	
 	@Override
 	public String toString(T instance) {		
-		StringBuilder result = new StringBuilder(alias() + " [" + instance.id + "]");
+		StringBuilder result = new StringBuilder(alias() + " [" + instance.id() + "]");
 		
 		instance.forEach((key, value) -> {
 			result.append(System.lineSeparator() + " " + key + "=" + String.valueOf(value));

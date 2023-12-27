@@ -2,6 +2,7 @@ package de.protubero.beanstore.impl;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
@@ -20,6 +21,15 @@ public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl
 	@Override
 	public CompletableFuture<BeanStoreTransactionResult> execute() {
 		return beanStore.execute(transaction);
+	}
+
+	@Override
+	public BeanStoreTransactionResult executeBlocking() {
+		try {
+			return execute().get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

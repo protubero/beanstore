@@ -4,18 +4,50 @@ Automated Tests
 Auto-Release, Protected Main branch
 fix architecture tests
 
-oder null bei create nicht setzen
  
-all fields must be without default value.
 work with boolean, int, u.s.w: Verboten! Default Value muss null sein 
  
-update ohne ref auf Objekt, instead use 'version' für Opt. locking 
  
 explicit sync transaction method 
+
+# KeyValue Store
+	class KeyValueEntity extends AbstractEntity {
+		KeyObject key
+		Object value
+	}
+	
+	class KeyValueStore {
+		BeanStore store;
+		subConfig(key) : KeyValueStore
+		remove(key)
+		update(key, value)
+		 
+	}
  
 ------------------------------------- 0.8.5
 
 # Links
+
+class Task  {
+	@Reference(autoDelete=true)
+	Task subTask
+}
+
+class Task  {
+	@BackReference(fieldName="subTask")
+	Task mainTask 
+}
+
+class level Annotation IgnoreEntityField
+class BackReference {
+}
+
+class ReferenceSerializer {
+}
+
+class ReferenceManager implements TransactionListener {
+}
+
 
 LinkAndPartEntity
 	alias
@@ -42,16 +74,6 @@ storeState.partInfos().filter(pi -> pi.source.alias == 'xx')
 
 ------------------------------------- 0.8.6
 
-
-# KeyValue Store
-Option A: Map Object
-Option B: KeyValue Beans
-Meta Config Map Persistence 
-tags.groups.xx.description=
-tx.config("tags").put("groups.xx.description", xyz);
-or KeyValueEntity
-
-
 Lock File
 
 Generated Entities
@@ -60,7 +82,18 @@ Generated Entities
 	https://github.com/drewctaylor/javapoet-maven-plugin
 	
 
-File Reference Manager
+#File Reference Manager
+class FileRef {
+	String fileName;
+	String description;
+	String originalFileName	
+	
+}
+
+class FileManager implements RefSerializer, TransactionListener .. {
+
+}
+
 
 Ignore Annotation
 

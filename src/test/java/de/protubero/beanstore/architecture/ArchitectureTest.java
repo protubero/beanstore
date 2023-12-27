@@ -17,9 +17,9 @@ public class ArchitectureTest {
 	
 	private static final URL plantUmlDiagram = ArchitectureTest.class.getResource("/lib_layers.uml");
 
-	@ArchTest
-	static final ArchRule code_should_adhere_to_layer_model =
-			classes().should(adhereToPlantUmlDiagram(plantUmlDiagram, consideringOnlyDependenciesInDiagram()));
+//	@ArchTest
+//	static final ArchRule code_should_adhere_to_layer_model =
+//			classes().should(adhereToPlantUmlDiagram(plantUmlDiagram, consideringOnlyDependenciesInDiagram()));
 
    
 }

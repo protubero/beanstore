@@ -39,7 +39,7 @@ public class BeanStoreTest {
 		assertEquals(3, emp2.get("age"));
 		
 		assertNotNull(emp2.id());
-		assertEquals(State.READY, emp2.state());
+		assertEquals(State.STORED, emp2.state());
 		
 		//emp2.setAge(12);
 		

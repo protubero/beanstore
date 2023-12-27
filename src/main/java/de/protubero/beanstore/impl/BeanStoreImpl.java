@@ -35,7 +35,7 @@ class BeanStoreImpl implements BeanStore {
 	private boolean closed;
 	
 	private CompletableFuture<Integer> closedStoreFuture = new CompletableFuture<>();
-		
+
 	BeanStoreImpl(ImmutableEntityStoreSet store, Runnable onCloseCallback, StoreWriter aStoreWriter) {
 		this.store = Objects.requireNonNull(store);
 		this.storeWriter = aStoreWriter;		

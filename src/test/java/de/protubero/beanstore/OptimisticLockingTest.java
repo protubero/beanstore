@@ -32,7 +32,7 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		var tx2 = store.transaction();
 		
 		var empUpd1 = tx1.update(emp1);
-		var empUpd2 = tx2.update(emp1);
+		var empUpd2 = tx2.updateOptLocked(emp1);
 		
 		empUpd1.setAge(13);
 		empUpd2.setEmployeeNumber(14);
