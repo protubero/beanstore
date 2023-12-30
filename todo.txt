@@ -1,29 +1,13 @@
-prohibit Re-execution of transactions
 protect main branch and work with feature branches in the future.
-Automated Tests
+More Automated Tests
 Auto-Release, Protected Main branch
 fix architecture tests
 
- 
-work with boolean, int, u.s.w: Verboten! Default Value muss null sein 
- 
- 
-explicit sync transaction method 
+kryo Dictionary
 
 # KeyValue Store
-	class KeyValueEntity extends AbstractEntity {
-		KeyObject key
-		Object value
-	}
 	
-	class KeyValueStore {
-		BeanStore store;
-		subConfig(key) : KeyValueStore
-		remove(key)
-		update(key, value)
-		 
-	}
- 
+refactor Plugin mechanism	
 ------------------------------------- 0.8.5
 
 # Links
@@ -95,6 +79,7 @@ class FileManager implements RefSerializer, TransactionListener .. {
 }
 
 
-Ignore Annotation
+Ignore Annotation / Transient
+
 
 

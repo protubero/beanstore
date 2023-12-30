@@ -144,10 +144,12 @@ class BeanStoreImpl implements BeanStore {
 	}
 	
 	@Override
-	public void locked(Consumer<Supplier<ExecutableLockedBeanStoreTransaction>> consumer) {
+	public CompletableFuture<Void> locked(Consumer<Supplier<ExecutableLockedBeanStoreTransaction>> consumer) {
 		if (closed) {
 			throw new RuntimeException("Closed store does not accept transactions");
 		}
+		
+		CompletableFuture<Void> result = new CompletableFuture<>();
 		taskAsync(() -> {
 			consumer.accept(new Supplier<>() {
 
@@ -160,7 +162,10 @@ class BeanStoreImpl implements BeanStore {
 				}
 				
 			});	
+			result.complete(null);
 		});
+		
+		return result;
 	}
 
 	@Override

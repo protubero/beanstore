@@ -15,6 +15,8 @@ import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.base.entity.BeanStoreException;
 import de.protubero.beanstore.base.entity.Companion;
+import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.base.entity.MapObjectCompanion;
 import de.protubero.beanstore.base.tx.InstanceEventType;
 import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.base.tx.TransactionEvent;
@@ -77,8 +79,8 @@ public final class Transaction implements TransactionEvent {
 		return result;
 	}
 	
-	public <T extends AbstractPersistentObject> T create(String alias) {
-		Optional<Companion<T>> companion = companionSet.companionByAlias(alias);
+	public AbstractPersistentObject create(String alias) {
+		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid alias: " + alias);
 		}
@@ -111,15 +113,16 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 
-	public <T extends AbstractPersistentObject> void deleteOptLocked(String alias, long id, int version) {
-		Optional<Companion<T>> companion = companionSet.companionByAlias(alias);
+	public void deleteOptLocked(String alias, long id, int version) {
+		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid alias: " + alias);
 		}
 
-		TransactionElement<T> elt = new TransactionElement<>(
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		TransactionElement<AbstractPersistentObject> elt = new TransactionElement<AbstractPersistentObject>(
 				InstanceEventType.Delete,
-				companion.get(), 
+				(Companion) companion.get(), 
 				id, 
 				null,
 				null);
@@ -127,15 +130,16 @@ public final class Transaction implements TransactionEvent {
 		elements.add(elt);
 	}
 
-	public <T extends AbstractPersistentObject> void delete(String alias, long id) {
-		Optional<Companion<T>> companion = companionSet.companionByAlias(alias);
+	public void delete(String alias, long id) {
+		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid alias: " + alias);
 		}
 
-		TransactionElement<T> elt = new TransactionElement<>(
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		TransactionElement<AbstractPersistentObject> elt = new TransactionElement<AbstractPersistentObject>(
 				InstanceEventType.Delete,
-				companion.get(), 
+				(Companion) companion.get(), 
 				id, 
 				null,
 				null);
@@ -281,6 +285,31 @@ public final class Transaction implements TransactionEvent {
 
 		return recordInstance;
 		
+	}
+
+	
+	public MapObject updateMapObject(String alias, long id) {
+		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
+		if (companion.isEmpty()) {
+			throw new RuntimeException("Invalid entity alias: " + alias);
+		}
+		if (companion.get().isBean()) {
+			throw new RuntimeException("Invalid entity alias (map alias expected): " + alias);
+		}
+		
+		MapObject recordInstance = (MapObject) companion.get().createInstance();
+		recordInstance.id(id);
+		recordInstance.state(State.RECORD);
+
+		TransactionElement<MapObject> elt = new TransactionElement<>(
+				InstanceEventType.Update,
+				(MapObjectCompanion) companion.get(), 
+				id, 
+				recordInstance,
+				null);
+		elements.add(elt);
+
+		return recordInstance;
 	}
 	
 	public <T extends AbstractEntity> T update(Class<T> aClass, long id) {

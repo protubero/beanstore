@@ -36,7 +36,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}
 
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreState snapshot) {
+	public void onEndCreate(BeanStore beanStore) {
 		this.beanStore = beanStore;
 		
 		// init search
@@ -50,7 +50,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
 			
-			for (var era : snapshot) {
+			for (var era : beanStore.state()) {
 				for (var apo : era) {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);

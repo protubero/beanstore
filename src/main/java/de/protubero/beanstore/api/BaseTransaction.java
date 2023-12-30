@@ -12,7 +12,7 @@ public interface BaseTransaction {
 	/**
 	 * Create a new instance of an entity with alias <i>alias</i>.<br>
 	 */
-	<T extends AbstractPersistentObject> T create(String alias);
+	AbstractPersistentObject create(String alias);
 	
 	<T extends AbstractPersistentObject> T create(T instance);
 	

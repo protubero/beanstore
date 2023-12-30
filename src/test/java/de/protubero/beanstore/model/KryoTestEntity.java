@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.model;
 
 import java.time.Instant;
 

@@ -31,7 +31,7 @@ public interface BeanStoreCallbacks {
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractEntity> void verifyInstance(Class<T> entityClass, Consumer<InstanceTransactionEvent<T>> consumer) {
 		verifyInstance(bc -> {
-			if (entityClass.isAssignableFrom(bc.entity().entityClass())) {
+			if (bc.newInstance() != null && entityClass.isAssignableFrom(bc.entity().entityClass())) {
 				consumer.accept((InstanceTransactionEvent<T>) bc);
 			}
 		});
@@ -43,7 +43,7 @@ public interface BeanStoreCallbacks {
 	@SuppressWarnings("unchecked")
 	default <T extends AbstractPersistentObject> void verifyInstance(String alias, Consumer<InstanceTransactionEvent<T>> consumer) {
 		verifyInstance(bc -> {
-			if (bc.entity().alias().equals(alias)) {
+			if (bc.newInstance() != null && bc.entity().alias().equals(alias)) {
 				consumer.accept((InstanceTransactionEvent<T>) bc);
 			}
 		});

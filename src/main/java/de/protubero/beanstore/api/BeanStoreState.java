@@ -10,6 +10,7 @@ import de.protubero.beanstore.base.entity.AbstractEntity;
 import de.protubero.beanstore.base.entity.AbstractPersistentObject;
 import de.protubero.beanstore.base.entity.BeanStoreException;
 import de.protubero.beanstore.base.entity.InstanceKey;
+import de.protubero.beanstore.base.entity.MapObject;
 
 /**
  * BeanStore read operations. 
@@ -21,7 +22,7 @@ public interface BeanStoreState extends Iterable<EntityState<?>> {
 	 * Entity meta information 
 	 */
 	BeanStoreMetaInfo meta();
-	
+
 	/**
 	 * Access read operations of a single entity with the given <i>alias</i><br>
 	 * Throws a BeanStoreException if the alias is invalid. 
@@ -33,6 +34,19 @@ public interface BeanStoreState extends Iterable<EntityState<?>> {
 		});
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	default EntityState<MapObject> mapEntity(String alias) {
+		var e = entityOptional(alias);
+		if (e.isEmpty()) {
+			throw new BeanStoreException("invalid alias: " + alias);
+		}
+		if (e.get().meta().isBean()) {
+			throw new BeanStoreException("not a map entity: " + alias);
+		}
+		return (EntityState) e.get();
+	}
+
+	
 	/**
 	 * Access read operations of a single entity with the given Java Bean class.<br> 
 	 * Throws a BeanStoreException if the parameter is invalid. 

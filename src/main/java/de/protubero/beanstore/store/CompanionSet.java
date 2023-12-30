@@ -18,7 +18,7 @@ public class CompanionSet implements CompanionShip {
 	
 
 	public MapObjectCompanion addMapEntity(String alias) {
-		if (companionByAlias(alias) != null) {
+		if (companionByAlias(alias).isPresent()) {
 			throw new RuntimeException("Companion with alias already exists: " + alias);
 		}
 		MapObjectCompanion comp = new MapObjectCompanion(alias);
@@ -47,11 +47,10 @@ public class CompanionSet implements CompanionShip {
 		return Optional.empty();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends AbstractPersistentObject> Optional<Companion<T>> companionByAlias(String alias) {
+	public Optional<Companion<? extends AbstractPersistentObject>> companionByAlias(String alias) {
 		for (Companion<?> companion : companionList) {
 			if (companion.alias().equals(alias)) {
-				return Optional.of((Companion<T>) companion);
+				return Optional.of(companion);
 			}
 		}
 		return Optional.empty();

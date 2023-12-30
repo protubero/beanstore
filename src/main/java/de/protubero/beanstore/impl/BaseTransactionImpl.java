@@ -16,7 +16,7 @@ public class BaseTransactionImpl implements BaseTransaction {
 
 
 	@Override
-	public <T extends AbstractPersistentObject> T create(String alias) {
+	public AbstractPersistentObject create(String alias) {
 		return transaction.create(alias);
 	}
 

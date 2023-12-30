@@ -26,7 +26,7 @@ public class BeanValidationPlugin implements BeanStorePlugin {
 	}
 	
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreState snapshot) {
+	public void onEndCreate(BeanStore beanStore) {
 		// verify newly created and updated beans
 		beanStore.callbacks().verifyInstance(change -> {
 			if (change.entity().isBean()) {

@@ -8,6 +8,7 @@ public class Note extends AbstractTaggedEntity {
 
 	private String text;
 	private Priority priority;
+	private transient String hint;
 
 	public String getText() {
 		return text;
@@ -23,6 +24,14 @@ public class Note extends AbstractTaggedEntity {
 
 	public void setPriority(Priority priority) {
 		this.priority = priority;
+	}
+
+	public String getHint() {
+		return hint;
+	}
+
+	public void setHint(String hint) {
+		this.hint = hint;
 	}
 	
 }

@@ -10,7 +10,7 @@ public interface CompanionShip extends Iterable<Companion<?>> {
 	
 	<T extends AbstractPersistentObject> Optional<Companion<T>> companionByClass(Class<T> entityClazz);
 	
-	<T extends AbstractPersistentObject> Optional<Companion<T>> companionByAlias(String alias);
+	Optional<Companion<? extends AbstractPersistentObject>> companionByAlias(String alias);
 	
 	Stream<Companion<?>> companions();
 

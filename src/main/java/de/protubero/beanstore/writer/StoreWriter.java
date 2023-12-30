@@ -21,8 +21,8 @@ import de.protubero.beanstore.persistence.base.KeyValuePair;
 import de.protubero.beanstore.persistence.base.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
-import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 public class StoreWriter  {
 
@@ -129,6 +129,9 @@ public class StoreWriter  {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public synchronized <E extends EntityStore<?>, S extends EntityStoreSet<E>> S execute(Transaction aTransaction, S aStoreSet) throws TransactionFailure {
+		if (aTransaction.getTimestamp() != null) {
+			throw new RuntimeException("Re-Execution of Transaction");
+		}
 		aTransaction.setTimestamp(Instant.now());
 		
 		// Clone Store Set
@@ -228,7 +231,6 @@ public class StoreWriter  {
 					((TransactionElement) elt).setNewInstance(newInstance);
 					elt.getRecordInstance().id(newInstanceId);
 					elt.getRecordInstance().version(newInstance.version());
-					
 					break;
 				}
 				

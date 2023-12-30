@@ -16,6 +16,7 @@ import de.protubero.beanstore.persistence.base.PersistentTransaction;
 public class PersistentTransactionSerializer extends Serializer<PersistentTransaction> {
 
 	private InstantSerializer instantSerializer = new InstantSerializer(); 
+	private KryoDictionary dictionary;
 	
 	@Override
 	public void write(Kryo kryo, Output output, PersistentTransaction pt) {
@@ -24,6 +25,9 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 
 		// serialization version
 		output.writeByte(0);
+		
+		// write dict entries
+		
 		
 		if (pt.getTimestamp() == null) {
 			instantSerializer.write(kryo, output, Instant.now());

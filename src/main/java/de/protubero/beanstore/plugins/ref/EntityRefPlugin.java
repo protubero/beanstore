@@ -7,8 +7,8 @@ import de.protubero.beanstore.api.BeanStoreState;
 public class EntityRefPlugin implements BeanStorePlugin {
 
 	@Override
-	public void onEndCreate(BeanStore beanStore, BeanStoreState readAccess) {
-		readAccess.entity(EntityRelation.class).forEach(er -> {
+	public void onEndCreate(BeanStore beanStore) {
+		beanStore.state().entity(EntityRelation.class).forEach(er -> {
 			
 		});
 		

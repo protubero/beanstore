@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.kryo5.Registration;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreFactory;
 import de.protubero.beanstore.api.BeanStorePlugin;
@@ -138,12 +141,11 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	}
 
-	private void initStore(ImmutableEntityStoreSet aStoreSet) {
+	private ImmutableEntityStoreSet initStore(ImmutableEntityStoreSet aStoreSet) {
 		log.info("Init store");
 
 		// init store
 		Consumer<BeanStoreTransaction> initialMigration = initMigration;
-		initialMigration = initMigration;
 		if (initialMigration == null) {
 			// default migration: do nothing
 			initialMigration = (bst) -> {
@@ -162,6 +164,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		aStoreSet = createStoreWriter().execute(tx, aStoreSet);
 
 		plugins.forEach(plugin -> plugin.onInitTransaction(tx));
+		
+		return aStoreSet;
 	}
 
 	private MutableEntityStoreSet loadMapStore() {
@@ -353,7 +357,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		if (mapStore == null) {
 			// i.e. either no file set or file does not exist
 			finalStoreSet = new ImmutableEntityStoreSet(companionSet);
-			initStore(finalStoreSet);
+			finalStoreSet = initStore(finalStoreSet);
 		} else {
 			List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
 			
@@ -369,7 +373,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 //					newEntityStore.setObjectMap(null);
 				case RegisteredEntities:
 					String entityAlias = es.companion().alias();	
-					Optional<Companion<AbstractPersistentObject>> registeredEntityCompanionOpt = companionSet.companionByAlias(entityAlias);
+					Optional<Companion<? extends AbstractPersistentObject>> registeredEntityCompanionOpt = companionSet.companionByAlias(entityAlias);
 					if (registeredEntityCompanionOpt.isEmpty()) {
 						if (es.isEmpty()) {
 							log.info("Ignoring deleted entity " + entityAlias);
@@ -445,9 +449,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		
 		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalStoreSet, onCloseStoreAction, createStoreWriter());
 
-		BeanStoreStateImpl readAccess = new BeanStoreStateImpl(finalStoreSet);
 		plugins.forEach(plugin -> {
-			plugin.onEndCreate(beanStoreImpl, readAccess);
+			plugin.onEndCreate(beanStoreImpl);
 		});
 		
 		return beanStoreImpl;
@@ -531,7 +534,20 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	@Override
 	public KryoConfiguration kryoConfig() {
-		return kryoConfig;
+		return new KryoConfiguration() {
+
+			@Override
+			public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
+				throwExceptionIfAlreadyCreated();
+				return kryoConfig.register(type, serializer, id);
+			}
+
+			@Override
+			public void register(Class<?> propertyBeanClass) {
+				throwExceptionIfAlreadyCreated();
+				kryoConfig.register(propertyBeanClass);
+			}
+		};
 	}
 
 }
