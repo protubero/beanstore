@@ -1,8 +1,8 @@
 package de.protubero.beanstore.plugins.keyvalue;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStoreFactory;
-import de.protubero.beanstore.api.BeanStorePlugin;
+import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public class KeyValueStore implements BeanStorePlugin {
 

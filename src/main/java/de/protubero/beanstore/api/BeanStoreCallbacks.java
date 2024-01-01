@@ -2,10 +2,10 @@ package de.protubero.beanstore.api;
 
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
-import de.protubero.beanstore.base.tx.TransactionEvent;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.tx.TransactionEvent;
 
 /**
  * An interface to the callback methods of a BeanStore. 

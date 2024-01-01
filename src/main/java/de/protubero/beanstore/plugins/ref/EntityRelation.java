@@ -1,7 +1,7 @@
 package de.protubero.beanstore.plugins.ref;
 
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Entity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.Entity;
 import de.protubero.beanstore.plugins.tags.AbstractTaggedEntity;
 
 @Entity(alias="relation")

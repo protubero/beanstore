@@ -11,11 +11,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentProperty;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
-import de.protubero.beanstore.persistence.impl.KryoConfigurationImpl;
-import de.protubero.beanstore.persistence.impl.KryoPersistence;
+import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
+import de.protubero.beanstore.persistence.api.PersistentProperty;
+import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.kryo.KryoConfigurationImpl;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 class PersistenceTest {
 

@@ -7,8 +7,8 @@ import java.util.Optional;
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
 import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.api.EntityState;
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 

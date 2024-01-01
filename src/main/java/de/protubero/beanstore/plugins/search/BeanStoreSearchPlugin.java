@@ -11,10 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.api.BeanStoreState;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public class BeanStoreSearchPlugin implements BeanStorePlugin {
 

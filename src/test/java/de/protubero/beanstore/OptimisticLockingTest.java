@@ -6,10 +6,10 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.base.entity.InstanceKey;
-import de.protubero.beanstore.base.tx.TransactionFailure;
-import de.protubero.beanstore.base.tx.TransactionFailureType;
+import de.protubero.beanstore.entity.InstanceKey;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.tx.TransactionFailure;
+import de.protubero.beanstore.tx.TransactionFailureType;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertSame;

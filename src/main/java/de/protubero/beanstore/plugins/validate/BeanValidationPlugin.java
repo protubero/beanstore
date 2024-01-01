@@ -3,11 +3,9 @@ package de.protubero.beanstore.plugins.validate;
 import java.util.Set;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.api.BeanStoreState;
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.tx.InstanceEventType;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
+import de.protubero.beanstore.tx.InstanceEventType;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -17,16 +15,18 @@ public class BeanValidationPlugin implements BeanStorePlugin {
 
 	private ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 	private Validator validator = factory.getValidator();	
-
-	@Override
-	public void validate(AbstractPersistentObject apo) {
-		if (apo.entity().isBean()) {
-			doValidate((AbstractEntity) apo);
-		}	
-	}
 	
 	@Override
 	public void onEndCreate(BeanStore beanStore) {
+		// check all loaded instances
+		beanStore.state().forEach(es -> {
+			if (es.meta().isBean()) {
+				es.stream().forEach(apo -> {
+					doValidate((AbstractEntity) apo);
+				});
+			}	
+		});;
+		
 		// verify newly created and updated beans
 		beanStore.callbacks().verifyInstance(change -> {
 			if (change.entity().isBean()) {

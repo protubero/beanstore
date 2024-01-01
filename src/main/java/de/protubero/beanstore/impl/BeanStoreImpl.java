@@ -19,10 +19,10 @@ import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.api.ExecutableLockedBeanStoreTransaction;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
-import de.protubero.beanstore.writer.StoreWriter;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.tx.StoreWriter;
+import de.protubero.beanstore.tx.Transaction;
 
-class BeanStoreImpl implements BeanStore {
+public class BeanStoreImpl implements BeanStore {
 
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreImpl.class);
 
@@ -36,7 +36,7 @@ class BeanStoreImpl implements BeanStore {
 	
 	private CompletableFuture<Integer> closedStoreFuture = new CompletableFuture<>();
 
-	BeanStoreImpl(ImmutableEntityStoreSet store, Runnable onCloseCallback, StoreWriter aStoreWriter) {
+	public BeanStoreImpl(ImmutableEntityStoreSet store, Runnable onCloseCallback, StoreWriter aStoreWriter) {
 		this.store = Objects.requireNonNull(store);
 		this.storeWriter = aStoreWriter;		
 		

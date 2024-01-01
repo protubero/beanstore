@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.PostCode;
 import de.protubero.beanstore.model.PostCode2;

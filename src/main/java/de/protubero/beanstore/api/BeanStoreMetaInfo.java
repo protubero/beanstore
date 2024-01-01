@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.BeanStoreEntity;
-import de.protubero.beanstore.base.entity.BeanStoreException;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.BeanStoreException;
 
 /**
  * Knows everything about the entities registered at a store. 

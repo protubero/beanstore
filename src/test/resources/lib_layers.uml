@@ -8,53 +8,66 @@ skinparam component {
 }
 
 
-[Api] <<de.protubero.beanstore.api..>>
-[Base] <<de.protubero.beanstore.base..>>
+[Api] <<de.protubero.beanstore.api..>> 
+[Factory] <<de.protubero.beanstore.factory..>>
+
+[Entity] <<de.protubero.beanstore.entity..>>
+[Transaction] <<de.protubero.beanstore.tx..>>
 [Impl] <<de.protubero.beanstore.impl..>>
 [Store] <<de.protubero.beanstore.store..>>
-[Writer] <<de.protubero.beanstore.writer..>>
 
-[PersistenceApi] <<de.protubero.beanstore.persistence.api..>>
-[PersistenceBase] <<de.protubero.beanstore.persistence.base..>>
-[PersistenceImpl] <<de.protubero.beanstore.persistence.impl..>>
+[PluginApi] <<de.protubero.beanstore.pluginapi..>>
+
+[PersistenceApi] <<de.protubero.beanstore.persistence.api..>>   #LightBlue
+[PersistenceKryo] <<de.protubero.beanstore.persistence.kryo..>> #LightBlue
+[PersistenceImpl] <<de.protubero.beanstore.persistence.impl..>> #LightBlue
 
 [Plugins] <<de.protubero.beanstore.plugins..>>
 
-[Base] --> PersistenceBase
+[Factory] --> Api
+[Factory] --> Impl
+[Factory] --> Store
+[Factory] --> Entity
+[Factory] --> PersistenceApi
+[Factory] --> PersistenceKryo
+[Factory] --> PersistenceImpl
+[Factory] --> Transaction
+[Factory] --> PluginApi
 
-[Store] --> Base
+[PersistenceImpl] --> PersistenceApi
+[PersistenceKryo] --> PersistenceApi
 
-[Writer] --> Base
-[Writer] --> Store
+[Entity] --> PersistenceApi
 
-[Impl] --> Base
+[Store] --> Entity
+
+[Transaction] --> Entity
+[Transaction] --> Store
+[Transaction] --> PersistenceApi
+
+
 [Impl] --> Api
 [Impl] --> Store
-[Impl] --> Writer
+[Impl] --> Entity
+[Impl] --> Transaction
 
 
-[PersistenceApi] --> PersistenceBase
-[PersistenceImpl] --> PersistenceApi
-[PersistenceImpl] --> PersistenceBase
-
-[Writer] --> PersistenceApi
-[Writer] --> PersistenceBase
-
-[Api] --> Impl
-[Api] --> Base
-[Api] --> PersistenceBase
+[Api] --> Entity
+[Api] --> Transaction
 [Api] --> PersistenceApi
 
-[Impl] --> PersistenceImpl
-[Impl] --> PersistenceBase
-[Impl] --> PersistenceApi
+[PluginApi] --> Api 				
+[PluginApi] --> Transaction			
+[PluginApi] --> PersistenceApi
+[PluginApi] --> Factory 				
+[PluginApi] --> Entity 				
 
-
-[Plugins] --> Base
+[Plugins] --> Entity
+[Plugins] --> PluginApi
 [Plugins] --> Api
-[Plugins] --> PersistenceBase
+[Plugins] --> Transaction
 [Plugins] --> PersistenceApi
-
+[Plugins] --> Factory
 
 @enduml
 

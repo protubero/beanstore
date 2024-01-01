@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Companion;
-import de.protubero.beanstore.base.entity.EntityCompanion;
-import de.protubero.beanstore.base.entity.MapObjectCompanion;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.EntityCompanion;
+import de.protubero.beanstore.entity.MapObjectCompanion;
 
 public class CompanionSet implements CompanionShip {
 

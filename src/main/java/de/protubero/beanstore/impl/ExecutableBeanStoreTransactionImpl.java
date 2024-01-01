@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.tx.Transaction;
 
 public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl implements ExecutableBeanStoreTransaction {
 

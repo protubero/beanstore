@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
 
 public class ReExecutionOfTxProhibitedTest {

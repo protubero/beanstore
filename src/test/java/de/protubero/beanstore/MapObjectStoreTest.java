@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 
 public class MapObjectStoreTest {
 

@@ -8,10 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStoreFactory;
-import de.protubero.beanstore.api.EntityState;
-import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.entity.MapObject;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
 
 public class InitTransactionTest {

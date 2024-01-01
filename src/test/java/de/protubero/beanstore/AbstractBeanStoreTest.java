@@ -8,12 +8,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStoreFactory;
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.InstanceKey;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public abstract class AbstractBeanStoreTest {
 

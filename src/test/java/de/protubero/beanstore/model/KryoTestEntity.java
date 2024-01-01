@@ -2,8 +2,8 @@ package de.protubero.beanstore.model;
 
 import java.time.Instant;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.Entity;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.Entity;
 
 @Entity(alias = "kryotest")
 public class KryoTestEntity extends AbstractEntity {

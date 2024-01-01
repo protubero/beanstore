@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
 import de.protubero.beanstore.model.Priority;
 import de.protubero.beanstore.plugins.tags.Tag;

@@ -1,6 +1,6 @@
 package de.protubero.beanstore.model;
 
-import de.protubero.beanstore.persistence.api.KryoId;
+import de.protubero.beanstore.persistence.kryo.KryoId;
 
 @KryoId(300)
 public class PostCode2  {

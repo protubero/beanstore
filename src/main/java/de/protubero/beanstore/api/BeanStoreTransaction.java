@@ -1,7 +1,7 @@
 package de.protubero.beanstore.api;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
 
 
 /**

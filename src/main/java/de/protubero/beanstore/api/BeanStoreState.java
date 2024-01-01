@@ -6,11 +6,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.BeanStoreException;
-import de.protubero.beanstore.base.entity.InstanceKey;
-import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.BeanStoreException;
+import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.entity.MapObject;
 
 /**
  * BeanStore read operations. 

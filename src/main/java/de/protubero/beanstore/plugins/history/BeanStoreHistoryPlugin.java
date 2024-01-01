@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
+import de.protubero.beanstore.pluginapi.PersistenceReadListener;
+import de.protubero.beanstore.pluginapi.PersistenceWriteListener;
 
-public class BeanStoreHistoryPlugin implements BeanStorePlugin {
+public class BeanStoreHistoryPlugin implements BeanStorePlugin, PersistenceReadListener, PersistenceWriteListener {
 
 	private List<InstanceChange> changes = new ArrayList<>();
 	

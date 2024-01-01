@@ -1,7 +1,7 @@
 package de.protubero.beanstore.model;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.Entity;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.Entity;
 
 @Entity(alias = "address")
 public class Address extends AbstractEntity {

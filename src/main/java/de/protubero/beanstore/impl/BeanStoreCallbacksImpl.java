@@ -4,9 +4,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.api.BeanStoreCallbacks;
-import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
-import de.protubero.beanstore.base.tx.TransactionEvent;
-import de.protubero.beanstore.writer.StoreWriter;
+import de.protubero.beanstore.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.tx.StoreWriter;
+import de.protubero.beanstore.tx.TransactionEvent;
 
 public class BeanStoreCallbacksImpl implements BeanStoreCallbacks {
 

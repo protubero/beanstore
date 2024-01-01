@@ -2,7 +2,7 @@ package de.protubero.beanstore.plugins.tags;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.protubero.beanstore.base.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractEntity;
 
 public class AbstractTaggedEntity extends AbstractEntity implements Tagged {
 

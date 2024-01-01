@@ -2,9 +2,9 @@ package de.protubero.beanstore.api;
 
 import java.util.List;
 
-import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
-import de.protubero.beanstore.base.tx.TransactionFailure;
-import de.protubero.beanstore.base.tx.TransactionPhase;
+import de.protubero.beanstore.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.tx.TransactionFailure;
+import de.protubero.beanstore.tx.TransactionPhase;
 
 public interface BeanStoreTransactionResult {
 	

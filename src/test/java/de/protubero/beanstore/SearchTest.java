@@ -8,8 +8,8 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStoreFactory;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.plugins.search.BeanStoreSearchPlugin;
 import de.protubero.beanstore.plugins.search.SearchEngine;

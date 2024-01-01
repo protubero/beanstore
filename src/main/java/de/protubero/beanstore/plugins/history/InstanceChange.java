@@ -2,7 +2,7 @@ package de.protubero.beanstore.plugins.history;
 
 import java.time.Instant;
 
-import de.protubero.beanstore.persistence.base.KeyValuePair;
+import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 public class InstanceChange {
 

@@ -5,10 +5,10 @@ import java.util.Objects;
 
 import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
-import de.protubero.beanstore.base.tx.InstanceTransactionEvent;
-import de.protubero.beanstore.base.tx.TransactionEvent;
-import de.protubero.beanstore.base.tx.TransactionFailure;
-import de.protubero.beanstore.base.tx.TransactionPhase;
+import de.protubero.beanstore.tx.InstanceTransactionEvent;
+import de.protubero.beanstore.tx.TransactionEvent;
+import de.protubero.beanstore.tx.TransactionFailure;
+import de.protubero.beanstore.tx.TransactionPhase;
 
 public class BeanStoreTransactionResultImpl implements BeanStoreTransactionResult {
 

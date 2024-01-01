@@ -5,15 +5,17 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.persistence.base.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
+import de.protubero.beanstore.pluginapi.PersistenceReadListener;
+import de.protubero.beanstore.pluginapi.PersistenceWriteListener;
 
 /**
  * Logs transaction read and write operations to the SLF4J logger. 
  *
  */
-public class BeanStoreTransactionLogPlugin implements BeanStorePlugin {
+public class BeanStoreTransactionLogPlugin implements BeanStorePlugin, PersistenceReadListener, PersistenceWriteListener {
 
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreTransactionLogPlugin.class);
 	

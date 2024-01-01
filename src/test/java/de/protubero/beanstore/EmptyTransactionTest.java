@@ -1,19 +1,18 @@
 package de.protubero.beanstore;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStorePlugin;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.pluginapi.PersistenceWriteListener;
 
 public class EmptyTransactionTest extends AbstractBeanStoreTest {
 
@@ -32,7 +31,7 @@ public class EmptyTransactionTest extends AbstractBeanStoreTest {
 	
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
-		var store = addSampleData(createEmptyStore(new BeanStorePlugin() {
+		var store = addSampleData(createEmptyStore(new PersistenceWriteListener() {
 			@Override
 			public void onWriteTransaction(PersistentTransaction transaction) {
 				transactionPersisted = true;

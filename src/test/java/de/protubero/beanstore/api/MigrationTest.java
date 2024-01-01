@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Employee;
 
 public class MigrationTest {

@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import de.protubero.beanstore.api.EntityState;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.store.EntityStore;
 
 public class EntityStateImpl<T extends AbstractPersistentObject> implements EntityState<T> {

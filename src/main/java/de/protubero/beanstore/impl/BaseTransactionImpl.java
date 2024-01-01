@@ -3,8 +3,8 @@ package de.protubero.beanstore.impl;
 import java.util.Objects;
 
 import de.protubero.beanstore.api.BaseTransaction;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.tx.Transaction;
 
 public class BaseTransactionImpl implements BaseTransaction {
 

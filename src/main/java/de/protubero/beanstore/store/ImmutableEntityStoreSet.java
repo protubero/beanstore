@@ -11,8 +11,8 @@ import org.pcollections.HashTreePMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Companion;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.Companion;
 
 public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntityStore<?>> {
 

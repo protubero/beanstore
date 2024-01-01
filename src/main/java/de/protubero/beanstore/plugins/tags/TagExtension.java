@@ -1,6 +1,6 @@
 package de.protubero.beanstore.plugins.tags;
 
-import de.protubero.beanstore.api.BeanStoreFactory;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 
 public class TagExtension {
 

@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableLockedBeanStoreTransaction;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.tx.Transaction;
 
 public class ExecutableLockedBeanStoreTransactionImpl extends ExecutableBeanStoreTransactionImpl implements ExecutableLockedBeanStoreTransaction {
 

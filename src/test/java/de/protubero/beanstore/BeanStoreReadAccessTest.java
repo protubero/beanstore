@@ -10,10 +10,10 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject.State;
-import de.protubero.beanstore.base.entity.BeanStoreException;
-import de.protubero.beanstore.base.entity.InstanceKey;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.BeanStoreException;
+import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {

@@ -3,8 +3,8 @@ package de.protubero.beanstore.store;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.base.entity.Companion;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.Companion;
 
 public interface CompanionShip extends Iterable<Companion<?>> {
 	

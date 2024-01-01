@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.impl.BeanStoreStateImpl;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.store.EntityStore;
-import de.protubero.beanstore.writer.StoreWriter;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.tx.StoreWriter;
+import de.protubero.beanstore.tx.Transaction;
 
 public class WriterTest {
 

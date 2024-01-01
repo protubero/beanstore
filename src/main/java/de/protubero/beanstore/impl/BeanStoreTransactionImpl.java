@@ -1,9 +1,9 @@
 package de.protubero.beanstore.impl;
 
 import de.protubero.beanstore.api.BeanStoreTransaction;
-import de.protubero.beanstore.base.entity.AbstractEntity;
-import de.protubero.beanstore.base.entity.AbstractPersistentObject;
-import de.protubero.beanstore.writer.Transaction;
+import de.protubero.beanstore.entity.AbstractEntity;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.tx.Transaction;
 
 public class BeanStoreTransactionImpl extends BaseTransactionImpl implements BeanStoreTransaction {
 

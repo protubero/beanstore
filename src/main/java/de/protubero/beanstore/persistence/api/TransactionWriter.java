@@ -4,8 +4,6 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.iterators.SingletonIterator;
 
-import de.protubero.beanstore.persistence.base.PersistentTransaction;
-
 public interface TransactionWriter extends AutoCloseable {
 
 	void append(Iterator<PersistentTransaction> transactions);

@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.base.entity.MapObject;
+import de.protubero.beanstore.entity.MapObject;
+import de.protubero.beanstore.factory.BeanStoreFactory;
 
 public class MapStoreBasicTest {
 

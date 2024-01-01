@@ -1,8 +1,7 @@
 package de.protubero.beanstore.plugins.ref;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.BeanStorePlugin;
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public class EntityRefPlugin implements BeanStorePlugin {
 
