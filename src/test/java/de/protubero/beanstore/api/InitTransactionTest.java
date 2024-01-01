@@ -47,7 +47,7 @@ public class InitTransactionTest {
 	}
 
 	private BeanStoreFactory createFactory() {
-		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
 		factory.registerEntity(Note.class);
 		factory.registerMapEntity("todo");
 		return factory;

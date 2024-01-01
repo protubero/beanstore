@@ -11,7 +11,7 @@ public class ReExecutionOfTxProhibitedTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = BeanStoreFactory.createNonPersisted();
+		BeanStoreFactory factory = BeanStoreFactory.init();
 		factory.registerEntity(Note.class);
 		
 		BeanStore store = factory.create();

@@ -65,7 +65,7 @@ public class BeanStoreBasicTest {
 	}
 
 	private BeanStoreFactory createBuilder(File tempDir) {
-		BeanStoreFactory builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		builder.addPlugin(new BeanStoreTransactionLogPlugin());
 		return builder;

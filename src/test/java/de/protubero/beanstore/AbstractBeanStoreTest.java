@@ -56,7 +56,7 @@ public abstract class AbstractBeanStoreTest {
 		if (file.exists()) {
 			throw new AssertionError();
 		}
-		BeanStoreFactory factory = BeanStoreFactory.of(file);
+		BeanStoreFactory factory = BeanStoreFactory.init(file);
 		if (plugin != null) {
 			factory.addPlugin(plugin);
 		}

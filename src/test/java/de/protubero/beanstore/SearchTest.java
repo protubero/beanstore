@@ -56,7 +56,7 @@ public class SearchTest {
 	public void test2() throws InterruptedException, ExecutionException {
 		BeanStoreSearchPlugin searchPlugin = new BeanStoreSearchPlugin(); 
 
-		BeanStoreFactory factory = BeanStoreFactory.createNonPersisted();
+		BeanStoreFactory factory = BeanStoreFactory.init();
 		factory.addPlugin(searchPlugin);
 		
 		var entity = factory.registerEntity(Employee.class);

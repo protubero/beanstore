@@ -67,7 +67,7 @@ public class MapStoreBasicTest {
 	}
 
 	private BeanStoreFactory createBuilder(File tempDir) {
-		BeanStoreFactory builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerMapEntity("employee");
 		return builder;
 	}

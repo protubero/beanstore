@@ -20,11 +20,6 @@ public class BeanStoreTransactionLogPlugin implements BeanStorePlugin, Persisten
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreTransactionLogPlugin.class);
 	
 	@Override
-	public void onOpenFile(File file) {
-		log.info("use file " + file);
-	}
-
-	@Override
 	public void onReadTransaction(PersistentTransaction transaction) {
 		log.info("READ TX " + oneLine(transaction));
 	}

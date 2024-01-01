@@ -3,14 +3,10 @@ Comment API
 
 
 Statistic plugin (Loaded Data)
-
 prohibit Entity References
-
 make Transactions unchangeable by plugins/callbacks
 
-configure test logger 
 
-3rd party persistence
 Auto-Release
 switch to Protected Main branch / feature branches
 ------------------------------------- 0.8.5

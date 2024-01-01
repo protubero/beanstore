@@ -24,7 +24,8 @@ class PersistenceTest {
 	void test(@TempDir File tempDir) {
 		File tempFile = new File(tempDir, "kryoFile.kry");
 		
-		KryoPersistence persistence = new KryoPersistence(new KryoConfigurationImpl(), tempFile);
+		KryoPersistence persistence = KryoPersistence.of(tempFile);
+		persistence.kryoConfig(new KryoConfigurationImpl());
 
 		Instant now = Instant.now();
 				
@@ -75,7 +76,8 @@ class PersistenceTest {
 	void test2(@TempDir File tempDir) {
 		File tempFile = new File(tempDir, "kryoFile2.kry");
 		
-		KryoPersistence persistence = new KryoPersistence(new KryoConfigurationImpl(), tempFile);
+		KryoPersistence persistence = KryoPersistence.of(tempFile);
+		persistence.kryoConfig(new KryoConfigurationImpl());
 
 		Instant now = Instant.now();
 				

@@ -5,8 +5,8 @@ import de.protubero.beanstore.factory.BeanStoreFactory;
 public class TagExtension {
 
 	public static void init(BeanStoreFactory beanStoreFactory) {
-		beanStoreFactory.kryoConfig().register(Tag.class, new TagSerializer(), 2626);
-		beanStoreFactory.kryoConfig().register(Tags.class, new TagsSerializer(), 2627);
+		beanStoreFactory.registerKryoSerializer(Tag.class, new TagSerializer(), 2626);
+		beanStoreFactory.registerKryoSerializer(Tags.class, new TagsSerializer(), 2627);
 	}
 	
 }

@@ -18,7 +18,7 @@ public class KryoRegistrationTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, "beanstore.kryo"));
+		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, "beanstore.kryo"));
 		factory.registerEntity(KryoTestEntity.class);
 		var store = factory.create();
 		var tx = store.transaction();
@@ -39,7 +39,7 @@ public class KryoRegistrationTest {
 
 		tx.execute();
 		
-		BeanStoreFactory readFactory = BeanStoreFactory.of(new File(pFileDir, "beanstore.kryo"));
+		BeanStoreFactory readFactory = BeanStoreFactory.init(new File(pFileDir, "beanstore.kryo"));
 		readFactory.registerEntity(KryoTestEntity.class);
 		var readStore = readFactory.create();
 

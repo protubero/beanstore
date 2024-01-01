@@ -1,18 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.protubero</groupId>
 	<artifactId>beanstore</artifactId>
 	<version>0.8.5-SNAPSHOT</version>
 
 	<name>BeanStore</name>
-  	<description>Persistent Java Bean Store</description>
-  	<url>https://github.com/protubero/beanstore</url>
-  	<developers>
-  		<developer>
-  			<name>Manfred Schäfer</name>
-  			<email>4920713+protubero@users.noreply.github.com</email>  			
-  		</developer>
-  	</developers>
+	<description>Persistent Java Bean Store</description>
+	<url>https://github.com/protubero/beanstore</url>
+	<developers>
+		<developer>
+			<name>Manfred Schäfer</name>
+			<email>4920713+protubero@users.noreply.github.com</email>
+		</developer>
+	</developers>
 
 	<licenses>
 		<license>
@@ -26,15 +28,15 @@
 		<url>https://github.com/protubero/beanstore</url>
 		<connection>scm:git:git://github.com/protubero/beanstore.git</connection>
 		<developerConnection>scm:git:git@github.com:protubero/beanstore.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<version.lucene>9.0.0</version.lucene>
 
-		<version.slf4j>1.7.32</version.slf4j>
+		<version.slf4j>2.0.7</version.slf4j>
 		<version.junit-jupiter>5.8.2</version.junit-jupiter>
 		<version.kryo>5.5.0</version.kryo>
 
@@ -121,11 +123,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>org.junit.jupiter</groupId>
-		    <artifactId>junit-jupiter-params</artifactId>
-		    <version>${version.junit-jupiter}</version>
-		    <scope>test</scope>
-		</dependency>		
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${version.junit-jupiter}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -167,22 +169,37 @@
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
-			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<url>
+				https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 
 	<build>
 		<plugins>
 			<plugin>
-			  <groupId>org.jacoco</groupId>
-			  <artifactId>jacoco-maven-plugin</artifactId>
-			  <version>0.8.11</version>
-			</plugin>			
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.11</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-surefire-plugin</artifactId>
-	            <version>3.2.2</version>
-	        </plugin>		
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.2</version>
+			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -249,8 +266,8 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration> <!-- add this to disable checking -->
-                			<doclint>none</doclint>
-            			</configuration>						
+							<doclint>none</doclint>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -342,12 +359,13 @@
 							</execution>
 						</executions>
 						<configuration>
-		                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
-		                    <gpgArguments>
-		                        <arg>--pinentry-mode</arg>
-		                        <arg>loopback</arg>
-		                    </gpgArguments>
-		                </configuration>				
+							<!-- This is necessary for gpg to not try to use the
+							pinentry programs -->
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

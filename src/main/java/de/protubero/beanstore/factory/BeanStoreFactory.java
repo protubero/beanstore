@@ -3,12 +3,19 @@ package de.protubero.beanstore.factory;
 import java.io.File;
 import java.util.function.Consumer;
 
+import com.esotericsoftware.kryo.kryo5.Registration;
+import com.esotericsoftware.kryo.kryo5.Serializer;
+
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.persistence.api.KryoConfiguration;
+import de.protubero.beanstore.persistence.api.TransactionPersistence;
+import de.protubero.beanstore.persistence.kryo.KryoId;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
+import de.protubero.beanstore.persistence.kryo.PropertyBeanSerializer;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 /**
@@ -35,7 +42,7 @@ public interface BeanStoreFactory {
 	 * 
 	 * @return a BeanStore factory
 	 */
-	public static BeanStoreFactory createNonPersisted() {
+	public static BeanStoreFactory init() {
 		return new BeanStoreFactoryImpl();
 	}
 	
@@ -44,20 +51,28 @@ public interface BeanStoreFactory {
 	 * 
 	 * @return a BeanStore factory
 	 */
-	public static BeanStoreFactory of(File file) {
-		return new BeanStoreFactoryImpl(Mode.RegisteredEntities, file);
+	public static BeanStoreFactory init(File file) {
+		return init(KryoPersistence.of(file));
 	}
 
+	public static BeanStoreFactory init(TransactionPersistence persistence) {
+		return new BeanStoreFactoryImpl(Mode.RegisteredEntities, persistence);
+	}
+	
 	/**
 	 * 
 	 * 
 	 * @param file
 	 * @return
 	 */
-	public static BeanStoreFactory createMapStore(File file) {
-		return new BeanStoreFactoryImpl(Mode.LoadedMaps, file);
+	public static BeanStoreFactory initMapOnly(File file) {
+		return initMapOnly(KryoPersistence.of(file));
 	}
 	
+	public static BeanStoreFactory initMapOnly(TransactionPersistence persistence) {
+		return new BeanStoreFactoryImpl(Mode.LoadedMaps, persistence);
+	}
+
 	
 	/**
 	 * Register a Java Bean entity. Remember: The class must inherit from AbstractEntity
@@ -95,5 +110,8 @@ public interface BeanStoreFactory {
 
 	MapObjectCompanion registerMapEntity(String alias);
 
-	KryoConfiguration kryoConfig();
+	void registerKryoPropertyBean(Class<?> propertyBeanClass);	
+
+	<T> Registration registerKryoSerializer(Class<T> type, Serializer<T> serializer, int id);
+		
 }

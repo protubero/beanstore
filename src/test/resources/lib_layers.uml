@@ -29,8 +29,8 @@ skinparam component {
 [Factory] --> Store
 [Factory] --> Entity
 [Factory] --> PersistenceApi
-[Factory] --> PersistenceKryo
 [Factory] --> PersistenceImpl
+[Factory] --> PersistenceKryo
 [Factory] --> Transaction
 [Factory] --> PluginApi
 

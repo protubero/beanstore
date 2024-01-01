@@ -31,7 +31,7 @@ public class TagTest {
 		Tag otherTag = group.newTag("othertag");
 		
 		File file = new File(pFileDir, "beanstore_" + getClass().getSimpleName() + ".kryo");
-		BeanStoreFactory factory = BeanStoreFactory.of(file);
+		BeanStoreFactory factory = BeanStoreFactory.init(file);
 		TagExtension.init(factory);
 		factory.registerEntity(Note.class);
 		var store = factory.create();
@@ -52,7 +52,7 @@ public class TagTest {
 		
 		store.close();
 		
-		factory = BeanStoreFactory.of(file);
+		factory = BeanStoreFactory.init(file);
 		TagExtension.init(factory);
 		factory.registerEntity(Note.class);
 		store = factory.create();

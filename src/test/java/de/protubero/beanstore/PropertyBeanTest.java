@@ -21,10 +21,10 @@ public class PropertyBeanTest {
 	
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
-		File file = new File(pFileDir, "beanstore_" + getClass().getSimpleName() + ".kryo");
-		BeanStoreFactory factory = BeanStoreFactory.of(file);
+		File file = new File(pFileDir, getClass().getSimpleName() + ".kryo");
+		BeanStoreFactory factory = BeanStoreFactory.init(file);
 		factory.registerEntity(Address.class);
-		factory.kryoConfig().register(PostCode.class);
+		factory.registerKryoPropertyBean(PostCode.class);
 		var store = factory.create();
 		
 		var address = new Address();
@@ -37,9 +37,9 @@ public class PropertyBeanTest {
 		tx.execute();
 		store.close();
 		
-		factory = BeanStoreFactory.of(file);		
+		factory = BeanStoreFactory.init(file);		
 		factory.registerEntity(Address.class);
-		factory.kryoConfig().register(PostCode.class);
+		factory.registerKryoPropertyBean(PostCode.class);
 		store = factory.create();
 		var readAccess = store.state().entity(Address.class);
 		

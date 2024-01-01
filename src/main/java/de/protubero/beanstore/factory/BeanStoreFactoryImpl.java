@@ -1,6 +1,5 @@
 package de.protubero.beanstore.factory;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +30,10 @@ import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
 import de.protubero.beanstore.persistence.kryo.KryoConfigurationImpl;
-import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 import de.protubero.beanstore.pluginapi.FactoryTransactionListener;
 import de.protubero.beanstore.pluginapi.PersistenceReadListener;
@@ -55,8 +54,6 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreFactory.class);
 
-	
-	private File file;
 	private Mode mode = Mode.RegisteredEntities;
 	private List<Migration> migrations = new ArrayList<>();
 	private Consumer<BeanStoreTransaction> initMigration;
@@ -70,16 +67,18 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private List<PersistenceReadListener> persistenceReadListener = new ArrayList<>();
 	private List<PersistenceWriteListener> persistenceWriteListener = new ArrayList<>();
 
-	// Fields are used at build time
-	private KryoConfigurationImpl kryoConfig = new KryoConfigurationImpl();
-	private KryoPersistence persistence;
+	private KryoConfiguration kryoConfig;
+	private TransactionPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
 
 	
-	public BeanStoreFactoryImpl(Mode mode, File file) {
-		this.file = Objects.requireNonNull(file);
+	public BeanStoreFactoryImpl(Mode mode, TransactionPersistence persistence) {
+		this.persistence = Objects.requireNonNull(persistence);
 		this.mode = Objects.requireNonNull(mode);
+		
+		kryoConfig = new KryoConfigurationImpl();
+		this.persistence.kryoConfig(kryoConfig);
 	}
 
 	public BeanStoreFactoryImpl() {
@@ -91,7 +90,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		
 		for (BeanStorePlugin plugin : plugins) {
 			if (aPlugin == plugin) {
-				throw new RuntimeException("Duplicate Plugin Registration");
+				throw new RuntimeException("Duplicate plugin registration");
 			}
 		}
 		
@@ -195,10 +194,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	}
 
 	private MutableEntityStoreSet loadMapStore() {
-		plugins.forEach(plugin -> plugin.onOpenFile(file));
-
 		// load transactions
-		persistence = new KryoPersistence(kryoConfig, file);
 		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 
 		boolean noStoredTransactions = persistence.isEmpty();
@@ -353,8 +349,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		
 		switch (mode) {
 		case LoadedMaps:
-			if (file == null) {
-				throw new RuntimeException("Mode LoadedMaps and no file specified");
+			if (persistence == null) {
+				throw new RuntimeException("Mode LoadedMaps and no peristence specified");
 			}
 			if (!companionSet.isEmpty()) {
 				throw new RuntimeException("Mode LoadedMaps does not allow registered entities");
@@ -376,7 +372,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 		MutableEntityStoreSet mapStore = null;
 		ImmutableEntityStoreSet finalStoreSet = null;
-		if (file != null) {
+		if (persistence != null) {
 			mapStore = loadMapStore();
 			
 			if (mapStore != null) {
@@ -567,21 +563,15 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	}
 
 	@Override
-	public KryoConfiguration kryoConfig() {
-		return new KryoConfiguration() {
+	public void registerKryoPropertyBean(Class<?> propertyBeanClass) {
+		throwExceptionIfAlreadyCreated();
+		kryoConfig.register(propertyBeanClass);
+	}
 
-			@Override
-			public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
-				throwExceptionIfAlreadyCreated();
-				return kryoConfig.register(type, serializer, id);
-			}
-
-			@Override
-			public void register(Class<?> propertyBeanClass) {
-				throwExceptionIfAlreadyCreated();
-				kryoConfig.register(propertyBeanClass);
-			}
-		};
+	@Override
+	public <T> Registration registerKryoSerializer(Class<T> type, Serializer<T> serializer, int id) {
+		throwExceptionIfAlreadyCreated();
+		return kryoConfig.register(type, serializer, id);
 	}
 
 }

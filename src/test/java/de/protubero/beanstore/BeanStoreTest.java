@@ -15,7 +15,7 @@ public class BeanStoreTest {
 
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
-		var factory = BeanStoreFactory.createNonPersisted();
+		var factory = BeanStoreFactory.init();
 		factory.registerEntity(Employee.class);
 		var store = factory.create();
 	

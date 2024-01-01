@@ -14,7 +14,7 @@ public class MigrationTest {
 
 	@Test
 	public void invalidMigrationIds(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreFactory builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration(" xyz", tx -> {});});
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration("_xyz", tx -> {});});
 		builder.addMigration("xyz", tx -> {});
@@ -23,7 +23,7 @@ public class MigrationTest {
 	
 	@Test
 	public void multipleMigrations(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreFactory builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		var store = builder.create();
 		
@@ -37,7 +37,7 @@ public class MigrationTest {
 		store.close();
 		
 		
-		builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		builder.addMigration("a", mtx -> {
 			var obj = mtx.update("employee", 0);
@@ -48,7 +48,7 @@ public class MigrationTest {
 		store = builder.create();
 		store.close();
 		
-		builder = BeanStoreFactory.of(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		builder.addMigration("a", mtx -> {
 			var obj = mtx.update("employee", 0);

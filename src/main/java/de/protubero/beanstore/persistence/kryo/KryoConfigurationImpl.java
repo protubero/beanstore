@@ -79,8 +79,8 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		return kryo.register(type, serializer, id);
 	}
 
-	
-	Kryo getKryo() {
+	@Override
+	public Kryo getKryo() {
 		return kryo;
 	}
 

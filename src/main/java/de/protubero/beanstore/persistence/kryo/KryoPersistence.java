@@ -17,6 +17,7 @@ import com.esotericsoftware.kryo.kryo5.KryoException;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
 
+import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
@@ -30,11 +31,14 @@ public class KryoPersistence implements TransactionPersistence {
 	
 	private File file;
 	private TransactionWriter writer;
-	private KryoConfigurationImpl config;
+	private KryoConfiguration config;
 	private FileOutputStream fileOutputStream; 
 	
-	public KryoPersistence(KryoConfigurationImpl config, File file) {
-		this.config = Objects.requireNonNull(config);
+	public static KryoPersistence of(File file) {
+		return new KryoPersistence(file);
+	}
+	
+	KryoPersistence(File file) {
 		this.file = Objects.requireNonNull(file);
 								
 		// path must not be a directory path
@@ -140,6 +144,11 @@ public class KryoPersistence implements TransactionPersistence {
 	@Override
 	public TransactionWriter writer() {
 		return writer;
+	}
+
+	@Override
+	public void kryoConfig(KryoConfiguration kryoConfig) {
+		this.config = kryoConfig;
 	}
 
 

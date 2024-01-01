@@ -15,7 +15,7 @@ public class MapObjectStoreTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = BeanStoreFactory.of(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
 		
 		
 		

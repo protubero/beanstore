@@ -16,12 +16,6 @@ public interface BeanStorePlugin {
 
 	
 	/**
-	 * Notifies the plugin about the file containing the persisted transactions 
-	 */
-	default void onOpenFile(File file) {}
-	
-
-	/**
 	 * The create() method of the bean store factory has just been invoked.  
 	 * It is still time to add some configuration to the factory, e.g. 
 	 * to register Kryo serializers.
