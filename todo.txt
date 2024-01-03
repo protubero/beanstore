@@ -5,7 +5,17 @@ Comment API
 Statistic plugin (Loaded Data)
 prohibit Entity References
 make Transactions unchangeable by plugins/callbacks
+rename Factory to Builder
+integrate Kryo Registration into KryoPersistence
 
+enumerate transactions
+transaction hashes
+
+executeBlocking default
+
+PersistenceLoader -> Store own class
+
+"Index" Callback
 
 Auto-Release
 switch to Protected Main branch / feature branches

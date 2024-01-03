@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.tx;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.AbstractBeanStoreTest;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.pluginapi.PersistenceWriteListener;

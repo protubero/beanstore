@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.tx;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.AbstractBeanStoreTest;
 import de.protubero.beanstore.entity.InstanceKey;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.tx.TransactionFailure;

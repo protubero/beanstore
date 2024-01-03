@@ -1,4 +1,4 @@
-package de.protubero.beanstore.api;
+package de.protubero.beanstore.migration;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Employee;
 
@@ -39,17 +41,20 @@ public class MigrationTest {
 		
 		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
+		
 		builder.addMigration("a", mtx -> {
 			var obj = mtx.update("employee", 0);
 			obj.put("lastName", "Wayne");
 			obj.put("age", 45);
 		});
 		
+		
 		store = builder.create();
 		store.close();
 		
 		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
+		
 		builder.addMigration("a", mtx -> {
 			var obj = mtx.update("employee", 0);
 			obj.put("lastName", "x");

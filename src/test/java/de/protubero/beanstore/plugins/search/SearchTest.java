@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.plugins.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

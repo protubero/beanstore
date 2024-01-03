@@ -8,8 +8,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,9 +128,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		return alias;
 	}
 
-	public List<PropertyDescriptor> getDescriptors() {
-		return descriptors;
-	}
 
 	public Set<String> propertySet() {
 		return descriptors.stream().map(d -> d.getName()).collect(Collectors.toSet());
@@ -170,7 +169,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	}
 
 
-	@SuppressWarnings("null")
 	public Object getProperty(AbstractEntity entity, Object key) {
 		PropertyDescriptor desc = descriptorMap.get(key);
 		if (desc == null) {
@@ -184,7 +182,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		}	
 	}
 
-	@SuppressWarnings("null")
 	public void setProperty(AbstractEntity entity, String key, Object value) {
 		PropertyDescriptor desc = descriptorMap.get(key);
 		if (desc == null) {
@@ -214,6 +211,24 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	Set<Entry<String, Object>> entrySetOf(AbstractEntity entity) {
+		Set<Entry<String, Object>> resultSet = new HashSet<>();
+		for (PropertyDescriptor descriptor : descriptors) {
+				try {
+					resultSet.add(new MapEntry(entity, descriptor.getName(), 
+							descriptor.getReadMethod().invoke(entity)));
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+		};
+		
+		return resultSet;
+	}
+
+	public int propertyCount() {
+		return descriptors.size();
 	}
 
 

@@ -25,7 +25,7 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 
 	@Override
 	public Class<MapObject> entityClass() {
-		return MapObject.class;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

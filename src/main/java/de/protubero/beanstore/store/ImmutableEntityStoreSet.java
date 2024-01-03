@@ -116,7 +116,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	public <T extends AbstractPersistentObject> Optional<EntityStore<T>> storeOptional(Class<T> entityClass) {
 		Objects.requireNonNull(entityClass);
 		for (ImmutableEntityStore<?> store : storeList) {
-			if (store.companion().entityClass().equals(entityClass)) {
+			if (store.companion().isBean() &&  store.companion().entityClass().equals(entityClass)) {
 				return Optional.ofNullable((ImmutableEntityStore<T>) store);
 			}
 		}

@@ -1,10 +1,10 @@
 package de.protubero.beanstore.model;
 
+import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.Entity;
-import de.protubero.beanstore.plugins.tags.AbstractTaggedEntity;
 
 @Entity(alias = "note")
-public class Note extends AbstractTaggedEntity {
+public class Note extends AbstractEntity {
 
 	private String text;
 	private Priority priority;

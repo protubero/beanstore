@@ -13,7 +13,7 @@ import de.protubero.beanstore.persistence.api.PersistentProperty;
 
 public final class MapObject extends AbstractPersistentObject {
 
-	private Map<String, Object> properties;
+	private Map<String, Object> properties = new HashMap<>();
 	
 	public MapObject() {
 		state(State.INSTANTIATED);
@@ -56,6 +56,11 @@ public final class MapObject extends AbstractPersistentObject {
 		onAfterValueSet(key, value);
 		return result;
 	}
+
+	public Object set(String key, Object value) {
+		return put(key, value);
+	}
+	
 	
 	@Override
 	public Object remove(Object key) {
@@ -68,9 +73,7 @@ public final class MapObject extends AbstractPersistentObject {
 	@Override
 	public void putAll(Map<? extends String, ? extends Object> m) {
 		onBeforeChange();
-		properties.forEach((key, value) -> {
-			 put(key, value);
-		});
+		properties.putAll(m);
 	}
 	@Override
 	public void clear() {
@@ -100,10 +103,6 @@ public final class MapObject extends AbstractPersistentObject {
 				recordedValues[idx++]= PersistentProperty.of(entry.getKey(), entry.getValue());
 			}
 			properties = null;
-			break;
-		case RECORD:
-		case PREPARE:
-			properties = new HashMap<>();
 			break;
 		case STORED:
 			properties = Collections.unmodifiableMap(properties);

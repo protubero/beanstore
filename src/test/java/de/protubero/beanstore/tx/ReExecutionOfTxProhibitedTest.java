@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.tx;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -10,7 +10,7 @@ public class KeyValueStore implements BeanStorePlugin {
 	@Override
 	public void onStartCreate(BeanStoreFactory beanStoreFactory) {
 		beanStoreFactory.registerEntity(KeyValueEntity.class);
-		beanStoreFactory.kryoConfig().register(KeyObject.class, new KeyObjectSerializer(), 1001);
+		beanStoreFactory.registerKryoSerializer(KeyObject.class, new KeyObjectSerializer(), 1001);
 	}
 	
 	@Override

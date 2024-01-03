@@ -16,40 +16,6 @@ import de.protubero.beanstore.persistence.api.PersistentProperty;
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
 public class AbstractEntity extends AbstractPersistentObject {
 
-	public class MapEntry implements Map.Entry<String, Object> {
-
-		private String key;
-		private Object value;
-		
-		public MapEntry(String key, Object value) {
-			this.key = key;
-			this.value = value;
-		}
-		
-		@Override
-		public String getKey() {
-			return key;
-		}
-
-		@Override
-		public Object getValue() {
-			return value;
-		}
-
-		@Override
-		public Object setValue(Object aValue) {
-			Object result = AbstractEntity.this.put(key, aValue);
-			this.value = aValue;
-			return result;
-		}
-		
-		@Override
-		public String toString() {
-			return key + ":" + value;
-		}
-		
-	}
-	
 	@JsonIgnore	
 	private PersistentProperty[] changes;
 	
@@ -70,12 +36,9 @@ public class AbstractEntity extends AbstractPersistentObject {
 	}
 
 	
-	/**
-	 * Rather inperformant implementation. Not intended for everyday use.
-	 */
 	@Override
 	public int size() {
-		return (int) entrySet().stream().filter(e -> e.getValue() != null).count();
+		return companion().propertyCount();
 	}
 
 	@Override
@@ -105,6 +68,9 @@ public class AbstractEntity extends AbstractPersistentObject {
 		return result;
 	}
 
+	public Object set(String key, Object value) {
+		return put(key, value);
+	}
 
 	@Override
 	public void putAll(Map<? extends String, ? extends Object> map) {
@@ -130,12 +96,7 @@ public class AbstractEntity extends AbstractPersistentObject {
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
-		Set<Entry<String, Object>> resultSet = new HashSet<>();
-		for (PropertyDescriptor descriptor : companion().getDescriptors()) {
-				resultSet.add(new MapEntry(descriptor.getName(), 
-						get(descriptor.getName())));
-		};
-		return resultSet;
+		return companion().entrySetOf(this);
 	}
 
 	@Override
