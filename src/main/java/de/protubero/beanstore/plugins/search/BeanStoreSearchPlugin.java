@@ -30,7 +30,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}	
 	
 	public List<AbstractPersistentObject> search(String queryString) {
-		List<AbstractPersistentObject> searchResult = beanStore.state().resolveAll(searchEngine.query(queryString));
+		List<AbstractPersistentObject> searchResult = beanStore.snapshot().resolveAll(searchEngine.query(queryString));
 		return searchResult;
 	}
 
@@ -49,7 +49,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
 			
-			for (var era : beanStore.state()) {
+			for (var era : beanStore.snapshot()) {
 				for (var apo : era) {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);

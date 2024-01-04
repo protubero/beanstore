@@ -2,23 +2,23 @@ package de.protubero.beanstore.builder;
 
 import java.util.Objects;
 
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.impl.BaseTransactionImpl;
 import de.protubero.beanstore.tx.Transaction;
 
 public class MigrationTransactionImpl extends BaseTransactionImpl implements MigrationTransaction {
 
-	private BeanStoreState state;
+	private BeanStoreSnapshot state;
 	
-	public MigrationTransactionImpl(Transaction transaction, BeanStoreState state) {
+	public MigrationTransactionImpl(Transaction transaction, BeanStoreSnapshot state) {
 		super(transaction);
 		
 		this.state = Objects.requireNonNull(state);
 	}
 
 	@Override
-	public BeanStoreState state() {
+	public BeanStoreSnapshot state() {
 		return state;
 	}
 

@@ -2,7 +2,7 @@ package de.protubero.beanstore.impl;
 
 import java.util.concurrent.CompletableFuture;
 
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableLockedBeanStoreTransaction;
 import de.protubero.beanstore.tx.Transaction;
@@ -10,15 +10,15 @@ import de.protubero.beanstore.tx.Transaction;
 public class ExecutableLockedBeanStoreTransactionImpl extends ExecutableBeanStoreTransactionImpl implements ExecutableLockedBeanStoreTransaction {
 
 
-	private BeanStoreState lockedStoreState;
+	private BeanStoreSnapshot lockedStoreState;
 
 	public ExecutableLockedBeanStoreTransactionImpl(Transaction transaction, BeanStoreImpl beanStore) {
 		super(transaction, beanStore);
-		lockedStoreState = beanStore.state();
+		lockedStoreState = beanStore.snapshot();
 	}
 
 	@Override
-	public BeanStoreState lockedStoreState() {
+	public BeanStoreSnapshot lockedStoreState() {
 		return lockedStoreState;
 	}
 

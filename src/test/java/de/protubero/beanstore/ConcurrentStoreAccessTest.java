@@ -29,7 +29,7 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 	public void test() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
 
-		EntityState<Employee> employeeStore = store.state().entity(Employee.class);
+		EntityState<Employee> employeeStore = store.snapshot().entity(Employee.class);
 		
 		// in the meanwhile ...
 		// create a new instance
@@ -60,7 +60,7 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 		checkList(originalList);
 		
 
-		var resultingList = store.state().entity(Employee.class).stream().collect(Collectors.toList());
+		var resultingList = store.snapshot().entity(Employee.class).stream().collect(Collectors.toList());
 		assertEquals(3, resultingList.size());
 		for (Employee remainingEmp : resultingList) {
 			assertEquals("Walter", remainingEmp.getLastName());

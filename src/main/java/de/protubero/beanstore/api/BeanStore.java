@@ -23,7 +23,7 @@ public interface BeanStore {
 	 * 
 	 * @return a BeanStoreState instance
 	 */
-	BeanStoreState state();
+	BeanStoreSnapshot snapshot();
 	
 	
 	/**

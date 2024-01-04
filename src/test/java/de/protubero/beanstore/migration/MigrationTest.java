@@ -67,7 +67,7 @@ public class MigrationTest {
 		});
 		
 		store = builder.build();
-		var employee = store.state().entity(Employee.class).find(0);
+		var employee = store.snapshot().entity(Employee.class).find(0);
 		System.out.println(employee);
 		Assertions.assertEquals("Wayne", employee.get("lastName"));
 		Assertions.assertEquals(90, employee.get("age"));

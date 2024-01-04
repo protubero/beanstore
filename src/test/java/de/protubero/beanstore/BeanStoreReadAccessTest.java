@@ -25,7 +25,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 	public void testFindMethods() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
 		
-		var readStore = store.state();
+		var readStore = store.snapshot();
 
 		// data has been correctly stored
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
@@ -47,7 +47,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		
 		
 		
-		var updatedObj = store.state().find(emp1);
+		var updatedObj = store.snapshot().find(emp1);
 		
 		assertEquals(121, updatedObj.getAge());
 		assertEquals(updatedObj.getFirstName(), emp1.getFirstName());
@@ -63,7 +63,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 	public void testFindOptional()  {
 		var store = addSampleData(createEmptyStore());
 		
-		var readStore = store.state();
+		var readStore = store.snapshot();
 		assertThrows(NullPointerException.class, () -> readStore.findOptional(null));
 		
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey(null, 1l)));		

@@ -24,7 +24,7 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 	public void testFindMethods() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
 		
-		var readStore = store.state();
+		var readStore = store.snapshot();
 
 		// data has been correctly stored
 		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));

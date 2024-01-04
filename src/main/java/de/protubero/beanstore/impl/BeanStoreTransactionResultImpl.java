@@ -3,7 +3,7 @@ package de.protubero.beanstore.impl;
 import java.util.List;
 import java.util.Objects;
 
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.tx.TransactionEvent;
@@ -13,11 +13,11 @@ import de.protubero.beanstore.tx.TransactionPhase;
 public class BeanStoreTransactionResultImpl implements BeanStoreTransactionResult {
 
 	private TransactionEvent baseResult;
-	private BeanStoreState baseStoreState;
-	private BeanStoreState resultStoreState;
+	private BeanStoreSnapshot baseStoreState;
+	private BeanStoreSnapshot resultStoreState;
 
-	public BeanStoreTransactionResultImpl(TransactionEvent baseResult, BeanStoreState baseStoreState,
-			BeanStoreState resultStoreState) {
+	public BeanStoreTransactionResultImpl(TransactionEvent baseResult, BeanStoreSnapshot baseStoreState,
+			BeanStoreSnapshot resultStoreState) {
 		this.baseResult = Objects.requireNonNull(baseResult);
 		this.baseStoreState = Objects.requireNonNull(baseStoreState);
 		this.resultStoreState = Objects.requireNonNull(resultStoreState);
@@ -45,12 +45,12 @@ public class BeanStoreTransactionResultImpl implements BeanStoreTransactionResul
 	}
 
 	@Override
-	public BeanStoreState baseStoreState() {
+	public BeanStoreSnapshot baseStoreState() {
 		return baseStoreState;
 	}
 
 	@Override
-	public BeanStoreState resultStoreState() {
+	public BeanStoreSnapshot resultStoreState() {
 		return resultStoreState;
 	}
 

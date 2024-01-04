@@ -15,7 +15,7 @@ public class KeyValueStore implements BeanStorePlugin {
 	
 	@Override
 	public void onEndCreate(BeanStore beanStore) {
-		for (KeyValueEntity kve : beanStore.state().entity(KeyValueEntity.class)) {
+		for (KeyValueEntity kve : beanStore.snapshot().entity(KeyValueEntity.class)) {
 			//kve.
 		}
 	}

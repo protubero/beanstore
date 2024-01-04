@@ -24,8 +24,8 @@ public interface BeanStoreTransactionResult {
 	TransactionPhase phase();
 	
 	
-	BeanStoreState baseStoreState();
+	BeanStoreSnapshot baseStoreState();
 
-	BeanStoreState resultStoreState();
+	BeanStoreSnapshot resultStoreState();
 	
 }

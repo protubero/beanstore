@@ -1,6 +1,6 @@
 package de.protubero.beanstore.builder;
 
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.entity.MapObject;
 
 /**
@@ -36,6 +36,6 @@ public interface MigrationTransaction {
 	void delete(MapObject instance);
 	
 	
-	BeanStoreState state();
+	BeanStoreSnapshot state();
 	
 }

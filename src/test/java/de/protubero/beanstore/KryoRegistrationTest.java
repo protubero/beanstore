@@ -43,7 +43,7 @@ public class KryoRegistrationTest {
 		readBuilder.registerEntity(KryoTestEntity.class);
 		var readStore = readBuilder.build();
 
-		var kryoStore = readStore.state().entity(KryoTestEntity.class);
+		var kryoStore = readStore.snapshot().entity(KryoTestEntity.class);
 		assertEquals(1, kryoStore.count());
 		var readObj = kryoStore.stream().findFirst().get();
 		

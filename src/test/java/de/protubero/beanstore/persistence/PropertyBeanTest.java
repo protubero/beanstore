@@ -41,7 +41,7 @@ public class PropertyBeanTest {
 		builder.registerEntity(Address.class);
 		builder.registerKryoPropertyBean(PostCode.class);
 		store = builder.build();
-		var readAccess = store.state().entity(Address.class);
+		var readAccess = store.snapshot().entity(Address.class);
 		
 		var addressList = readAccess.asList();
 		assertEquals(1, addressList.size());

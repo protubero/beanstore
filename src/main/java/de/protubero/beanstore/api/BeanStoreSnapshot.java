@@ -16,7 +16,7 @@ import de.protubero.beanstore.entity.MapObject;
  * BeanStore read operations. 
  *
  */
-public interface BeanStoreState extends Iterable<EntityState<?>> {
+public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 
 	/**
 	 * Entity meta information 

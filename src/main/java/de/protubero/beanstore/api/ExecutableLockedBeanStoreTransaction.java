@@ -6,6 +6,6 @@ public interface ExecutableLockedBeanStoreTransaction extends ExecutableBeanStor
 	 * Access current persistent state of the store.
 	 * 
 	 */
-	BeanStoreState lockedStoreState();	
+	BeanStoreSnapshot lockedStoreState();	
 	
 }

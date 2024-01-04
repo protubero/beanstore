@@ -56,12 +56,12 @@ public class InitTransactionTest {
 	private void checkStoreData(BeanStoreBuilder builder) {
 		// check that init transaction has been executed
 		BeanStore store = builder.build();
-		EntityState<Note> noteStore = store.state().entity(Note.class);
+		EntityState<Note> noteStore = store.snapshot().entity(Note.class);
 		assertEquals(1, noteStore.count());
 		Note note = noteStore.asList().get(0);
 		assertEquals("My Text", note.getText());
 		
-		EntityState<MapObject> todoStore = store.state().entity("todo");
+		EntityState<MapObject> todoStore = store.snapshot().entity("todo");
 		assertEquals(1, todoStore.count());
 		MapObject todo = todoStore.asList().get(0);
 		assertEquals("Write more tests", todo.get("text"));

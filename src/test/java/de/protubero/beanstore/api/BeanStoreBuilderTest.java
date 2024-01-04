@@ -56,8 +56,8 @@ public class BeanStoreBuilderTest {
 		builder2.registerEntity(Note.class);
 		store = builder2.build();
 		
-		Assertions.assertEquals(1, store.state().entity(Employee.class).count());
-		Assertions.assertEquals(0, store.state().entity(Note.class).count());				
+		Assertions.assertEquals(1, store.snapshot().entity(Employee.class).count());
+		Assertions.assertEquals(0, store.snapshot().entity(Note.class).count());				
 	}	
 	
 	

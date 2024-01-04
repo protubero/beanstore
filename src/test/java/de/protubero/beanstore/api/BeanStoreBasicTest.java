@@ -37,7 +37,7 @@ public class BeanStoreBasicTest {
 		
 		beanStore.close();
 
-		assertEquals(2, beanStore.state().entity(Employee.class).count());
+		assertEquals(2, beanStore.snapshot().entity(Employee.class).count());
 		
 		builder = createBuilder(tempDir);
 		builder.addMigration("eins", mTx -> {
@@ -52,16 +52,16 @@ public class BeanStoreBasicTest {
 		});
 		var beanStore2 = builder.build();
 				
-		assertEquals(2, beanStore2.state().entity(Employee.class).count());
+		assertEquals(2, beanStore2.snapshot().entity(Employee.class).count());
 		
-		List<Employee> employees = beanStore2.state().entity(Employee.class).stream().sorted().collect(Collectors.toList());
+		List<Employee> employees = beanStore2.snapshot().entity(Employee.class).stream().sorted().collect(Collectors.toList());
 		assertEquals(2, employees.size());
 		assertEquals(44, employees.get(0).getAge());
 		assertEquals(49, employees.get(1).getAge());
 		
-		assertEquals(44, beanStore2.state().find(employee1).getAge());
-		assertEquals("John", beanStore2.state().find(employee1).getFirstName());
-		assertEquals(49, beanStore2.state().find(employee2).getAge());
+		assertEquals(44, beanStore2.snapshot().find(employee1).getAge());
+		assertEquals("John", beanStore2.snapshot().find(employee1).getFirstName());
+		assertEquals(49, beanStore2.snapshot().find(employee2).getAge());
 	}
 
 	private BeanStoreBuilder createBuilder(File tempDir) {

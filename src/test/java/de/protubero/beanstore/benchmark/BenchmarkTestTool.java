@@ -39,7 +39,7 @@ public class BenchmarkTestTool {
 		
 		var startIterMillis = System.currentTimeMillis();
 
-		var resultList = beanStore.state().entity(Employee.class).stream()
+		var resultList = beanStore.snapshot().entity(Employee.class).stream()
 		.filter(emp -> emp.getAge() == 44) 
 		.filter(emp -> emp.getFirstName().equals("John")) 
 		.filter(emp -> emp.getLastName().equals("Lennon") 
@@ -50,7 +50,7 @@ public class BenchmarkTestTool {
 		System.out.println("Iteration Time [ms] : " + (stopIterMillis - startIterMillis));
 
 		var startAccessMillis = System.currentTimeMillis();
-		var es = beanStore.state().entity(Employee.class);
+		var es = beanStore.snapshot().entity(Employee.class);
 		for (long i = 0; i < NUM_OBJECTS; i++) {
 			Assertions.assertNotNull(es.find(i));
 		}
@@ -67,7 +67,7 @@ public class BenchmarkTestTool {
 		var stopLoadMillis = System.currentTimeMillis();
 		System.out.println("Load Time [ms] : " + (stopLoadMillis - startLoadMillis));
 		
-		int numLoaded = beanStore2.state().entity(Employee.class).count();
+		int numLoaded = beanStore2.snapshot().entity(Employee.class).count();
 		Assertions.assertEquals(NUM_OBJECTS, numLoaded);
 		System.out.println("Num loaded: " + numLoaded);
 	}

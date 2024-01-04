@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreCallbacks;
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
-import de.protubero.beanstore.api.BeanStoreState;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.api.ExecutableLockedBeanStoreTransaction;
@@ -169,7 +169,7 @@ public class BeanStoreImpl implements BeanStore {
 	}
 
 	@Override
-	public BeanStoreState state() {
+	public BeanStoreSnapshot snapshot() {
 		return new BeanStoreStateImpl(store);
 	}
 

@@ -25,7 +25,7 @@ public class MultiUpdateTest extends AbstractBeanStoreTest {
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
 		var store = addSampleData(createEmptyStore());
-		var readAccess = store.state().entity(Employee.class);
+		var readAccess = store.snapshot().entity(Employee.class);
 		
 		var toni = readAccess.stream().filter(obj -> obj.getEmployeeNumber() == 1).findAny().get();
 		var tx = store.transaction();

@@ -19,7 +19,7 @@ public class BeanValidationPlugin implements BeanStorePlugin {
 	@Override
 	public void onEndCreate(BeanStore beanStore) {
 		// check all loaded instances
-		beanStore.state().forEach(es -> {
+		beanStore.snapshot().forEach(es -> {
 			if (es.meta().isBean()) {
 				es.stream().forEach(apo -> {
 					doValidate((AbstractEntity) apo);
