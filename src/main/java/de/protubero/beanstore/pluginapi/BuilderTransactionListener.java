@@ -2,7 +2,7 @@ package de.protubero.beanstore.pluginapi;
 
 import de.protubero.beanstore.tx.TransactionEvent;
 
-public interface FactoryTransactionListener extends BeanStorePlugin {
+public interface BuilderTransactionListener extends BeanStorePlugin {
 
 	
 	/**

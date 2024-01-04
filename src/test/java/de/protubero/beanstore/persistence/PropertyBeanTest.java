@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.PostCode;
 import de.protubero.beanstore.model.PostCode2;
@@ -22,10 +22,10 @@ public class PropertyBeanTest {
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
 		File file = new File(pFileDir, getClass().getSimpleName() + ".kryo");
-		BeanStoreFactory factory = BeanStoreFactory.init(file);
-		factory.registerEntity(Address.class);
-		factory.registerKryoPropertyBean(PostCode.class);
-		var store = factory.create();
+		BeanStoreBuilder builder = BeanStoreBuilder.init(file);
+		builder.registerEntity(Address.class);
+		builder.registerKryoPropertyBean(PostCode.class);
+		var store = builder.build();
 		
 		var address = new Address();
 		address.setCity("Berlin");
@@ -37,10 +37,10 @@ public class PropertyBeanTest {
 		tx.execute();
 		store.close();
 		
-		factory = BeanStoreFactory.init(file);		
-		factory.registerEntity(Address.class);
-		factory.registerKryoPropertyBean(PostCode.class);
-		store = factory.create();
+		builder = BeanStoreBuilder.init(file);		
+		builder.registerEntity(Address.class);
+		builder.registerKryoPropertyBean(PostCode.class);
+		store = builder.build();
 		var readAccess = store.state().entity(Address.class);
 		
 		var addressList = readAccess.asList();

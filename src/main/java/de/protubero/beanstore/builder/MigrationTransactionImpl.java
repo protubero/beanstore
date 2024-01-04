@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 import java.util.Objects;
 
@@ -22,7 +22,6 @@ public class MigrationTransactionImpl extends BaseTransactionImpl implements Mig
 		return state;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public MapObject create(String alias) {
 		return (MapObject) transaction.create(alias);

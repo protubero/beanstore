@@ -9,14 +9,14 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 
 public class MigrationTest {
 
 	@Test
 	public void invalidMigrationIds(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration(" xyz", tx -> {});});
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration("_xyz", tx -> {});});
 		builder.addMigration("xyz", tx -> {});
@@ -25,9 +25,9 @@ public class MigrationTest {
 	
 	@Test
 	public void multipleMigrations(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
-		var store = builder.create();
+		var store = builder.build();
 		
 		var tx = store.transaction();
 		var employee1 = tx.create(Employee.class);
@@ -39,7 +39,7 @@ public class MigrationTest {
 		store.close();
 		
 		
-		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		
 		builder.addMigration("a", mtx -> {
@@ -49,10 +49,10 @@ public class MigrationTest {
 		});
 		
 		
-		store = builder.create();
+		store = builder.build();
 		store.close();
 		
-		builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		
 		builder.addMigration("a", mtx -> {
@@ -66,7 +66,7 @@ public class MigrationTest {
 			obj.put("age", ((Integer) employee.get("age")) * 2);
 		});
 		
-		store = builder.create();
+		store = builder.build();
 		var employee = store.state().entity(Employee.class).find(0);
 		System.out.println(employee);
 		Assertions.assertEquals("Wayne", employee.get("lastName"));

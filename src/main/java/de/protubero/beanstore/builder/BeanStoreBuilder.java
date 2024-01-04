@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -19,10 +19,10 @@ import de.protubero.beanstore.persistence.kryo.PropertyBeanSerializer;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 /**
- * The factory class for BeanStore instances.
+ * The builder class for BeanStore instances.
  * 
  */
-public interface BeanStoreFactory {
+public interface BeanStoreBuilder {
 
 	public static enum Mode {
 		/**
@@ -38,25 +38,25 @@ public interface BeanStoreFactory {
 	
 	
 	/**
-	 * The BeanStore created by this BeanStoreFactory will not store transactions.  
+	 * The BeanStore created by this BeanStoreBuilder will not store transactions.  
 	 * 
-	 * @return a BeanStore factory
+	 * @return a BeanStore Builder
 	 */
-	public static BeanStoreFactory init() {
-		return new BeanStoreFactoryImpl();
+	public static BeanStoreBuilder init() {
+		return new BeanStoreBuilderImpl();
 	}
 	
 	/**
-	 * The BeanStore created by this BeanStoreFactory stores transactions in the given file.  
+	 * The BeanStore created by this BeanStoreBuilder stores transactions in the given file.  
 	 * 
-	 * @return a BeanStore factory
+	 * @return a BeanStore Builder
 	 */
-	public static BeanStoreFactory init(File file) {
+	public static BeanStoreBuilder init(File file) {
 		return init(KryoPersistence.of(file));
 	}
 
-	public static BeanStoreFactory init(TransactionPersistence persistence) {
-		return new BeanStoreFactoryImpl(Mode.RegisteredEntities, persistence);
+	public static BeanStoreBuilder init(TransactionPersistence persistence) {
+		return new BeanStoreBuilderImpl(Mode.RegisteredEntities, persistence);
 	}
 	
 	/**
@@ -65,12 +65,12 @@ public interface BeanStoreFactory {
 	 * @param file
 	 * @return
 	 */
-	public static BeanStoreFactory initMapOnly(File file) {
+	public static BeanStoreBuilder initMapOnly(File file) {
 		return initMapOnly(KryoPersistence.of(file));
 	}
 	
-	public static BeanStoreFactory initMapOnly(TransactionPersistence persistence) {
-		return new BeanStoreFactoryImpl(Mode.LoadedMaps, persistence);
+	public static BeanStoreBuilder initMapOnly(TransactionPersistence persistence) {
+		return new BeanStoreBuilderImpl(Mode.LoadedMaps, persistence);
 	}
 
 	
@@ -106,7 +106,7 @@ public interface BeanStoreFactory {
 	 * </ol>
 	 * </p> 
 	 */
-	BeanStore create();
+	BeanStore build();
 
 	MapObjectCompanion registerMapEntity(String alias);
 

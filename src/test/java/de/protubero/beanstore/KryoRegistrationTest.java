@@ -8,7 +8,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.KryoTestEntity;
 
 public class KryoRegistrationTest {
@@ -18,9 +18,9 @@ public class KryoRegistrationTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, "beanstore.kryo"));
-		factory.registerEntity(KryoTestEntity.class);
-		var store = factory.create();
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, "beanstore.kryo"));
+		builder.registerEntity(KryoTestEntity.class);
+		var store = builder.build();
 		var tx = store.transaction();
 		var newObj = tx.create(KryoTestEntity.class);
 		
@@ -39,9 +39,9 @@ public class KryoRegistrationTest {
 
 		tx.execute();
 		
-		BeanStoreFactory readFactory = BeanStoreFactory.init(new File(pFileDir, "beanstore.kryo"));
-		readFactory.registerEntity(KryoTestEntity.class);
-		var readStore = readFactory.create();
+		BeanStoreBuilder readBuilder = BeanStoreBuilder.init(new File(pFileDir, "beanstore.kryo"));
+		readBuilder.registerEntity(KryoTestEntity.class);
+		var readStore = readBuilder.build();
 
 		var kryoStore = readStore.state().entity(KryoTestEntity.class);
 		assertEquals(1, kryoStore.count());

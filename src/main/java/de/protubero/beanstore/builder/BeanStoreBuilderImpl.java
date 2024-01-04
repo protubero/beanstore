@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
 import de.protubero.beanstore.persistence.kryo.KryoConfigurationImpl;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
-import de.protubero.beanstore.pluginapi.FactoryTransactionListener;
+import de.protubero.beanstore.pluginapi.BuilderTransactionListener;
 import de.protubero.beanstore.pluginapi.PersistenceReadListener;
 import de.protubero.beanstore.pluginapi.PersistenceWriteListener;
 import de.protubero.beanstore.store.CompanionSet;
@@ -48,11 +48,11 @@ import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
 import de.protubero.beanstore.tx.TransactionPhase;
 
-public class BeanStoreFactoryImpl implements BeanStoreFactory {
+public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 
 	public static final String INIT_ID = "_INIT_";
 
-	public static final Logger log = LoggerFactory.getLogger(BeanStoreFactory.class);
+	public static final Logger log = LoggerFactory.getLogger(BeanStoreBuilder.class);
 
 	private Mode mode = Mode.RegisteredEntities;
 	private List<Migration> migrations = new ArrayList<>();
@@ -63,7 +63,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private boolean created;
 
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
-	private List<FactoryTransactionListener> transactionListener = new ArrayList<>();
+	private List<BuilderTransactionListener> transactionListener = new ArrayList<>();
 	private List<PersistenceReadListener> persistenceReadListener = new ArrayList<>();
 	private List<PersistenceWriteListener> persistenceWriteListener = new ArrayList<>();
 
@@ -73,7 +73,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
 
 	
-	public BeanStoreFactoryImpl(Mode mode, TransactionPersistence persistence) {
+	public BeanStoreBuilderImpl(Mode mode, TransactionPersistence persistence) {
 		this.persistence = Objects.requireNonNull(persistence);
 		this.mode = Objects.requireNonNull(mode);
 		
@@ -81,7 +81,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		this.persistence.kryoConfig(kryoConfig);
 	}
 
-	public BeanStoreFactoryImpl() {
+	public BeanStoreBuilderImpl() {
 	}
 	
 	@Override
@@ -95,8 +95,8 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		}
 		
 		plugins.add(aPlugin);
-		if (aPlugin instanceof FactoryTransactionListener) {
-			transactionListener.add((FactoryTransactionListener) aPlugin);
+		if (aPlugin instanceof BuilderTransactionListener) {
+			transactionListener.add((BuilderTransactionListener) aPlugin);
 		}
 		if (aPlugin instanceof PersistenceReadListener) {
 			persistenceReadListener.add((PersistenceReadListener) aPlugin);
@@ -186,7 +186,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 		aStoreSet = createStoreWriter().execute(tx, aStoreSet);
 
 		// call transaction listener
-		for (FactoryTransactionListener listener : transactionListener) {
+		for (BuilderTransactionListener listener : transactionListener) {
 			listener.onInitTransaction(tx);
 		}
 		
@@ -331,7 +331,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 				migratedMapStore = migrationStoreWriter.execute(tx, migratedMapStore);
 				
 				// call transaction listener
-				for (FactoryTransactionListener listener : transactionListener) {
+				for (BuilderTransactionListener listener : transactionListener) {
 					listener.onMigrationTransaction(tx);
 				}
 				
@@ -344,7 +344,7 @@ public class BeanStoreFactoryImpl implements BeanStoreFactory {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public BeanStore create() {
+	public BeanStore build() {
 		throwExceptionIfAlreadyCreated();
 		
 		switch (mode) {

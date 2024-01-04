@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 class AppliedMigration {
 

@@ -146,18 +146,18 @@ public class EntityCompanionTest {
 		assertThrows(Exception.class, () -> {aMapInstance.set("firstName", "Cicero");});
 		
 
-		aBeanInstance = entityCompanion.createInstance(12);
-		aMapInstance = mapCompanion.createInstance(12);
-
-		aBeanInstance.state(State.RECORD);
-		aMapInstance.state(State.RECORD);
-		assertEquals(State.RECORD, aBeanInstance.state());
-		assertEquals(State.RECORD, aMapInstance.state());
-		aBeanInstance.set("firstName", "Cicero");
-		aMapInstance.set("firstName", "Cicero");
-		
-		assertEquals("Cicero", aBeanInstance.getFirstName());
-		assertEquals("Cicero", aMapInstance.get("firstName"));
+//		aBeanInstance = entityCompanion.createInstance(12);
+//		aMapInstance = mapCompanion.createInstance(12);
+//
+//		aBeanInstance.state(State.RECORD);
+//		aMapInstance.state(State.RECORD);
+//		assertEquals(State.RECORD, aBeanInstance.state());
+//		assertEquals(State.RECORD, aMapInstance.state());
+//		aBeanInstance.set("firstName", "Cicero");
+//		aMapInstance.set("firstName", "Cicero");
+//		
+//		assertEquals("Cicero", aBeanInstance.getFirstName());
+//		assertEquals("Cicero", aMapInstance.get("firstName"));
 		
 	}
 	

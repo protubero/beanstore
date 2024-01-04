@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 import java.util.function.Consumer;
 

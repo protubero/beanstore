@@ -8,8 +8,8 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.plugins.search.BeanStoreSearchPlugin;
 import de.protubero.beanstore.plugins.search.SearchEngine;
@@ -56,15 +56,15 @@ public class SearchTest {
 	public void test2() throws InterruptedException, ExecutionException {
 		BeanStoreSearchPlugin searchPlugin = new BeanStoreSearchPlugin(); 
 
-		BeanStoreFactory factory = BeanStoreFactory.init();
-		factory.addPlugin(searchPlugin);
+		BeanStoreBuilder builder = BeanStoreBuilder.init();
+		builder.addPlugin(searchPlugin);
 		
-		var entity = factory.registerEntity(Employee.class);
+		var entity = builder.registerEntity(Employee.class);
 		searchPlugin.register(entity, emp -> {
 			return emp.getFirstName() + " " + emp.getLastName();
 		});
 		
-		BeanStore beanStore = factory.create();
+		BeanStore beanStore = builder.build();
 				
 		var tx = beanStore.transaction();
 		Employee emp = tx.create(Employee.class);

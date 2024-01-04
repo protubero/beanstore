@@ -1,16 +1,16 @@
 package de.protubero.beanstore.plugins.keyvalue;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public class KeyValueStore implements BeanStorePlugin {
 
 
 	@Override
-	public void onStartCreate(BeanStoreFactory beanStoreFactory) {
-		beanStoreFactory.registerEntity(KeyValueEntity.class);
-		beanStoreFactory.registerKryoSerializer(KeyObject.class, new KeyObjectSerializer(), 1001);
+	public void onStartCreate(BeanStoreBuilder beanStoreBuilder) {
+		beanStoreBuilder.registerEntity(KeyValueEntity.class);
+		beanStoreBuilder.registerKryoSerializer(KeyObject.class, new KeyObjectSerializer(), 1001);
 	}
 	
 	@Override

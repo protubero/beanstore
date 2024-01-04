@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 
 class PoisenPillTest {

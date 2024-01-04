@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.plugins.txlog.BeanStoreTransactionLogPlugin;
 
@@ -18,8 +18,8 @@ public class BeanStoreBasicTest {
 	
 	@Test
 	public void happyPathBeanStore(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreFactory builder = createBuilder(tempDir);
-		BeanStore beanStore = builder.create();
+		BeanStoreBuilder builder = createBuilder(tempDir);
+		BeanStore beanStore = builder.build();
 		
 		var tx = beanStore.transaction();
 		
@@ -50,7 +50,7 @@ public class BeanStoreBasicTest {
 				update.put("age", e.getInteger("age") + 3);
 			});
 		});
-		var beanStore2 = builder.create();
+		var beanStore2 = builder.build();
 				
 		assertEquals(2, beanStore2.state().entity(Employee.class).count());
 		
@@ -64,8 +64,8 @@ public class BeanStoreBasicTest {
 		assertEquals(49, beanStore2.state().find(employee2).getAge());
 	}
 
-	private BeanStoreFactory createBuilder(File tempDir) {
-		BeanStoreFactory builder = BeanStoreFactory.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+	private BeanStoreBuilder createBuilder(File tempDir) {
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
 		builder.registerEntity(Employee.class);
 		builder.addPlugin(new BeanStoreTransactionLogPlugin());
 		return builder;

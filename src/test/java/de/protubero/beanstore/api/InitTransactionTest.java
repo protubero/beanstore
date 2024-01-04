@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.MapObject;
-import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Note;
 
 public class InitTransactionTest {
@@ -20,9 +20,9 @@ public class InitTransactionTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = createFactory();
+		BeanStoreBuilder builder = createBuilder();
 		
-		factory.initNewStore(tx -> {
+		builder.initNewStore(tx -> {
 			var todo = tx.create("todo");
 			todo.put("text", "Write more tests");
 			
@@ -30,32 +30,32 @@ public class InitTransactionTest {
 			note.setText("My Text");
 		});
 		
-		checkStoreData(factory);
+		checkStoreData(builder);
 		
 		// has it been persisted accordingly?
-		BeanStoreFactory newFactory = createFactory();
+		BeanStoreBuilder newBuilder = createBuilder();
 		
-		checkStoreData(newFactory);
+		checkStoreData(newBuilder);
 	}
 	
 	@Test 
 	public void onlyOneInitTransactionAllowed() {
-		BeanStoreFactory factory = createFactory();
+		BeanStoreBuilder builder = createBuilder();
 		
-		factory.initNewStore(tx -> {});
-		Assertions.assertThrows(Exception.class, () -> {factory.initNewStore(tx -> {});});
+		builder.initNewStore(tx -> {});
+		Assertions.assertThrows(Exception.class, () -> {builder.initNewStore(tx -> {});});
 	}
 
-	private BeanStoreFactory createFactory() {
-		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
-		factory.registerEntity(Note.class);
-		factory.registerMapEntity("todo");
-		return factory;
+	private BeanStoreBuilder createBuilder() {
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		builder.registerEntity(Note.class);
+		builder.registerMapEntity("todo");
+		return builder;
 	}
 
-	private void checkStoreData(BeanStoreFactory factory) {
+	private void checkStoreData(BeanStoreBuilder builder) {
 		// check that init transaction has been executed
-		BeanStore store = factory.create();
+		BeanStore store = builder.build();
 		EntityState<Note> noteStore = store.state().entity(Note.class);
 		assertEquals(1, noteStore.count());
 		Note note = noteStore.asList().get(0);

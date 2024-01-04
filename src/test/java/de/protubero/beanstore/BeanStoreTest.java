@@ -7,17 +7,17 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
-import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreTest {
 
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
-		var factory = BeanStoreFactory.init();
-		factory.registerEntity(Employee.class);
-		var store = factory.create();
+		var builder = BeanStoreBuilder.init();
+		builder.registerEntity(Employee.class);
+		var store = builder.build();
 	
 		var tx = store.transaction();
 		Employee emp = tx.create(Employee.class);

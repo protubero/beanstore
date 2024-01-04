@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.factory.BeanStoreFactory;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 
 public class MapObjectStoreTest {
 
@@ -15,7 +15,7 @@ public class MapObjectStoreTest {
 	
 	@Test
 	public void test() {
-		BeanStoreFactory factory = BeanStoreFactory.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
 		
 		
 		

@@ -1,6 +1,13 @@
 Systematic Automated Tests
 Comment API
 
+Access -> SNAPSHOT
+
+Java Serialization
+
+renovate
+
+
 
 Statistic plugin (Loaded Data)
 prohibit Entity References

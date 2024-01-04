@@ -1,4 +1,4 @@
-package de.protubero.beanstore.factory;
+package de.protubero.beanstore.builder;
 
 import de.protubero.beanstore.api.BeanStoreState;
 import de.protubero.beanstore.entity.MapObject;

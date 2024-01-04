@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.InstanceKey;
-import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
@@ -35,18 +35,18 @@ public abstract class AbstractBeanStoreTest {
 	}
 	
 	protected BeanStore createEmptyStore(BeanStorePlugin plugin) {
-		BeanStoreFactory factory = createEmptyStoreFactory(plugin);
-		factory.registerEntity(Employee.class);
-		factory.registerEntity(Address.class);
-		return factory.create();
+		BeanStoreBuilder builder = createEmptyStoreBuilder(plugin);
+		builder.registerEntity(Employee.class);
+		builder.registerEntity(Address.class);
+		return builder.build();
 	}
 
-	protected BeanStoreFactory createEmptyStoreFactory() throws AssertionError {
-		return createEmptyStoreFactory(null);
+	protected BeanStoreBuilder createEmptyStoreBuilder() throws AssertionError {
+		return createEmptyStoreBuilder(null);
 	}
 
 	
-	protected BeanStoreFactory createEmptyStoreFactory(BeanStorePlugin plugin) throws AssertionError {
+	protected BeanStoreBuilder createEmptyStoreBuilder(BeanStorePlugin plugin) throws AssertionError {
 		File pFileDir = getFileDir();
 		
 		if (pFileDir == null) {
@@ -56,11 +56,11 @@ public abstract class AbstractBeanStoreTest {
 		if (file.exists()) {
 			throw new AssertionError();
 		}
-		BeanStoreFactory factory = BeanStoreFactory.init(file);
+		BeanStoreBuilder builder = BeanStoreBuilder.init(file);
 		if (plugin != null) {
-			factory.addPlugin(plugin);
+			builder.addPlugin(plugin);
 		}
-		return factory;
+		return builder;
 	}
 	
 	protected abstract File getFileDir();

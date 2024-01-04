@@ -3,8 +3,8 @@ package de.protubero.beanstore.pluginapi;
 import java.io.File;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.factory.BeanStoreFactory;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.tx.TransactionEvent;
 
@@ -16,11 +16,11 @@ public interface BeanStorePlugin {
 
 	
 	/**
-	 * The create() method of the bean store factory has just been invoked.  
-	 * It is still time to add some configuration to the factory, e.g. 
+	 * The create() method of the bean store builder has just been invoked.  
+	 * It is still time to add some configuration to the builder, e.g. 
 	 * to register Kryo serializers.
 	 */
-	default void onStartCreate(BeanStoreFactory beanStoreFactory) {}
+	default void onStartCreate(BeanStoreBuilder beanStoreBuilder) {}
 	
 	/**
 	 * The persisted transactions has been read from the file and the store is migrated

@@ -9,7 +9,7 @@ skinparam component {
 
 
 [Api] <<de.protubero.beanstore.api..>> 
-[Factory] <<de.protubero.beanstore.factory..>>
+[Builder] <<de.protubero.beanstore.builder..>>
 
 [Entity] <<de.protubero.beanstore.entity..>>
 [Transaction] <<de.protubero.beanstore.tx..>>
@@ -24,15 +24,15 @@ skinparam component {
 
 [Plugins] <<de.protubero.beanstore.plugins..>>
 
-[Factory] --> Api
-[Factory] --> Impl
-[Factory] --> Store
-[Factory] --> Entity
-[Factory] --> PersistenceApi
-[Factory] --> PersistenceImpl
-[Factory] --> PersistenceKryo
-[Factory] --> Transaction
-[Factory] --> PluginApi
+[Builder] --> Api
+[Builder] --> Impl
+[Builder] --> Store
+[Builder] --> Entity
+[Builder] --> PersistenceApi
+[Builder] --> PersistenceImpl
+[Builder] --> PersistenceKryo
+[Builder] --> Transaction
+[Builder] --> PluginApi
 
 [PersistenceImpl] --> PersistenceApi
 [PersistenceKryo] --> PersistenceApi
@@ -59,7 +59,7 @@ skinparam component {
 [PluginApi] --> Api 				
 [PluginApi] --> Transaction			
 [PluginApi] --> PersistenceApi
-[PluginApi] --> Factory 				
+[PluginApi] --> Builder 				
 [PluginApi] --> Entity 				
 
 [Plugins] --> Entity
@@ -67,7 +67,7 @@ skinparam component {
 [Plugins] --> Api
 [Plugins] --> Transaction
 [Plugins] --> PersistenceApi
-[Plugins] --> Factory
+[Plugins] --> Builder
 
 @enduml
 
