@@ -13,6 +13,8 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.InstanceKey;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 public abstract class AbstractBeanStoreTest {
@@ -56,7 +58,7 @@ public abstract class AbstractBeanStoreTest {
 		if (file.exists()) {
 			throw new AssertionError();
 		}
-		BeanStoreBuilder builder = BeanStoreBuilder.init(file);
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(file, KryoConfiguration.create()));
 		if (plugin != null) {
 			builder.addPlugin(plugin);
 		}

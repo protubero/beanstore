@@ -11,9 +11,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.esotericsoftware.kryo.kryo5.Registration;
-import com.esotericsoftware.kryo.kryo5.Serializer;
-
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
@@ -26,14 +23,12 @@ import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreImpl;
 import de.protubero.beanstore.impl.BeanStoreStateImpl;
 import de.protubero.beanstore.impl.BeanStoreTransactionImpl;
-import de.protubero.beanstore.persistence.api.KryoConfiguration;
+import de.protubero.beanstore.persistence.api.DeferredTransactionWriter;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
-import de.protubero.beanstore.persistence.impl.DeferredTransactionWriter;
-import de.protubero.beanstore.persistence.kryo.KryoConfigurationImpl;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 import de.protubero.beanstore.pluginapi.BuilderTransactionListener;
 import de.protubero.beanstore.pluginapi.PersistenceReadListener;
@@ -67,7 +62,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	private List<PersistenceReadListener> persistenceReadListener = new ArrayList<>();
 	private List<PersistenceWriteListener> persistenceWriteListener = new ArrayList<>();
 
-	private KryoConfiguration kryoConfig;
 	private TransactionPersistence persistence;
 	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
@@ -76,13 +70,8 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	public BeanStoreBuilderImpl(Mode mode, TransactionPersistence persistence) {
 		this.persistence = Objects.requireNonNull(persistence);
 		this.mode = Objects.requireNonNull(mode);
-		
-		kryoConfig = new KryoConfigurationImpl();
-		this.persistence.kryoConfig(kryoConfig);
 	}
 
-	public BeanStoreBuilderImpl() {
-	}
 	
 	@Override
 	public void addPlugin(BeanStorePlugin aPlugin) {
@@ -194,8 +183,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	}
 
 	private MutableEntityStoreSet loadMapStore() {
-		// load transactions
-		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 
 		boolean noStoredTransactions = persistence.isEmpty();
 		if (noStoredTransactions) {
@@ -349,9 +336,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		
 		switch (mode) {
 		case LoadedMaps:
-			if (persistence == null) {
-				throw new RuntimeException("Mode LoadedMaps and no peristence specified");
-			}
 			if (!companionSet.isEmpty()) {
 				throw new RuntimeException("Mode LoadedMaps does not allow registered entities");
 			}
@@ -372,14 +356,16 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 
 		MutableEntityStoreSet mapStore = null;
 		ImmutableEntityStoreSet finalStoreSet = null;
-		if (persistence != null) {
-			mapStore = loadMapStore();
-			
-			if (mapStore != null) {
-				migrate(mapStore);
-			} else if (mode == Mode.LoadedMaps) {
-				throw new RuntimeException("Mode LoadedMaps but file does not exist");
-			}
+
+		persistence.lockConfiguration();
+		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
+		
+		mapStore = loadMapStore();
+		
+		if (mapStore != null) {
+			migrate(mapStore);
+		} else if (mode == Mode.LoadedMaps) {
+			throw new RuntimeException("Mode LoadedMaps but file does not exist");
 		}
 	
 		if (mapStore == null) {
@@ -562,16 +548,5 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		return mode;
 	}
 
-	@Override
-	public void registerKryoPropertyBean(Class<?> propertyBeanClass) {
-		throwExceptionIfAlreadyCreated();
-		kryoConfig.register(propertyBeanClass);
-	}
-
-	@Override
-	public <T> Registration registerKryoSerializer(Class<T> type, Serializer<T> serializer, int id) {
-		throwExceptionIfAlreadyCreated();
-		return kryoConfig.register(type, serializer, id);
-	}
 
 }

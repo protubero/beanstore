@@ -11,6 +11,7 @@ import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.impl.NoOpPersistence;
 import de.protubero.beanstore.plugins.search.BeanStoreSearchPlugin;
 import de.protubero.beanstore.plugins.search.SearchEngine;
 import de.protubero.beanstore.plugins.search.SearchEngineAction;
@@ -56,7 +57,7 @@ public class SearchTest {
 	public void test2() throws InterruptedException, ExecutionException {
 		BeanStoreSearchPlugin searchPlugin = new BeanStoreSearchPlugin(); 
 
-		BeanStoreBuilder builder = BeanStoreBuilder.init();
+		BeanStoreBuilder builder = BeanStoreBuilder.init(NoOpPersistence.create());
 		builder.addPlugin(searchPlugin);
 		
 		var entity = builder.registerEntity(Employee.class);

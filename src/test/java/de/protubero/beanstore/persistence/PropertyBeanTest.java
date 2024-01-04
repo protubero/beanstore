@@ -12,6 +12,8 @@ import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.PostCode;
 import de.protubero.beanstore.model.PostCode2;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class PropertyBeanTest {
 
@@ -22,9 +24,10 @@ public class PropertyBeanTest {
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
 		File file = new File(pFileDir, getClass().getSimpleName() + ".kryo");
-		BeanStoreBuilder builder = BeanStoreBuilder.init(file);
+		var kryoConfig = KryoConfiguration.create();
+		kryoConfig.register(PostCode.class);
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(file, kryoConfig));
 		builder.registerEntity(Address.class);
-		builder.registerKryoPropertyBean(PostCode.class);
 		var store = builder.build();
 		
 		var address = new Address();
@@ -37,9 +40,8 @@ public class PropertyBeanTest {
 		tx.execute();
 		store.close();
 		
-		builder = BeanStoreBuilder.init(file);		
+		builder = BeanStoreBuilder.init(KryoPersistence.of(file, kryoConfig));
 		builder.registerEntity(Address.class);
-		builder.registerKryoPropertyBean(PostCode.class);
 		store = builder.build();
 		var readAccess = store.snapshot().entity(Address.class);
 		

@@ -11,6 +11,8 @@ import org.junit.jupiter.api.io.TempDir;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.model.Note;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class InitTransactionTest {
 	
@@ -47,7 +49,7 @@ public class InitTransactionTest {
 	}
 
 	private BeanStoreBuilder createBuilder() {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Note.class);
 		builder.registerMapEntity("todo");
 		return builder;

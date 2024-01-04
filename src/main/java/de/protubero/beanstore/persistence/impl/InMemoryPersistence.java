@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.api.TransactionWriter;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 
 public class InMemoryPersistence implements TransactionPersistence {
 
@@ -47,7 +47,7 @@ public class InMemoryPersistence implements TransactionPersistence {
 
 	}
 	
-	public InMemoryPersistence create() {
+	public static InMemoryPersistence create() {
 		return new InMemoryPersistence();
 	}
 	
@@ -76,9 +76,10 @@ public class InMemoryPersistence implements TransactionPersistence {
 	}
 
 	@Override
-	public void kryoConfig(KryoConfiguration kryoConfig) {
-		// ignore
+	public void lockConfiguration() {
+		// NOP
 	}
+
 
 	
 }

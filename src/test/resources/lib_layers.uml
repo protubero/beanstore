@@ -29,8 +29,6 @@ skinparam component {
 [Builder] --> Store
 [Builder] --> Entity
 [Builder] --> PersistenceApi
-[Builder] --> PersistenceImpl
-[Builder] --> PersistenceKryo
 [Builder] --> Transaction
 [Builder] --> PluginApi
 

@@ -1,21 +1,13 @@
 package de.protubero.beanstore.builder;
 
-import java.io.File;
 import java.util.function.Consumer;
-
-import com.esotericsoftware.kryo.kryo5.Registration;
-import com.esotericsoftware.kryo.kryo5.Serializer;
 
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.MapObjectCompanion;
-import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
-import de.protubero.beanstore.persistence.kryo.KryoId;
-import de.protubero.beanstore.persistence.kryo.KryoPersistence;
-import de.protubero.beanstore.persistence.kryo.PropertyBeanSerializer;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 
 /**
@@ -37,42 +29,11 @@ public interface BeanStoreBuilder {
 	}
 	
 	
-	/**
-	 * The BeanStore created by this BeanStoreBuilder will not store transactions.  
-	 * 
-	 * @return a BeanStore Builder
-	 */
-	public static BeanStoreBuilder init() {
-		return new BeanStoreBuilderImpl();
-	}
-	
-	/**
-	 * The BeanStore created by this BeanStoreBuilder stores transactions in the given file.  
-	 * 
-	 * @return a BeanStore Builder
-	 */
-	public static BeanStoreBuilder init(File file) {
-		return init(KryoPersistence.of(file));
-	}
 
 	public static BeanStoreBuilder init(TransactionPersistence persistence) {
 		return new BeanStoreBuilderImpl(Mode.RegisteredEntities, persistence);
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @param file
-	 * @return
-	 */
-	public static BeanStoreBuilder initMapOnly(File file) {
-		return initMapOnly(KryoPersistence.of(file));
-	}
-	
-	public static BeanStoreBuilder initMapOnly(TransactionPersistence persistence) {
-		return new BeanStoreBuilderImpl(Mode.LoadedMaps, persistence);
-	}
-
 	
 	/**
 	 * Register a Java Bean entity. Remember: The class must inherit from AbstractEntity
@@ -110,8 +71,5 @@ public interface BeanStoreBuilder {
 
 	MapObjectCompanion registerMapEntity(String alias);
 
-	void registerKryoPropertyBean(Class<?> propertyBeanClass);	
-
-	<T> Registration registerKryoSerializer(Class<T> type, Serializer<T> serializer, int id);
 		
 }

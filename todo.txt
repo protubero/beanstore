@@ -1,17 +1,11 @@
 Systematic Automated Tests
 Comment API
 
-Access -> SNAPSHOT
 
-Java Serialization
-
-
-
-
+externalize CompanionSet?
 Statistic plugin (Loaded Data)
 prohibit Entity References
 make Transactions unchangeable by plugins/callbacks
-rename Factory to Builder
 integrate Kryo Registration into KryoPersistence
 
 enumerate transactions
@@ -22,6 +16,8 @@ executeBlocking default
 PersistenceLoader -> Store own class
 
 "Index" Callback
+
+lock file within VM and in OS
 
 Auto-Release
 switch to Protected Main branch / feature branches

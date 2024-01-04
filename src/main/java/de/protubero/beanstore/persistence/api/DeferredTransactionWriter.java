@@ -1,11 +1,8 @@
-package de.protubero.beanstore.persistence.impl;
+package de.protubero.beanstore.persistence.api;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import de.protubero.beanstore.persistence.api.PersistentTransaction;
-import de.protubero.beanstore.persistence.api.TransactionWriter;
 
 public class DeferredTransactionWriter implements TransactionWriter {
 

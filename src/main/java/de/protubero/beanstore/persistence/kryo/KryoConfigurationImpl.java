@@ -14,7 +14,6 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.DurationSeria
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.InstantSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.LocalDateTimeSerializer;
 
-import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 
 public class KryoConfigurationImpl implements KryoConfiguration {
@@ -22,6 +21,8 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 	public static final Logger log = LoggerFactory.getLogger(KryoConfigurationImpl.class);
 	
 	private Kryo kryo;
+
+	private boolean locked;
 
 	
 	public KryoConfigurationImpl() {
@@ -59,6 +60,10 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 	
 	@Override
 	public void register(Class<?> propertyBeanClass) {
+		if (locked) {
+			throw new RuntimeException("Kryo configuration is already locked");
+		}
+		
 		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
 		if (pbAnnotation == null) {
 			throw new RuntimeException("Property bean classes must be annotated with PropertyBean annotation");
@@ -73,15 +78,22 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 	
 	@Override
 	public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
+		if (locked) {
+			throw new RuntimeException("Kryo configuration is already locked");
+		}
+
 		if (id < 100) {
 			throw new RuntimeException("IDs < 100 are reserved");
 		}
 		return kryo.register(type, serializer, id);
 	}
 
-	@Override
-	public Kryo getKryo() {
+	Kryo getKryo() {
 		return kryo;
+	}
+
+	public void lock() {
+		this.locked = true;
 	}
 
 	

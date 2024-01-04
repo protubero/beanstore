@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Test;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Note;
+import de.protubero.beanstore.persistence.impl.NoOpPersistence;
 
 public class ReExecutionOfTxProhibitedTest {
 	
 	@Test
 	public void test() {
-		BeanStoreBuilder builder = BeanStoreBuilder.init();
+		BeanStoreBuilder builder = BeanStoreBuilder.init(NoOpPersistence.create());
 		builder.registerEntity(Note.class);
 		
 		BeanStore store = builder.build();

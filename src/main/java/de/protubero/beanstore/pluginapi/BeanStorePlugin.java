@@ -1,12 +1,7 @@
 package de.protubero.beanstore.pluginapi;
 
-import java.io.File;
-
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
-import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.persistence.api.PersistentTransaction;
-import de.protubero.beanstore.tx.TransactionEvent;
 
 /**
  * Plugin interface 

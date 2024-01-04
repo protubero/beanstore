@@ -10,6 +10,8 @@ import org.junit.jupiter.api.io.TempDir;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class BenchmarkTestTool {
 
@@ -18,7 +20,7 @@ public class BenchmarkTestTool {
 	@Test
 	public void name(@TempDir File tempDir) {
 		var file = new File(tempDir, getClass().getSimpleName() + ".kryo");
-		BeanStoreBuilder builder = BeanStoreBuilder.init(file);
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(file, KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		BeanStore beanStore = builder.build();
 
@@ -61,7 +63,7 @@ public class BenchmarkTestTool {
 		System.out.println("File length: " + file.length());
 		
 		var startLoadMillis = System.currentTimeMillis();
-		BeanStoreBuilder builder2 = BeanStoreBuilder.init(file);
+		BeanStoreBuilder builder2 = BeanStoreBuilder.init(KryoPersistence.of(file, KryoConfiguration.create()));
 		builder2.registerEntity(Employee.class);
 		BeanStore beanStore2 = builder2.build();
 		var stopLoadMillis = System.currentTimeMillis();

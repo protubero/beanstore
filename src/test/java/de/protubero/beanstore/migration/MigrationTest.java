@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class MigrationTest {
 
 	@Test
 	public void invalidMigrationIds(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration(" xyz", tx -> {});});
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration("_xyz", tx -> {});});
 		builder.addMigration("xyz", tx -> {});
@@ -25,7 +25,7 @@ public class MigrationTest {
 	
 	@Test
 	public void multipleMigrations(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		var store = builder.build();
 		
@@ -39,7 +39,7 @@ public class MigrationTest {
 		store.close();
 		
 		
-		builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		
 		builder.addMigration("a", mtx -> {
@@ -52,7 +52,7 @@ public class MigrationTest {
 		store = builder.build();
 		store.close();
 		
-		builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		
 		builder.addMigration("a", mtx -> {

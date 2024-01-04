@@ -12,6 +12,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 import de.protubero.beanstore.plugins.txlog.BeanStoreTransactionLogPlugin;
 
 public class BeanStoreBasicTest {
@@ -65,7 +67,7 @@ public class BeanStoreBasicTest {
 	}
 
 	private BeanStoreBuilder createBuilder(File tempDir) {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		builder.addPlugin(new BeanStoreTransactionLogPlugin());
 		return builder;

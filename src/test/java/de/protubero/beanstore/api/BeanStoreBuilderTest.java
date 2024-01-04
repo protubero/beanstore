@@ -11,6 +11,8 @@ import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.model.Note;
 import de.protubero.beanstore.model.PostCode;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 import de.protubero.beanstore.plugins.txlog.BeanStoreTransactionLogPlugin;
 
 public class BeanStoreBuilderTest {
@@ -18,7 +20,7 @@ public class BeanStoreBuilderTest {
 	
 	@Test
 	public void exceptionOnUnregisteredEntity(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		var store = builder.build();
 		
@@ -31,14 +33,14 @@ public class BeanStoreBuilderTest {
 		tx.execute();
 		store.close();
 		
-		var builder2 = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		var builder2 = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		Assertions.assertThrows(Exception.class, () -> {builder2.build();});
 				
 	}	
 	
 	@Test
 	public void mixingRegisteredAndUnregisteredEntities(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);
 		var store = builder.build();
 		
@@ -51,7 +53,7 @@ public class BeanStoreBuilderTest {
 		tx.execute();
 		store.close();
 		
-		var builder2 = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		var builder2 = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder2.registerEntity(Employee.class);
 		builder2.registerEntity(Note.class);
 		store = builder2.build();
@@ -63,13 +65,15 @@ public class BeanStoreBuilderTest {
 	
 	@Test
 	public void errorWhenChangingFactoryAfterStoreCreation(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		KryoConfiguration kryoConfig = KryoConfiguration.create();
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), kryoConfig));
 		builder.registerEntity(Employee.class);
+		@SuppressWarnings("unused")
 		var store = builder.build();
 		
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration("xyz", tx -> {});});
 		Assertions.assertThrows(Exception.class, () -> {builder.initNewStore(tx -> {});});
-		Assertions.assertThrows(Exception.class, () -> {builder.registerKryoPropertyBean(PostCode.class);});
+		Assertions.assertThrows(Exception.class, () -> {kryoConfig.register(PostCode.class);});
 		// builder.kryoConfig().register(PostCode.class, new PropertyBean);
 		Assertions.assertThrows(Exception.class, () -> {builder.addPlugin(new BeanStoreTransactionLogPlugin());});
 		Assertions.assertThrows(Exception.class, () -> {builder.build();});
@@ -77,7 +81,7 @@ public class BeanStoreBuilderTest {
 	
 	@Test
 	public void errorIfNoEntityIsRegistered(@TempDir File tempDir) throws InterruptedException, ExecutionException  {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(tempDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		Assertions.assertThrows(Exception.class, () -> {builder.build();});
 	}	
 

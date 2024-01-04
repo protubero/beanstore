@@ -13,11 +13,11 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.kryo5.Kryo;
 import com.esotericsoftware.kryo.kryo5.KryoException;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
 
-import de.protubero.beanstore.persistence.api.KryoConfiguration;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
@@ -34,12 +34,13 @@ public class KryoPersistence implements TransactionPersistence {
 	private KryoConfiguration config;
 	private FileOutputStream fileOutputStream; 
 	
-	public static KryoPersistence of(File file) {
-		return new KryoPersistence(file);
+	public static KryoPersistence of(File file, KryoConfiguration config) {
+		return new KryoPersistence(file, config);
 	}
 	
-	KryoPersistence(File file) {
+	KryoPersistence(File file, KryoConfiguration config) {
 		this.file = Objects.requireNonNull(file);
+		this.config = Objects.requireNonNull(config);
 								
 		// path must not be a directory path
 		if (file.isDirectory()) {
@@ -60,7 +61,7 @@ public class KryoPersistence implements TransactionPersistence {
 				ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
 				try (Output output = new Output(out)) {
 					while (transactions.hasNext()) {
-						config.getKryo().writeObject(output, transactions.next());
+						KryoPersistence.this.getKryo().writeObject(output, transactions.next());
 					}
 				}
 				try (FileOutputStream fileOutputStream = new FileOutputStream(file, true)) {
@@ -96,6 +97,10 @@ public class KryoPersistence implements TransactionPersistence {
 		};
 	}
 
+	Kryo getKryo() {
+		return ((KryoConfigurationImpl) config).getKryo();
+	}
+
 	private Input input() {
 		if (isEmpty()) {
 			return null;
@@ -121,7 +126,7 @@ public class KryoPersistence implements TransactionPersistence {
 
 				try (Input input = tInput) {
 					while (true) {
-						PersistentTransaction po = config.getKryo().readObject(input, PersistentTransaction.class);
+						PersistentTransaction po = KryoPersistence.this.getKryo().readObject(input, PersistentTransaction.class);
 						transactionConsumer.accept(po);
 					}
 				} catch (KryoException exc) {
@@ -146,10 +151,15 @@ public class KryoPersistence implements TransactionPersistence {
 		return writer;
 	}
 
-	@Override
-	public void kryoConfig(KryoConfiguration kryoConfig) {
-		this.config = kryoConfig;
+	public KryoConfiguration getConfig() {
+		return config;
 	}
+
+	@Override
+	public void lockConfiguration() {
+		((KryoConfigurationImpl) config).lock();
+	}
+
 
 
 }

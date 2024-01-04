@@ -10,6 +10,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.KryoTestEntity;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class KryoRegistrationTest {
 	
@@ -18,7 +20,7 @@ public class KryoRegistrationTest {
 	
 	@Test
 	public void test() {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, "beanstore.kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, "beanstore.kryo"), KryoConfiguration.create()));
 		builder.registerEntity(KryoTestEntity.class);
 		var store = builder.build();
 		var tx = store.transaction();
@@ -39,7 +41,7 @@ public class KryoRegistrationTest {
 
 		tx.execute();
 		
-		BeanStoreBuilder readBuilder = BeanStoreBuilder.init(new File(pFileDir, "beanstore.kryo"));
+		BeanStoreBuilder readBuilder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, "beanstore.kryo"), KryoConfiguration.create()));
 		readBuilder.registerEntity(KryoTestEntity.class);
 		var readStore = readBuilder.build();
 

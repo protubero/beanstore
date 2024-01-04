@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
+import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
+import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class MapObjectStoreTest {
 
@@ -15,7 +17,7 @@ public class MapObjectStoreTest {
 	
 	@Test
 	public void test() {
-		BeanStoreBuilder builder = BeanStoreBuilder.init(new File(pFileDir, getClass().getSimpleName() + ".kryo"));
+		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		
 		
 		

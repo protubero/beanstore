@@ -10,12 +10,13 @@ import org.junit.jupiter.api.Test;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.model.Employee;
+import de.protubero.beanstore.persistence.impl.NoOpPersistence;
 
 public class BeanStoreTest {
 
 	@Test
 	public void test() throws InterruptedException, ExecutionException {
-		var builder = BeanStoreBuilder.init();
+		var builder = BeanStoreBuilder.init(NoOpPersistence.create());
 		builder.registerEntity(Employee.class);
 		var store = builder.build();
 	
