@@ -19,14 +19,14 @@ public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl
 	}
 
 	@Override
-	public CompletableFuture<BeanStoreTransactionResult> execute() {
+	public CompletableFuture<BeanStoreTransactionResult> executeAsync() {
 		return beanStore.execute(transaction);
 	}
 
 	@Override
-	public BeanStoreTransactionResult executeBlocking() {
+	public BeanStoreTransactionResult execute() {
 		try {
-			return execute().get();
+			return executeAsync().get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new RuntimeException(e);
 		}

@@ -35,7 +35,7 @@ public class MigrationTest {
 		employee1.setLastName("Lennon");		
 		employee1.setAge(44);		
 
-		tx.execute();
+		tx.executeAsync();
 		store.close();
 		
 		

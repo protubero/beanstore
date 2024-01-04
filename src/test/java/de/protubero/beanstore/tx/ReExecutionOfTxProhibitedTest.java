@@ -19,8 +19,8 @@ public class ReExecutionOfTxProhibitedTest {
 		var tx = store.transaction();
 		var note = tx.create(Note.class);
 		note.setText("AText");
-		tx.executeBlocking();
+		tx.execute();
 		
-		Assertions.assertThrows(Exception.class, () -> {tx.executeBlocking();});		
+		Assertions.assertThrows(Exception.class, () -> {tx.execute();});		
 	}	
 }

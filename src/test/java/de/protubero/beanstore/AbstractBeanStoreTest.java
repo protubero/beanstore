@@ -115,11 +115,7 @@ public abstract class AbstractBeanStoreTest {
 		for (AbstractEntity ae : SAMPLE_DATA) {
 			tx.create(ae);
 		}
-		try {
-			tx.execute().get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
+		tx.execute();
 		return store;
 	}
 	

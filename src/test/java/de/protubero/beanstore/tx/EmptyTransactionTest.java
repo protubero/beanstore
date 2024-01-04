@@ -48,14 +48,14 @@ public class EmptyTransactionTest extends AbstractBeanStoreTest {
 			transactionNotification = true;
 		});
 		
-		var txEvent = store.transaction().execute().get();
+		var txEvent = store.transaction().executeAsync().get();
 		assertTrue(txEvent.success());
 		assertEquals(0, txEvent.getInstanceEvents().size());
 		
 		store.locked(txf -> {
 			BeanStoreTransactionResult txEvent2;
 			try {
-				txEvent2 = txf.get().execute().get();
+				txEvent2 = txf.get().executeAsync().get();
 				assertTrue(txEvent2.success());
 				assertEquals(0, txEvent2.getInstanceEvents().size());
 			} catch (InterruptedException | ExecutionException e) {

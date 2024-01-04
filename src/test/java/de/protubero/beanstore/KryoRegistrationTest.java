@@ -39,7 +39,7 @@ public class KryoRegistrationTest {
 		newObj.setStringValue("AnyText");
 		newObj.setInstantValue(now);
 
-		tx.execute();
+		tx.executeAsync();
 		
 		BeanStoreBuilder readBuilder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, "beanstore.kryo"), KryoConfiguration.create()));
 		readBuilder.registerEntity(KryoTestEntity.class);

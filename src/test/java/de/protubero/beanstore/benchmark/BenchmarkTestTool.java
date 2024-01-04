@@ -34,7 +34,7 @@ public class BenchmarkTestTool {
 			employee1.setFirstName("John");
 			employee1.setLastName("Lennon");		
 			employee1.setAge(44);		
-			tx.executeBlocking();
+			tx.execute();
 		}
 		var stopGenMillis = System.currentTimeMillis();
 		System.out.println("Data Generation Time [ms] : " + (stopGenMillis - startGenMillis));

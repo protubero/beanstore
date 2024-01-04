@@ -23,7 +23,7 @@ public class ExecutableLockedBeanStoreTransactionImpl extends ExecutableBeanStor
 	}
 
 	@Override
-	public CompletableFuture<BeanStoreTransactionResult> execute() {
+	public CompletableFuture<BeanStoreTransactionResult> executeAsync() {
 		return CompletableFuture.completedFuture(beanStore.exec(transaction));
 	}
 	

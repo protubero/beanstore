@@ -26,7 +26,7 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 	}
 	
 	@Test
-	public void test() throws InterruptedException, ExecutionException {
+	public void test()  {
 		var store = addSampleData(createEmptyStore());
 
 		EntityState<Employee> employeeStore = store.snapshot().entity(Employee.class);
@@ -38,14 +38,14 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 		newEmployee.setFirstName("John");
 		newEmployee.setLastName("Walter");
 		newEmployee.setAge(27);
-		tx.execute().get();
+		tx.execute();
 		newEmployeeId = newEmployee.id().longValue();
 		
 		// update existing ones
 		tx = store.transaction();
 		var morlock = employeeStore.stream().filter(e -> e.getFirstName().equals("Ottmar")).findAny().get();
 		tx.update(morlock).setAge(101);
-		tx.execute().get();
+		tx.execute();
 
 		// delete some
 		tx = store.transaction();
@@ -54,7 +54,7 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 				tx.delete(employee);
 			}	
 		}
-		tx.execute().get();
+		tx.execute();
 
 		var originalList = employeeStore.stream().collect(Collectors.toList());
 		checkList(originalList);

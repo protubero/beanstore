@@ -37,7 +37,7 @@ public class PropertyBeanTest {
 		
 		var tx = store.transaction();
 		tx.create(address);
-		tx.execute();
+		tx.executeAsync();
 		store.close();
 		
 		builder = BeanStoreBuilder.init(KryoPersistence.of(file, kryoConfig));

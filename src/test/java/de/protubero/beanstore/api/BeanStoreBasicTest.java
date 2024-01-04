@@ -35,7 +35,7 @@ public class BeanStoreBasicTest {
 		employee2.setLastName("McCartney");		
 		employee2.setAge(46);
 						
-		tx.execute();
+		tx.executeAsync();
 		
 		beanStore.close();
 

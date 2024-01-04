@@ -43,7 +43,7 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 
 		var tx =store.transaction();
 		tx.update(emp1).setAge(121);
-		tx.execute().get();
+		tx.execute();
 		
 		
 		

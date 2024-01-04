@@ -31,7 +31,7 @@ public class MultiUpdateTest extends AbstractBeanStoreTest {
 		var tx = store.transaction();
 		tx.update(toni).setAge(101);
 		tx.update(toni).setLastName("Tuareg");
-		BeanStoreTransactionResult result = tx.execute().get();
+		BeanStoreTransactionResult result = tx.execute();
 		// assertEquals(1, result.getInstanceEvents().size());
 	}
 	

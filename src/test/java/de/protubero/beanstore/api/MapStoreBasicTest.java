@@ -35,7 +35,7 @@ public class MapStoreBasicTest {
 		employee2.put("lastName", "McCartney");		
 		employee2.put("age", 46);		
 						
-		tx.execute();
+		tx.executeAsync();
 		
 		beanStore.close();
 

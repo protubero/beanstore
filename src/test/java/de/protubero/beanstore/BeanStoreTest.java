@@ -26,7 +26,7 @@ public class BeanStoreTest {
 		emp.setFirstName("Erik");
 		emp.setLastName("Wikinger");
 		emp.setAge(3);
-		tx.execute().get();
+		tx.execute();
 		
 		assertEquals(1, store.snapshot().entity(Employee.class).count());
 		Employee emp2 = store.snapshot().entity(Employee.class).stream().findFirst().get();
