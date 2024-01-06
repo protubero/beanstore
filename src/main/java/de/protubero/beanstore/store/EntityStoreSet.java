@@ -29,8 +29,8 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 
 	EntityStoreSet<E> internalCloneStoreSet();
 
-	public default CompanionShip companionsShip() {
-		return new CompanionShip() {
+	public default CompanionSet companionsShip() {
+		return new CompanionSet() {
 			
 			@Override
 			public Iterator<Companion<?>> iterator() {
@@ -77,6 +77,9 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 
 
 	boolean hasNoEntityStores();
+
+
+	int version();
 	
 	
 }

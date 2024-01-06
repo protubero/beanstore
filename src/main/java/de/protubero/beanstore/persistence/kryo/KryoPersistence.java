@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -33,6 +35,7 @@ public class KryoPersistence implements TransactionPersistence {
 	private TransactionWriter writer;
 	private KryoConfiguration config;
 	private FileOutputStream fileOutputStream; 
+	private int lastWrittenSeqNum = -1;
 	
 	public static KryoPersistence of(File file, KryoConfiguration config) {
 		return new KryoPersistence(file, config);
@@ -61,10 +64,29 @@ public class KryoPersistence implements TransactionPersistence {
 				ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
 				try (Output output = new Output(out)) {
 					while (transactions.hasNext()) {
-						KryoPersistence.this.getKryo().writeObject(output, transactions.next());
+						PersistentTransaction nextTransaction = transactions.next();
+						
+						if (lastWrittenSeqNum == -1) {
+							if (1 != nextTransaction.getSeqNum()) {
+								throw new AssertionError("First transaction number is unexpectedly != 1. It is " + nextTransaction.getSeqNum());
+							}
+							lastWrittenSeqNum = nextTransaction.getSeqNum();
+						} else {
+							if (lastWrittenSeqNum != (nextTransaction.getSeqNum() - 1)) {
+								throw new AssertionError("Transaction number not in sequence " + lastWrittenSeqNum + " -> " + nextTransaction.getSeqNum());
+							}
+							lastWrittenSeqNum = nextTransaction.getSeqNum();
+						}
+						
+						KryoPersistence.this.getKryo().writeObject(output, nextTransaction);
 					}
 				}
 				try (FileOutputStream fileOutputStream = new FileOutputStream(file, true)) {
+					
+					// lock file
+					FileChannel channel = fileOutputStream.getChannel();
+				    FileLock lock = channel.lock();
+				    
 					fileOutputStream.write(out.toByteArray());
 				} catch (IOException e) {
 					throw new RuntimeException(e);
@@ -128,6 +150,7 @@ public class KryoPersistence implements TransactionPersistence {
 					while (true) {
 						PersistentTransaction po = KryoPersistence.this.getKryo().readObject(input, PersistentTransaction.class);
 						transactionConsumer.accept(po);
+						lastWrittenSeqNum = po.getSeqNum();
 					}
 				} catch (KryoException exc) {
 					if (exc.getMessage().contains("Buffer underflow")) {

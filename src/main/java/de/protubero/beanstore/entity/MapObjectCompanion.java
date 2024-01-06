@@ -29,11 +29,6 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 	}
 
 	@Override
-	public Map<String, Object> extractProperties(MapObject instance) {
-		return instance;
-	}
-
-	@Override
 	public boolean isMapCompanion() {
 		return true;
 	}

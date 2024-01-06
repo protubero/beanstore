@@ -1,23 +1,22 @@
 Systematic Automated Tests
 Comment API
 
-
-externalize CompanionSet?
-Statistic plugin (Loaded Data)
-prohibit Entity References
 make Transactions unchangeable by plugins/callbacks
-integrate Kryo Registration into KryoPersistence
 
-enumerate transactions
+# improve file "stability"
+lock file within VM and in OS
+
+enumerate transactions & states
 transaction hashes
 
-executeBlocking default
 
-PersistenceLoader -> Store own class
+UnmanagedCompanion?
 
-"Index" Callback
+- Basic callbacks
+"Filter" Callback
+Statistic plugin (Loaded Data)
 
-lock file within VM and in OS
+
 
 Auto-Release
 switch to Protected Main branch / feature branches

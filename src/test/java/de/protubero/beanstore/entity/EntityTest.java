@@ -7,12 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.model.Employee;
 
-public class EntityCompanionTest {
+public class EntityTest {
 
 	@Test
 	public void testCompanionTypeFlags() {
@@ -37,6 +40,8 @@ public class EntityCompanionTest {
 		
 		assertEquals(Employee.class, entityCompanion.entityClass());
 		assertThrows(UnsupportedOperationException.class, () -> {mapCompanion.entityClass();});
+		
+		assertTrue(Employee.class.isAssignableFrom(entityCompanion.beanClass()));
 	}	
 	
 	@Test
@@ -146,19 +151,83 @@ public class EntityCompanionTest {
 		assertThrows(Exception.class, () -> {aMapInstance.set("firstName", "Cicero");});
 		
 
-//		aBeanInstance = entityCompanion.createInstance(12);
-//		aMapInstance = mapCompanion.createInstance(12);
-//
-//		aBeanInstance.state(State.RECORD);
-//		aMapInstance.state(State.RECORD);
-//		assertEquals(State.RECORD, aBeanInstance.state());
-//		assertEquals(State.RECORD, aMapInstance.state());
-//		aBeanInstance.set("firstName", "Cicero");
-//		aMapInstance.set("firstName", "Cicero");
-//		
-//		assertEquals("Cicero", aBeanInstance.getFirstName());
-//		assertEquals("Cicero", aMapInstance.get("firstName"));
+		final var tBeanInstance = entityCompanion.createInstance(12);
+		final var tMapInstance = mapCompanion.createInstance(12);
+
+		tBeanInstance.state(State.RECORD);
+		tMapInstance.state(State.RECORD);
+		assertEquals(State.RECORD, tBeanInstance.state());
+		assertEquals(State.RECORD, tMapInstance.state());
+		tBeanInstance.set("firstName", "Cicero");
+		tMapInstance.set("firstName", "Cicero");
 		
+		assertEquals("Cicero", tBeanInstance.getFirstName());
+		assertEquals("Cicero", tMapInstance.get("firstName"));
+		
+		tBeanInstance.state(State.RECORDED);
+		tMapInstance.state(State.RECORDED);
+		assertEquals(State.RECORDED, tBeanInstance.state());
+		assertEquals(State.RECORDED, tMapInstance.state());
+
+		assertThrows(Exception.class, () -> {tBeanInstance.set("firstName", "Cicero");});
+		assertThrows(Exception.class, () -> {tMapInstance.set("firstName", "Cicero");});
+	}
+
+	
+	@Test
+	public void unmanagedState() {
+		var employee = new Employee();
+		assertEquals(State.UNMANAGED, employee.state());
+		
+		assertEquals("employee", employee.alias());
+		
+		employee.setFirstName("Cicero");
+		
+		assertEquals("Cicero", employee.getFirstName());
+		assertNull(employee.companion());
+		assertNull(employee.changes());
+		assertThrows(Exception.class, () -> {employee.state(State.RECORD);});
+		assertNull(employee.id());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void invalidEntityClasses() {
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutNoArgsConstructor.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutReadMethod.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutWriteMethod.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithDefaultValue.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutAnnotation.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithInvalidRef.class));
+		assertThrows(Exception.class, () -> new EntityCompanion<>((Class) EmployeeWithoutInheritence.class));
+		
+	}
+	
+	@Test
+	public void mapishEntity() {
+		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
+		final Employee emp = entityCompanion.createInstance(1);
+		
+		var keySet = emp.keySet();
+		assertEquals(4, keySet.size());
+		keySet.containsAll(List.of("age", "firstName", "lastName", "employeeNumber"));
+		
+		assertTrue(emp.containsKey("age"));
+		assertFalse(emp.containsKey("abc"));
+		
+		assertThrows(UnsupportedOperationException.class, () -> {emp.containsValue(1);});
+		
+		var entryMap = new HashMap<>();
+		for (var entry : emp.entrySet()) {
+			entryMap.put(entry.getKey(), entry.getValue());
+		}
+		
+		var entryMapKeySet = entryMap.keySet();
+		assertEquals(4, entryMapKeySet.size());
+		entryMapKeySet.containsAll(List.of("age", "firstName", "lastName", "employeeNumber"));
+		
+		assertTrue(entryMap.containsKey("age"));
+		assertFalse(entryMap.containsKey("abc"));
 	}
 	
 }

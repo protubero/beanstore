@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.apache.commons.collections.iterators.SingletonIterator;
 
 public interface TransactionWriter extends AutoCloseable {
-
+	
 	void append(Iterator<PersistentTransaction> transactions);
 
 	void flush();

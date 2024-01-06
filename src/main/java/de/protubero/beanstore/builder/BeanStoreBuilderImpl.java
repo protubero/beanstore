@@ -23,53 +23,42 @@ import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreImpl;
 import de.protubero.beanstore.impl.BeanStoreStateImpl;
 import de.protubero.beanstore.impl.BeanStoreTransactionImpl;
-import de.protubero.beanstore.persistence.api.DeferredTransactionWriter;
-import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
-import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
-import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 import de.protubero.beanstore.pluginapi.BuilderTransactionListener;
 import de.protubero.beanstore.pluginapi.PersistenceReadListener;
 import de.protubero.beanstore.pluginapi.PersistenceWriteListener;
-import de.protubero.beanstore.store.CompanionSet;
+import de.protubero.beanstore.store.CompanionSetImpl;
 import de.protubero.beanstore.store.ImmutableEntityStoreBase;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
-import de.protubero.beanstore.tx.InstanceTransactionEvent;
 import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
-import de.protubero.beanstore.tx.TransactionPhase;
 
-public class BeanStoreBuilderImpl implements BeanStoreBuilder {
+public class BeanStoreBuilderImpl extends AbstractStoreBuilder implements BeanStoreBuilder {
 
 	public static final String INIT_ID = "_INIT_";
 
-	public static final Logger log = LoggerFactory.getLogger(BeanStoreBuilder.class);
+	public static final Logger log = LoggerFactory.getLogger(BeanStoreBuilderImpl.class);
 
-	private Mode mode = Mode.RegisteredEntities;
 	private List<Migration> migrations = new ArrayList<>();
 	private Consumer<BeanStoreTransaction> initMigration;
 
-	private CompanionSet companionSet = new CompanionSet();
+	private CompanionSetImpl companionSet = new CompanionSetImpl();
 
-	private boolean created;
 
 	private List<BeanStorePlugin> plugins = new ArrayList<>();
 	private List<BuilderTransactionListener> transactionListener = new ArrayList<>();
 	private List<PersistenceReadListener> persistenceReadListener = new ArrayList<>();
 	private List<PersistenceWriteListener> persistenceWriteListener = new ArrayList<>();
 
-	private TransactionPersistence persistence;
-	private DeferredTransactionWriter deferredTransactionWriter;
 	private List<AppliedMigration> appliedMigrations = new ArrayList<>();
 
 	
-	public BeanStoreBuilderImpl(Mode mode, TransactionPersistence persistence) {
-		this.persistence = Objects.requireNonNull(persistence);
-		this.mode = Objects.requireNonNull(mode);
+	BeanStoreBuilderImpl(TransactionPersistence persistence) {
+		super(persistence);
 	}
 
 	
@@ -102,10 +91,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	@Override
 	public <X extends AbstractEntity> BeanStoreEntity<X> registerEntity(Class<X> beanClass) {
 		throwExceptionIfAlreadyCreated();
-
-		if (mode == Mode.LoadedMaps) {
-			throw new RuntimeException("It is not allowed to register entity beans in LoadedMaps mode");
-		}
 		return companionSet.add(beanClass);
 	}
 
@@ -144,13 +129,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		}
 	}
 
-	private void throwExceptionIfAlreadyCreated() {
-		// It can only be created once
-		if (created) {
-			throw new RuntimeException("bean store has already been created");
-		}
-
-	}
 
 	private ImmutableEntityStoreSet initStore(ImmutableEntityStoreSet aStoreSet) {
 		log.info("Init store");
@@ -182,75 +160,8 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		return aStoreSet;
 	}
 
-	private MutableEntityStoreSet loadMapStore() {
 
-		boolean noStoredTransactions = persistence.isEmpty();
-		if (noStoredTransactions) {
-			return null;
-		} else {
-			MutableEntityStoreSet mapStore = new MutableEntityStoreSet();
-			mapStore.setAcceptNonGeneratedIds(true);
-			
-			load(mapStore, persistence.reader(), appliedMigrations);
 
-			return mapStore;
-		}
-
-	}
-
-	private StoreWriter createStoreWriter() {
-		StoreWriter storeWriter = new StoreWriter();
-
-		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
-			PersistentTransaction pTransaction = createTransaction(t);
-			
-			for (PersistenceWriteListener listener : persistenceWriteListener) {
-				listener.onWriteTransaction(pTransaction);
-			}
-			if (deferredTransactionWriter != null) {
-				deferredTransactionWriter.append(pTransaction);
-			}
-		});
-		
-		return storeWriter;
-	}
-
-	private PersistentTransaction createTransaction(Transaction transaction) {
-		PersistentTransaction pt = new PersistentTransaction(transaction.getTransactionType(), transaction.getTransactionId());		
-		pt.setTimestamp(Objects.requireNonNull(transaction.getTimestamp()));
-		
-		PersistentInstanceTransaction[] eventArray = new PersistentInstanceTransaction[transaction.getInstanceEvents().size()];
-		int idx = 0;
-		for (InstanceTransactionEvent<?> event : transaction.getInstanceEvents()) {
-			PersistentInstanceTransaction pit = new PersistentInstanceTransaction();
-			eventArray[idx++] = pit;
-			pit.setAlias(event.entity().alias());
-			switch (event.type()) {
-			case Delete:
-				pit.setType(PersistentInstanceTransaction.TYPE_DELETE);
-				pit.setId(event.replacedInstance().id());
-				pit.setVersion(event.replacedInstance().version());
-				break;
-			case Update:
-				pit.setType(PersistentInstanceTransaction.TYPE_UPDATE);
-				pit.setId(event.newInstance().id());
-				pit.setPropertyUpdates((PersistentProperty[]) event.values());
-				pit.setVersion(event.newInstance().version());
-				
-				break;
-			case Create:
-				pit.setType(PersistentInstanceTransaction.TYPE_CREATE);
-				pit.setId(event.newInstance().id());
-				pit.setPropertyUpdates((PersistentProperty[]) event.values());
-				pit.setVersion(event.newInstance().version());
-
-				break;
-			}
-		}
-		pt.setInstanceTransactions(eventArray);
-		
-		return pt;
-	}
 
 
 	private void migrate(final MutableEntityStoreSet mapStore) {
@@ -332,46 +243,31 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public BeanStore build() {
-		throwExceptionIfAlreadyCreated();
 		
-		switch (mode) {
-		case LoadedMaps:
-			if (!companionSet.isEmpty()) {
-				throw new RuntimeException("Mode LoadedMaps does not allow registered entities");
-			}
-			break;
-		case RegisteredEntities:
-			if (companionSet.isEmpty()) {
-				throw new RuntimeException("Mode RegisteredEntities does not allow zero registered entities");
-			}
-			break;
-		default:
-			throw new AssertionError();
+		if (companionSet.isEmpty()) {
+			throw new RuntimeException("Mode RegisteredEntities does not allow zero registered entities");
 		}
 		
-		created = true;
-
+		startBuildProcess();
+		
 		plugins.forEach(plugin -> plugin.onStartCreate(this));
-
 
 		MutableEntityStoreSet mapStore = null;
 		ImmutableEntityStoreSet finalStoreSet = null;
-
-		persistence.lockConfiguration();
-		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 		
 		mapStore = loadMapStore();
 		
 		if (mapStore != null) {
 			migrate(mapStore);
-		} else if (mode == Mode.LoadedMaps) {
-			throw new RuntimeException("Mode LoadedMaps but file does not exist");
 		}
 	
 		if (mapStore == null) {
 			// i.e. either no file set or file does not exist
-			finalStoreSet = new ImmutableEntityStoreSet(companionSet);
+			finalStoreSet = new ImmutableEntityStoreSet(companionSet, 0);
 			finalStoreSet = initStore(finalStoreSet);
+			if (finalStoreSet.version() != 1) {
+				throw new AssertionError("Initialized Store has version no " + finalStoreSet.version());
+			}
 		} else {
 			List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
 			
@@ -380,44 +276,35 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 				ImmutableEntityStoreBase<AbstractPersistentObject> newEntityStore = new ImmutableEntityStoreBase<>();
 				entityStoreBaseList.add(newEntityStore);
 				
-				switch (mode) {
-				case LoadedMaps:
-					throw new RuntimeException("to be implemented");
-//					newEntityStore.setCompanion(es.companion());
-//					newEntityStore.setObjectMap(null);
-				case RegisteredEntities:
-					String entityAlias = es.companion().alias();	
-					Optional<Companion<? extends AbstractPersistentObject>> registeredEntityCompanionOpt = companionSet.companionByAlias(entityAlias);
-					if (registeredEntityCompanionOpt.isEmpty()) {
-						if (es.isEmpty()) {
-							log.info("Ignoring deleted entity " + entityAlias);
-						} else {
-							throw new RuntimeException("No registered entity matching loaded data: " + entityAlias);
-						}	
+				String entityAlias = es.companion().alias();	
+				Optional<Companion<? extends AbstractPersistentObject>> registeredEntityCompanionOpt = companionSet.companionByAlias(entityAlias);
+				if (registeredEntityCompanionOpt.isEmpty()) {
+					if (es.isEmpty()) {
+						log.info("Ignoring deleted entity " + entityAlias);
 					} else {
-						final Companion<? extends AbstractPersistentObject> registeredEntityCompanion = registeredEntityCompanionOpt.get();
-						newEntityStore.setNextInstanceId(es.getNextInstanceId());
-						newEntityStore.setCompanion((Companion<AbstractPersistentObject>) registeredEntityCompanion);
-						if (registeredEntityCompanion.isMapCompanion()) {
-							newEntityStore.setObjectMap((Map<Long, AbstractPersistentObject>) es.getObjectMap());
-						} else {
-							// convert maps to entities 
-							Map<Long, AbstractPersistentObject> initialEntityMap = new HashMap<>();
-							es.objects().forEach(mapObj -> {
-								AbstractEntity newInstance = (AbstractEntity) registeredEntityCompanion.createInstance();
-								newInstance.id(mapObj.id());
-								newInstance.state(State.PREPARE);
-								// copy all properties
-								((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties((Map<String, Object>) mapObj, newInstance);
+						throw new RuntimeException("No registered entity matching loaded data: " + entityAlias);
+					}	
+				} else {
+					final Companion<? extends AbstractPersistentObject> registeredEntityCompanion = registeredEntityCompanionOpt.get();
+					newEntityStore.setNextInstanceId(es.getNextInstanceId());
+					newEntityStore.setCompanion((Companion<AbstractPersistentObject>) registeredEntityCompanion);
+					if (registeredEntityCompanion.isMapCompanion()) {
+						newEntityStore.setObjectMap((Map<Long, AbstractPersistentObject>) es.getObjectMap());
+					} else {
+						// convert maps to entities 
+						Map<Long, AbstractPersistentObject> initialEntityMap = new HashMap<>();
+						es.objects().forEach(mapObj -> {
+							AbstractEntity newInstance = (AbstractEntity) registeredEntityCompanion.createInstance();
+							newInstance.id(mapObj.id());
+							newInstance.state(State.PREPARE);
+							// copy all properties
+							((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties((Map<String, Object>) mapObj, newInstance);
 
-								newInstance.state(State.STORED);
-								initialEntityMap.put(newInstance.id(), newInstance);
-							});
-							newEntityStore.setObjectMap(initialEntityMap);
-						}
+							newInstance.state(State.STORED);
+							initialEntityMap.put(newInstance.id(), newInstance);
+						});
+						newEntityStore.setObjectMap(initialEntityMap);
 					}
-					
-					break;
 				}
 			}	
 
@@ -440,27 +327,11 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 			// Create final store set
 			finalStoreSet = 
 					new ImmutableEntityStoreSet(
-							entityStoreBaseList.toArray(new ImmutableEntityStoreBase[entityStoreBaseList.size()]));
+							entityStoreBaseList.toArray(new ImmutableEntityStoreBase[entityStoreBaseList.size()]), mapStore.version());
 		}
 
 		
-		if (deferredTransactionWriter != null) {
-			// persist migration transactions
-			// this is the first time that data gets written to the file
-			deferredTransactionWriter.switchToNonDeferred();
-		}	
-		
-
-		Runnable onCloseStoreAction = () -> {try {
-			if (deferredTransactionWriter != null) {
-				log.info("Closing transaction writer");
-				deferredTransactionWriter.close();
-			}	
-		} catch (Exception e) {
-			log.error("Error closing transaction writer", e);
-		}};			
-		
-		BeanStoreImpl beanStoreImpl = new BeanStoreImpl(finalStoreSet, onCloseStoreAction, createStoreWriter());
+		BeanStoreImpl beanStoreImpl = endBuildProcess(finalStoreSet);
 
 		plugins.forEach(plugin -> {
 			plugin.onEndCreate(beanStoreImpl);
@@ -470,83 +341,30 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	}
 
 
-	@SuppressWarnings("unchecked")
-	private void load(MutableEntityStoreSet store, TransactionReader reader, List<AppliedMigration> appliedMigrations) {
-		reader.load(pt -> {
 
-			// log list of migration transactions
-			if (pt.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION) {
-				appliedMigrations.add(new AppliedMigration(Objects.requireNonNull(pt.getTransactionId())));
-			}
-
-			PersistentInstanceTransaction[] instanceTransactions = pt.getInstanceTransactions();
-			if (instanceTransactions == null) {
-				if (pt.getTransactionId() == null) {
-					throw new RuntimeException("empty transaction");
-				} else {
-					instanceTransactions = new PersistentInstanceTransaction[0];
-				}
-			}
-
-			for (PersistentInstanceTransaction pit : instanceTransactions) {
-				@SuppressWarnings({ "rawtypes" })
-				MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
-						.orElseGet(() -> {
-							return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
-						});
-
-				AbstractPersistentObject instance = null;
-				switch (pit.getType()) {
-				case PersistentInstanceTransaction.TYPE_CREATE:
-					instance = entityStore.companion().createInstance();
-					instance.id(pit.getId());
-					instance.state(State.PREPARE);
-					entityStore.put(instance);
-					
-					break;
-				case PersistentInstanceTransaction.TYPE_DELETE:
-					if (entityStore.remove(pit.getId()) == null) {
-						throw new AssertionError();
-					}
-					break;
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					instance = entityStore.get(pit.getId());
-					if (instance == null) {
-						throw new AssertionError();
-					}
-					break;
-				default:
-					throw new AssertionError();
-				}
-
-				// update fields
-				switch (pit.getType()) {
-				case PersistentInstanceTransaction.TYPE_CREATE:
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					instance.version(pit.getVersion());
-					if (pit.getPropertyUpdates() != null) {
-						for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
-							instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
-						}
-					}
-				}
-
-			}
-			
-			for (PersistenceReadListener listener : persistenceReadListener) {
-				listener.onReadTransaction(pt);
-			}
-		});
-		
-		// set state of all instances to 'Stored'
-		store.forEach(es -> {
-			es.objects().forEach(instance -> instance.state(State.STORED));
-		});
+	@Override
+	protected void onReadMigrationTransaction(PersistentTransaction pt) {
+		appliedMigrations.add(new AppliedMigration(Objects.requireNonNull(pt.getTransactionId())));
 	}
 
-	public Mode getMode() {
-		return mode;
+
+	@Override
+	protected void onReadTransaction(PersistentTransaction pt) {
+		for (PersistenceReadListener listener : persistenceReadListener) {
+			listener.onReadTransaction(pt);
+		}
 	}
+
+
+	@Override
+	protected void onWriteTransaction(PersistentTransaction pt) {
+		for (PersistenceWriteListener listener : persistenceWriteListener) {
+			listener.onWriteTransaction(pt);
+		}
+	}
+
+
+
 
 
 }

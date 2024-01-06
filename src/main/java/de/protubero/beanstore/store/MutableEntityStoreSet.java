@@ -3,6 +3,7 @@ package de.protubero.beanstore.store;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -17,7 +18,8 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		
 	private List<MutableEntityStore<?>> storeList = new ArrayList<>();
 	private boolean acceptNonGeneratedIds = false;
-
+	private int version = 0;
+	
 	public MutableEntityStoreSet(Iterable<Companion<?>> companionList) {
 		for (Companion<?> companion : companionList) {
 			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
@@ -25,12 +27,19 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		}
 	}
 
-	public MutableEntityStoreSet(CompanionShip companionSet) {
+	public MutableEntityStoreSet(CompanionSet companionSet) {
 		companionSet.companions().forEach(companion -> {
 			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
 			storeList.add(store);
 		});
 	}
+
+	public MutableEntityStoreSet(List<MutableEntityStore<?>> aStoreList, boolean acceptNonGeneratedIds, int version) {
+		this.storeList = Objects.requireNonNull(aStoreList);
+		this.acceptNonGeneratedIds = acceptNonGeneratedIds;
+		this.version = version;
+	}
+	
 	
 	public MutableEntityStoreSet() {
 	}
@@ -137,7 +146,7 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 
 	@Override
 	public EntityStoreSet<MutableEntityStore<?>> internalCloneStoreSet() {
-		return this;
+		return new MutableEntityStoreSet(storeList, acceptNonGeneratedIds, version + 1);
 	}
 
 	public boolean isAcceptNonGeneratedIds() {
@@ -154,8 +163,15 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		return storeList.isEmpty();
 	}
 
+	@Override
+	public int version() {
+		return version;
+	}
 
 
+	public void version(int aVersion) {
+		this.version = aVersion;
+	}
 	
 	
 }

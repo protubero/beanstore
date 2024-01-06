@@ -18,16 +18,17 @@ import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
-import de.protubero.beanstore.store.CompanionShip;
+import de.protubero.beanstore.store.CompanionSet;
 
 public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 	
-	private CompanionShip companionSet;
+	private CompanionSet companionSet;
 	private String transactionId;
 	private byte transactionType;
 	private Instant timestamp;	
+	private Integer targetStateVersion;
 
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
 	
@@ -35,23 +36,23 @@ public final class Transaction implements TransactionEvent {
 	
 	private TransactionFailure failure;
 		
-	private Transaction(CompanionShip companionSet, String transactionId, byte transactionType) {
+	private Transaction(CompanionSet companionSet, String transactionId, byte transactionType) {
 		this.companionSet = Objects.requireNonNull(companionSet);
 		this.transactionId = transactionId;
 		this.transactionType = transactionType;
 	}
 	
-	public static Transaction of(CompanionShip companionSet, 
+	public static Transaction of(CompanionSet companionSet, 
 			String transactionId, byte transactionType) {
 		return new Transaction(companionSet, transactionId, transactionType);
 	}	
 
-	public static Transaction of(CompanionShip companionSet, 
+	public static Transaction of(CompanionSet companionSet, 
 			String transactionId) {
 		return of(companionSet, transactionId, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 
-	public static Transaction of(CompanionShip companionSet) {
+	public static Transaction of(CompanionSet companionSet) {
 		return of(companionSet, null, PersistentTransaction.TRANSACTION_TYPE_DEFAULT);
 	}	
 	
@@ -375,6 +376,14 @@ public final class Transaction implements TransactionEvent {
 
 	void setTimestamp(Instant timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public Integer getTargetStateVersion() {
+		return targetStateVersion;
+	}
+
+	public void setTargetStateVersion(Integer targetStateVersion) {
+		this.targetStateVersion = targetStateVersion;
 	}
 
 

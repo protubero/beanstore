@@ -16,6 +16,7 @@ public class BeanStoreStateImpl implements BeanStoreSnapshot {
 
 	private EntityStoreSet<?> store;
 
+
 	public BeanStoreStateImpl(EntityStoreSet<?> store) {
 		this.store = Objects.requireNonNull(store);
 	}
@@ -54,6 +55,12 @@ public class BeanStoreStateImpl implements BeanStoreSnapshot {
 			}
 			
 		};
+	}
+
+
+	@Override
+	public int version() {
+		return store.version();
 	}
 
 }

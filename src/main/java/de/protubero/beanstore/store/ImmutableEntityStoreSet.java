@@ -20,12 +20,15 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	
 	
 	private ImmutableEntityStore<?>[] storeList;
+	private int version;
 
-	private ImmutableEntityStoreSet(ImmutableEntityStore<?>[] storeList) {
-		this.storeList = Objects.requireNonNull(storeList);
+
+	private ImmutableEntityStoreSet(ImmutableEntityStore<?>[] aStoreList, int version) {
+		storeList = Objects.requireNonNull(aStoreList);
+		this.version = version;
 	}
 	
-	public ImmutableEntityStoreSet(Iterable<Companion<?>> companionList) {
+	public ImmutableEntityStoreSet(Iterable<Companion<?>> companionList, int version) {
 		List<ImmutableEntityStore<?>> tempStoreList = new ArrayList<>();
 		int idx = 0;
 		for (Companion<?> companion : companionList) {
@@ -33,11 +36,13 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 			tempStoreList.add(store);
 		}
 		storeList = tempStoreList.toArray(new ImmutableEntityStore<?>[tempStoreList.size()]);
+		
+		this.version = version;
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	public ImmutableEntityStoreSet(ImmutableEntityStoreBase<?>[] entityStoreBaseList) {
+	public ImmutableEntityStoreSet(ImmutableEntityStoreBase<?>[] entityStoreBaseList, int version) {
 		storeList = new ImmutableEntityStore<?>[entityStoreBaseList.length];
 		for (int idx = 0; idx < entityStoreBaseList.length; idx++) {
 			ImmutableEntityStoreBase<?> storeBase = entityStoreBaseList[idx];
@@ -49,10 +54,14 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 							HashTreePMap.from((Map<Long, AbstractPersistentObject>)storeBase.getObjectMap()),
 							storeBase.getNextInstanceId());
 		}
+		
+		this.version = version;
 	}
 
-	public static ImmutableEntityStoreSet of(List<ImmutableEntityStore<?>> aStoreList) {
-		return new  ImmutableEntityStoreSet( aStoreList.toArray(new ImmutableEntityStore<?>[aStoreList.size()]));
+
+
+	public static ImmutableEntityStoreSet of(List<ImmutableEntityStore<?>> aStoreList, int version) {
+		return new ImmutableEntityStoreSet(aStoreList.toArray(new ImmutableEntityStore<?>[aStoreList.size()]), version);
 	}
 	
 	@Override
@@ -129,6 +138,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		return (ImmutableEntityStore<T>) store(AbstractPersistentObject.aliasOf(ref));
 	}	
 	
+	/*
 	<T extends AbstractPersistentObject> ImmutableEntityStoreSet exchangeEntityStore(ImmutableEntityStore<T> immutableEntityStore,
 			ImmutableEntityStore<T> newEntityStore) {
 		ImmutableEntityStore<?>[] newStoreList = new ImmutableEntityStore[storeList.length];
@@ -143,6 +153,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		}
 		throw new AssertionError();
 	}
+	*/
 
 
 	@Override
@@ -171,7 +182,12 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		for (int idx = 0; idx < storeList.length; idx++) {
 			newStoreList[idx] = storeList[idx].cloneStore();
 		}
-		return new ImmutableEntityStoreSet(newStoreList);
+		return new ImmutableEntityStoreSet(newStoreList, version + 1);
+	}
+
+	@Override
+	public int version() {
+		return version;
 	}
 
 

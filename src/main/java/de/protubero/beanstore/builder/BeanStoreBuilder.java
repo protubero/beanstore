@@ -16,22 +16,9 @@ import de.protubero.beanstore.pluginapi.BeanStorePlugin;
  */
 public interface BeanStoreBuilder {
 
-	public static enum Mode {
-		/**
-		 * After migration only registered entities must exist
-		 */
-		RegisteredEntities, 
-		
-		/**
-		 * Only MapObject companions allowed. Unknown entities from persistence will be added automatically
-		 */
-		LoadedMaps
-	}
-	
-	
 
 	public static BeanStoreBuilder init(TransactionPersistence persistence) {
-		return new BeanStoreBuilderImpl(Mode.RegisteredEntities, persistence);
+		return new BeanStoreBuilderImpl(persistence);
 	}
 	
 	

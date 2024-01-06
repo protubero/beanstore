@@ -18,6 +18,8 @@ import de.protubero.beanstore.entity.MapObject;
  */
 public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 
+	int version();
+	
 	/**
 	 * Entity meta information 
 	 */

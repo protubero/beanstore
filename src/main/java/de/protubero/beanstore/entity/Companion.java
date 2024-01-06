@@ -1,7 +1,5 @@
 package de.protubero.beanstore.entity;
 
-import java.util.Map;
-
 public interface Companion<T extends AbstractPersistentObject> extends BeanStoreEntity<T> {
 
 	
@@ -16,7 +14,6 @@ public interface Companion<T extends AbstractPersistentObject> extends BeanStore
 
 	String toString(T instance);
 
-	Map<String, Object> extractProperties(T instance);
 
 
 	void transferProperties(T origInstance, T newInstance);

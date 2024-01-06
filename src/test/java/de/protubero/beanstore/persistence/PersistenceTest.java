@@ -30,14 +30,17 @@ class PersistenceTest {
 		Instant now = Instant.now();
 				
 		PersistentTransaction pt = new PersistentTransaction();
+		pt.setSeqNum(1);
 		pt.create("ealias", 55, PersistentProperty.of("eins", now));
 		persistence.writer().append(pt);
 		
 		pt = new PersistentTransaction();
+		pt.setSeqNum(2);
 		pt.update("ealias", 55, PersistentProperty.of("eins", 5));
 		persistence.writer().append(pt);
 
 		pt = new PersistentTransaction();
+		pt.setSeqNum(3);
 		pt.delete("ealias", 55);
 		persistence.writer().append(pt);
 		
@@ -81,6 +84,8 @@ class PersistenceTest {
 		Instant now = Instant.now();
 				
 		PersistentTransaction pt = new PersistentTransaction();
+		pt.setSeqNum(1);
+
 		pt.create("ealias", 55, PersistentProperty.of("eins", now));
 		pt.update("ealias", 55, PersistentProperty.of("eins", 5));
 		pt.delete("ealias", 55);

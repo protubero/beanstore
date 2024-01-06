@@ -120,6 +120,8 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 
 	public void state(State newState) {
+		Objects.requireNonNull(newState);
+		
 		if (state == null) {
 			state = newState;
 			return;
@@ -127,7 +129,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		
 		switch (state) {
 		case UNMANAGED:
-			throw new AssertionError();
+			throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 		case INSTANTIATED:
 			switch (newState) {
 			case RECORD:
@@ -136,7 +138,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				onStateChange(state, newState);
 				return;
 			default:
-				throw new AssertionError();
+				throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 			}
 		case PREPARE:
 			switch (newState) {
@@ -145,7 +147,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				onStateChange(state, newState);
 				return;
 			default:
-				throw new AssertionError(newState);
+				throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 			}
 		case STORED:
 			switch (newState) {
@@ -154,7 +156,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				onStateChange(state, newState);
 				return;
 			default:
-				throw new AssertionError();
+				throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 			}
 		case RECORD:
 			switch (newState) {
@@ -163,10 +165,10 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 				onStateChange(state, newState);
 				return;
 			default:
-				throw new AssertionError();
+				throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 			}
 		default:
-			throw new AssertionError();
+			throw new RuntimeException("Invalid state transition from " + state + " to " + newState);
 		}
 	}
 

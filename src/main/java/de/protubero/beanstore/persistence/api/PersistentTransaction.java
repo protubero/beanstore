@@ -13,6 +13,7 @@ public class PersistentTransaction {
 	private Instant timestamp;
 	private String transactionId;
 	private byte transactionType = TRANSACTION_TYPE_DEFAULT;
+	private int seqNum;
 	
 
 	public PersistentTransaction() {
@@ -117,6 +118,14 @@ public class PersistentTransaction {
 
 	public void setTransactionType(byte transactionType) {
 		this.transactionType = transactionType;
+	}
+
+	public int getSeqNum() {
+		return seqNum;
+	}
+
+	public void setSeqNum(int seqNum) {
+		this.seqNum = seqNum;
 	}
 
 	

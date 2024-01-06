@@ -1,6 +1,5 @@
 package de.protubero.beanstore.entity;
 
-import java.beans.PropertyDescriptor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;

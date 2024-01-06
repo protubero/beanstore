@@ -42,11 +42,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		}
 		
 		try {
-			if (originalBeanClass.getConstructor() == null) {
-				throw new RuntimeException("Missing no-arg constructor in entity class " + originalBeanClass);
-			}
+			@SuppressWarnings("unused")
+			var tConstructor = originalBeanClass.getConstructor();
 		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Missing no-arg constructor in entity class " + originalBeanClass, e);
 		}
 		
 		this.originalBeanClass = originalBeanClass;
@@ -72,6 +71,10 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
         descriptorMap = new HashMap<>();
 		descriptors.forEach(desc -> {
 			log.info("bean property " + desc.getName());
+			
+			if (AbstractPersistentObject.class.isAssignableFrom(desc.getPropertyType())) {
+				throw new RuntimeException("Invalid Property type: " + desc.getPropertyType());
+			}
 			
 			if (desc.getReadMethod() == null) {
 				throw new RuntimeException("Property read method not found: " + alias + '.' + desc.getName());
@@ -152,22 +155,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 			setProperty(instance, entry.getKey(), entry.getValue());
 		});
 	}
-
-
-	@Override
-	public Map<String, Object> extractProperties(T instance) {
-		Map<String, Object> result = new HashMap<>();
-		for (PropertyDescriptor desc : descriptors) {
-			try {
-				Object value = desc.getReadMethod().invoke(instance);
-				result.put(desc.getName(), value);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return result;
-	}
-
 
 	public Object getProperty(AbstractEntity entity, Object key) {
 		PropertyDescriptor desc = descriptorMap.get(key);

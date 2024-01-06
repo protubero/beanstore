@@ -238,15 +238,17 @@ public class StoreWriter  {
 		
 		if (!aTransaction.isEmpty() || (aTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
 			// 3. persist
+			aTransaction.setTargetStateVersion(workStoreSet.version());
+			// only return clones StoreSet if there actually transactions
+			// Note: Init & migration transactions are written even if they are empty 
+			result = workStoreSet;
+			
 			aTransaction.setTransactionPhase(TransactionPhase.PERSIST);
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.PERSISTENCE_FAILED, e);});
 		}	
 		
 		if (!aTransaction.isEmpty()) {		
 			aTransaction.setTransactionPhase(TransactionPhase.EXECUTE);
-			
-			// only return clones StoreSet if there are any changes
-			result = workStoreSet;
 			
 			// 4. apply changes
 			for (TransactionElement<?> elt : aTransaction.elements()) {
@@ -288,6 +290,8 @@ public class StoreWriter  {
 			aTransaction.setTransactionPhase(TransactionPhase.COMMITTED_ASYNC);
 			transactionSubject.onNext(aTransaction);
 		}	
+
+		
 		
 		return result;
 	}	

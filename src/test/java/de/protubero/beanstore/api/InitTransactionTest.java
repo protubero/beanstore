@@ -23,7 +23,7 @@ public class InitTransactionTest {
 	@Test
 	public void test() {
 		BeanStoreBuilder builder = createBuilder();
-		
+			
 		builder.initNewStore(tx -> {
 			var todo = tx.create("todo");
 			todo.put("text", "Write more tests");
