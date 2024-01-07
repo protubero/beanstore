@@ -6,9 +6,10 @@ make Transactions unchangeable by plugins/callbacks
 # improve file "stability"
 lock file within VM and in OS
 
-enumerate transactions & states
 transaction hashes
+write tx file head
 
+Load Store State X (from cache and from file)
 
 UnmanagedCompanion?
 

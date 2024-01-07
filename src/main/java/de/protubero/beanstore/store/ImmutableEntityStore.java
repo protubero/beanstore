@@ -23,18 +23,13 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	private Companion<T> companion;
 	
 	private long nextInstanceId = 0L;
-
-	private ImmutableEntityStoreSet entityStoreSet;
 	
-	private int storeSetIndex;
 	
-	public ImmutableEntityStore(ImmutableEntityStoreSet entityStoreSet, int storeSetIndex, Companion<T> companion) {
-		this(entityStoreSet, storeSetIndex, companion, HashTreePMap.empty(), 0L);
+	public ImmutableEntityStore(Companion<T> companion) {
+		this(companion, HashTreePMap.empty(), 0L);
 	}
 	
-	public ImmutableEntityStore(ImmutableEntityStoreSet entityStoreSet, int storeSetIndex, Companion<T> companion, HashPMap<Long, T> objectMap, long nextInstanceId) {
-		this.storeSetIndex = storeSetIndex;
-		this.entityStoreSet = entityStoreSet;
+	public ImmutableEntityStore(Companion<T> companion, HashPMap<Long, T> objectMap, long nextInstanceId) {
 		this.companion = companion;
 		this.objectMap = objectMap;
 		this.nextInstanceId = nextInstanceId;
@@ -85,22 +80,12 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	}
 	
 	@Override
-	public EntityStoreSet<?> storeSet() {
-		return entityStoreSet;
-	}
-
-
-	public int getStoreSetIndex() {
-		return storeSetIndex;
-	}
-
-	@Override
 	public boolean isImmutable() {
 		return true;
 	}
 
 	public ImmutableEntityStore<T> cloneStore() {
-		return new ImmutableEntityStore<>(entityStoreSet, storeSetIndex, companion, objectMap, nextInstanceId);
+		return new ImmutableEntityStore<>(companion, objectMap, nextInstanceId);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package de.protubero.beanstore.persistence.kryo;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +12,8 @@ import java.nio.channels.FileLock;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +37,6 @@ public class KryoPersistence implements TransactionPersistence {
 	private File file;
 	private TransactionWriter writer;
 	private KryoConfiguration config;
-	private FileOutputStream fileOutputStream; 
 	private int lastWrittenSeqNum = -1;
 	
 	public static KryoPersistence of(File file, KryoConfiguration config) {
@@ -87,7 +89,19 @@ public class KryoPersistence implements TransactionPersistence {
 					FileChannel channel = fileOutputStream.getChannel();
 				    FileLock lock = channel.lock();
 				    
-					fileOutputStream.write(out.toByteArray());
+					byte[] byteArray = out.toByteArray();
+					
+					Checksum crc32 = new CRC32();
+					crc32.update(byteArray, 0, byteArray.length);
+					
+					Output output = new Output(fileOutputStream);
+					
+					output.writeInt(0, true);
+					output.writeInt(byteArray.length, true);
+					output.writeLong(crc32.getValue());
+					output.write(byteArray);
+					output.flush();
+					output.close();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -100,15 +114,6 @@ public class KryoPersistence implements TransactionPersistence {
 					throw new PersistenceException("Re-closing closed writer");
 				}
 				closed = true;
-				if (fileOutputStream != null) {
-					log.info("Closing output stream");
-					try {
-						fileOutputStream.close();
-					} catch (IOException e) {
-						log.error("Error closing output stream", e);
-					}
-				}
-				
 			}
 
 			@Override
@@ -123,16 +128,6 @@ public class KryoPersistence implements TransactionPersistence {
 		return ((KryoConfigurationImpl) config).getKryo();
 	}
 
-	private Input input() {
-		if (isEmpty()) {
-			return null;
-		}
-		try {
-			return new Input(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	@Override
 	public TransactionReader reader() {
@@ -140,17 +135,39 @@ public class KryoPersistence implements TransactionPersistence {
 
 			@Override
 			public void load(Consumer<PersistentTransaction> transactionConsumer) {
-				Input tInput = input();
-
-				if (tInput == null) {
+				if (!file.exists()) {
 					return;
 				}
 
-				try (Input input = tInput) {
+				try (Input input = new Input(new FileInputStream(file))) {
 					while (true) {
-						PersistentTransaction po = KryoPersistence.this.getKryo().readObject(input, PersistentTransaction.class);
-						transactionConsumer.accept(po);
-						lastWrittenSeqNum = po.getSeqNum();
+						int chunkType = input.readInt(true);
+						if (chunkType != 0) {
+							throw new AssertionError();
+						}
+						int byteArrayLen = input.readInt(true);
+						long crc23Orig = input.readLong();
+						byte[] data = input.readBytes(byteArrayLen);
+						
+						Checksum crc32 = new CRC32();
+						crc32.update(data, 0, data.length);
+						if (crc32.getValue() != crc23Orig) {
+							throw new RuntimeException("CRC32 error reading file " + file);
+						}
+
+						try (Input nestedInput = new Input(new ByteArrayInputStream(data))) {
+							while (true) {
+								PersistentTransaction po = KryoPersistence.this.getKryo().readObject(nestedInput, PersistentTransaction.class);
+								transactionConsumer.accept(po);
+								lastWrittenSeqNum = po.getSeqNum();
+							}
+						} catch (KryoException exc) {
+							if (exc.getMessage().contains("Buffer underflow")) {
+								// that is the expected way how this party ends
+							} else {
+								throw new PersistenceException("error reading kryo data", exc);
+							}
+						}	
 					}
 				} catch (KryoException exc) {
 					if (exc.getMessage().contains("Buffer underflow")) {
@@ -158,6 +175,8 @@ public class KryoPersistence implements TransactionPersistence {
 					} else {
 						throw new PersistenceException("error reading kryo data", exc);
 					}
+				} catch (FileNotFoundException e) {
+					throw new RuntimeException(e);
 				}
 			}
 

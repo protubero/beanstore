@@ -23,12 +23,12 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	
 	private long nextInstanceId;
 
-	private MutableEntityStoreSet storeSet;
+	private boolean acceptNonGeneratedIds;
 	
 	
-	public MutableEntityStore(MutableEntityStoreSet storeSet, Companion<T> companion) {
-		this.storeSet = storeSet;
+	public MutableEntityStore(Companion<T> companion, boolean acceptNonGeneratedIds) {
 		this.companion = companion;
+		this.acceptNonGeneratedIds = acceptNonGeneratedIds;
 	}
 	
 
@@ -81,7 +81,7 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 		if (modelObject.companion() != companion) {
 			throw new AssertionError();
 		}
-		if (!storeSet.isAcceptNonGeneratedIds()) {
+		if (!acceptNonGeneratedIds) {
 			if (nextInstanceId <= modelObject.id()) {
 				throw new AssertionError();
 			}
@@ -102,11 +102,6 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 		return objectMap.remove(id);
 	}
 
-
-	@Override
-	public EntityStoreSet<?> storeSet() {
-		return storeSet;
-	}
 
 
 	@Override

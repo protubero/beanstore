@@ -11,8 +11,6 @@ public interface EntityStore<T extends AbstractPersistentObject> {
 
 	boolean isImmutable();
 	
-	EntityStoreSet<?> storeSet();
-	
 	T get(Long id);
 
 	T getNullable(Long id);

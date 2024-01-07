@@ -6,8 +6,11 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.builder.AbstractStoreBuilder;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
@@ -15,6 +18,8 @@ import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
 public class BenchmarkTestTool {
 
+	public static final Logger log = LoggerFactory.getLogger(BenchmarkTestTool.class);	
+	
 	private static final int NUM_OBJECTS = 1000;
 
 	@Test
@@ -24,7 +29,7 @@ public class BenchmarkTestTool {
 		builder.registerEntity(Employee.class);
 		BeanStore beanStore = builder.build();
 
-		System.out.println("Num Objects: " + NUM_OBJECTS);
+		log.info("Num Objects: " + NUM_OBJECTS);
 		
 		var startGenMillis = System.currentTimeMillis();
 		for (int i = 0; i < NUM_OBJECTS; i++) {
@@ -37,7 +42,7 @@ public class BenchmarkTestTool {
 			tx.execute();
 		}
 		var stopGenMillis = System.currentTimeMillis();
-		System.out.println("Data Generation Time [ms] : " + (stopGenMillis - startGenMillis));
+		log.info("Data Generation Time [ms] : " + (stopGenMillis - startGenMillis));
 		
 		var startIterMillis = System.currentTimeMillis();
 
@@ -49,7 +54,7 @@ public class BenchmarkTestTool {
 		Assertions.assertEquals(NUM_OBJECTS, resultList.size());
 
 		var stopIterMillis = System.currentTimeMillis();
-		System.out.println("Iteration Time [ms] : " + (stopIterMillis - startIterMillis));
+		log.info("Iteration Time [ms] : " + (stopIterMillis - startIterMillis));
 
 		var startAccessMillis = System.currentTimeMillis();
 		var es = beanStore.snapshot().entity(Employee.class);
@@ -57,7 +62,7 @@ public class BenchmarkTestTool {
 			Assertions.assertNotNull(es.find(i));
 		}
 		var stopAccessMillis = System.currentTimeMillis();
-		System.out.println("Access Time [ms] : " + (stopAccessMillis - startAccessMillis));
+		log.info("Access Time [ms] : " + (stopAccessMillis - startAccessMillis));
 		
 		
 		System.out.println("File length: " + file.length());
@@ -67,11 +72,11 @@ public class BenchmarkTestTool {
 		builder2.registerEntity(Employee.class);
 		BeanStore beanStore2 = builder2.build();
 		var stopLoadMillis = System.currentTimeMillis();
-		System.out.println("Load Time [ms] : " + (stopLoadMillis - startLoadMillis));
+		log.info("Load Time [ms] : " + (stopLoadMillis - startLoadMillis));
 		
 		int numLoaded = beanStore2.snapshot().entity(Employee.class).count();
 		Assertions.assertEquals(NUM_OBJECTS, numLoaded);
-		System.out.println("Num loaded: " + numLoaded);
+		log.info("Num loaded: " + numLoaded);
 	}
 	
 	

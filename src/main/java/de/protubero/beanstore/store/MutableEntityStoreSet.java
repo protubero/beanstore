@@ -20,19 +20,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	private boolean acceptNonGeneratedIds = false;
 	private int version = 0;
 	
-	public MutableEntityStoreSet(Iterable<Companion<?>> companionList) {
-		for (Companion<?> companion : companionList) {
-			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
-			storeList.add(store);
-		}
-	}
-
-	public MutableEntityStoreSet(CompanionSet companionSet) {
-		companionSet.companions().forEach(companion -> {
-			MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
-			storeList.add(store);
-		});
-	}
 
 	public MutableEntityStoreSet(List<MutableEntityStore<?>> aStoreList, boolean acceptNonGeneratedIds, int version) {
 		this.storeList = Objects.requireNonNull(aStoreList);
@@ -106,35 +93,8 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 
 
 	@SuppressWarnings("unchecked")
-	public <T extends AbstractPersistentObject> T remove(String alias, Long id) {
-		return ((MutableEntityStore<T>) store(alias)).remove(id);
-	}
-
-	public <T extends AbstractPersistentObject> T remove(Class<T> aClass, Long id) {
-		return ((MutableEntityStore<T>) store(aClass)).remove(id);
-	}
-
-	public <T extends AbstractPersistentObject> T remove(EntityStore<T> store, Long id) {
-		if (store.storeSet() != this) {
-			throw new AssertionError("Store does not belong to this store set");
-		}
-		return ((MutableEntityStore<T>) store).remove(id);
-	}
-
-	public <T extends AbstractPersistentObject> T put(T modelObject) {
-		return put((MutableEntityStore<T>) store(modelObject), modelObject);
-	}
-	
-	public <T extends AbstractPersistentObject> T put(EntityStore<T> store, T modelObject) {
-		if (store.storeSet() != this) {
-			throw new AssertionError("Store does not belong to this store set");
-		}
-		return ((MutableEntityStore<T>) store).put(modelObject);
-	}
-
-	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> EntityStore<T> register(Companion<?> companion) {
-		MutableEntityStore<?> store = new MutableEntityStore<>(this, companion);
+		MutableEntityStore<?> store = new MutableEntityStore<>(companion, acceptNonGeneratedIds);
 		storeList.add(store);
 		return (EntityStore<T>) store;
 	}

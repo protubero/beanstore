@@ -32,7 +32,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		List<ImmutableEntityStore<?>> tempStoreList = new ArrayList<>();
 		int idx = 0;
 		for (Companion<?> companion : companionList) {
-			ImmutableEntityStore<?> store = new ImmutableEntityStore<>(this, idx++, companion);
+			ImmutableEntityStore<?> store = new ImmutableEntityStore<>(companion);
 			tempStoreList.add(store);
 		}
 		storeList = tempStoreList.toArray(new ImmutableEntityStore<?>[tempStoreList.size()]);
@@ -48,8 +48,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 			ImmutableEntityStoreBase<?> storeBase = entityStoreBaseList[idx];
 			storeList[idx] = 
 					new ImmutableEntityStore<AbstractPersistentObject>(
-							this, 
-							idx, 
 							(Companion<AbstractPersistentObject>) storeBase.getCompanion(), 
 							HashTreePMap.from((Map<Long, AbstractPersistentObject>)storeBase.getObjectMap()),
 							storeBase.getNextInstanceId());
@@ -58,11 +56,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 		this.version = version;
 	}
 
-
-
-	public static ImmutableEntityStoreSet of(List<ImmutableEntityStore<?>> aStoreList, int version) {
-		return new ImmutableEntityStoreSet(aStoreList.toArray(new ImmutableEntityStore<?>[aStoreList.size()]), version);
-	}
 	
 	@Override
 	public Iterator<ImmutableEntityStore<?>> iterator() {
@@ -137,24 +130,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	public <T extends AbstractPersistentObject> ImmutableEntityStore<T> store(T ref) {
 		return (ImmutableEntityStore<T>) store(AbstractPersistentObject.aliasOf(ref));
 	}	
-	
-	/*
-	<T extends AbstractPersistentObject> ImmutableEntityStoreSet exchangeEntityStore(ImmutableEntityStore<T> immutableEntityStore,
-			ImmutableEntityStore<T> newEntityStore) {
-		ImmutableEntityStore<?>[] newStoreList = new ImmutableEntityStore[storeList.length];
-		System.arraycopy(storeList, 0, newStoreList, 0, storeList.length);
-		
-		for (int i = 0; i < newStoreList.length; i++) {
-			ImmutableEntityStore<?> store = newStoreList[i];
-			if (store == immutableEntityStore) {
-				newStoreList[i] = newEntityStore;
-				return new ImmutableEntityStoreSet(newStoreList);
-			}
-		}
-		throw new AssertionError();
-	}
-	*/
-
 
 	@Override
 	public boolean hasNoData() {
