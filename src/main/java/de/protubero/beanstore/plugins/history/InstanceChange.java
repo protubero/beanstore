@@ -8,6 +8,10 @@ public class InstanceChange {
 
 	private int changeType;
 	
+	private int instanceVersion;
+
+	private int storeState;
+	
 	private long id;
 
 	private String alias;
@@ -77,5 +81,22 @@ public class InstanceChange {
 	public void setChangeType(int changeType) {
 		this.changeType = changeType;
 	}
+
+	public int getInstanceVersion() {
+		return instanceVersion;
+	}
+
+	public void setInstanceVersion(int instanceVersion) {
+		this.instanceVersion = instanceVersion;
+	}
+
+	public int getStoreState() {
+		return storeState;
+	}
+
+	public void setStoreState(int storeState) {
+		this.storeState = storeState;
+	}
+
 	
 }

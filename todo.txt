@@ -2,26 +2,19 @@ Systematic Automated Tests
 Comment API
 
 make Transactions unchangeable by plugins/callbacks
-
-# improve file "stability"
 lock file within VM and in OS
-
-transaction hashes
-write tx file head
-
 Load Store State X (from cache and from file)
-
 UnmanagedCompanion?
-
-- Basic callbacks
-"Filter" Callback
 Statistic plugin (Loaded Data)
 
+entity.onSetInitialDefaultValues() {}
+entity.onSetComputedDefaultValues() {}
+@NotNull
 
 
 Auto-Release
-switch to Protected Main branch / feature branches
 ------------------------------------- 0.8.5
+switch to Protected Main branch / feature branches
 Improve Documentation
 
 

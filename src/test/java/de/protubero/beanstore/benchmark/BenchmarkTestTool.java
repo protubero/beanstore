@@ -20,10 +20,10 @@ public class BenchmarkTestTool {
 
 	public static final Logger log = LoggerFactory.getLogger(BenchmarkTestTool.class);	
 	
-	private static final int NUM_OBJECTS = 1000;
+	private static final int NUM_OBJECTS = 100000;
 
 	@Test
-	public void name(@TempDir File tempDir) {
+	public void manyTransactionsTest(@TempDir File tempDir) {
 		var file = new File(tempDir, getClass().getSimpleName() + ".kryo");
 		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(file, KryoConfiguration.create()));
 		builder.registerEntity(Employee.class);

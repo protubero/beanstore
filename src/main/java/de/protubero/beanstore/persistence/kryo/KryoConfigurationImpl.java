@@ -24,19 +24,15 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 	private boolean locked;
 
+	private KryoDictionary dictionary = new KryoDictionary(); 
 	
 	public KryoConfigurationImpl() {
 		kryo = new Kryo();
 		kryo.setRegistrationRequired(true);
 		kryo.setWarnUnregisteredClasses(true);
 		
-		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(),  20);
-//		kryo.register(PersistentInstanceTransaction.class, 21);
-//		kryo.register(PersistentInstanceTransaction[].class, 22);
-//		kryo.register(PersistentProperty[].class, 23);
-//		kryo.register(PersistentProperty.class, 24);
+		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  20);
 		kryo.register(Instant.class, new InstantSerializer(), 25);
-//		kryo.register(PersistentBean.class, new PersistentBeanSerializer(), 26);
 		
 		kryo.register(Duration.class, new DurationSerializer(), 26);
 		kryo.register(LocalDateTime.class, new LocalDateTimeSerializer(), 27);
@@ -94,6 +90,10 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 	public void lock() {
 		this.locked = true;
+	}
+
+	KryoDictionary getDictionary() {
+		return dictionary;
 	}
 
 	

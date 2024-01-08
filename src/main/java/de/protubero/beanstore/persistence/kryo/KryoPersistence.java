@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -32,11 +33,16 @@ import de.protubero.beanstore.persistence.api.TransactionWriter;
 public class KryoPersistence implements TransactionPersistence {
 
 	public static final Logger log = LoggerFactory.getLogger(KryoPersistence.class);
+
+
+	protected static final byte CHUNK_TYPE_TRANSACTIONS = 0;
+	protected static final byte CHUNK_TYPE_DICTIONARY = 1;
 	
 	
 	private File file;
 	private TransactionWriter writer;
 	private KryoConfiguration config;
+	private KryoDictionary dictionary;
 	private int lastWrittenSeqNum = -1;
 	
 	public static KryoPersistence of(File file, KryoConfiguration config) {
@@ -46,7 +52,9 @@ public class KryoPersistence implements TransactionPersistence {
 	KryoPersistence(File file, KryoConfiguration config) {
 		this.file = Objects.requireNonNull(file);
 		this.config = Objects.requireNonNull(config);
-								
+				
+		this.dictionary = ((KryoConfigurationImpl) config).getDictionary();
+		
 		// path must not be a directory path
 		if (file.isDirectory()) {
 			throw new PersistenceException("path parameter is a directory");
@@ -61,11 +69,14 @@ public class KryoPersistence implements TransactionPersistence {
 				if (closed) {
 					throw new PersistenceException("writing to a closed writer");
 				}
-					
+
+				int transactionCount = 0;
+				
 				// conservative implementation, subject to performance optimization
 				ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
 				try (Output output = new Output(out)) {
 					while (transactions.hasNext()) {
+						transactionCount++;
 						PersistentTransaction nextTransaction = transactions.next();
 						
 						if (lastWrittenSeqNum == -1) {
@@ -83,22 +94,67 @@ public class KryoPersistence implements TransactionPersistence {
 						KryoPersistence.this.getKryo().writeObject(output, nextTransaction);
 					}
 				}
+				byte[] byteArray = out.toByteArray();
+				
 				try (FileOutputStream fileOutputStream = new FileOutputStream(file, true)) {
+					Output output = new Output(fileOutputStream);
 					
 					// lock file
 					FileChannel channel = fileOutputStream.getChannel();
 				    FileLock lock = channel.lock();
-				    
-					byte[] byteArray = out.toByteArray();
+					
+					if (dictionary.hasNewEntries()) {
+						int newEntriesCount = dictionary.newEntriesCount();
+						
+						ByteArrayOutputStream dictByteArrayOut = new ByteArrayOutputStream(1024);
+						try (Output dictOut = new Output(dictByteArrayOut)) {
+							dictionary.writeNewEntries(dictOut);
+						}
+						byte[] dictByteArray = dictByteArrayOut.toByteArray();
+						
+						Checksum dictCrc32 = new CRC32();
+						dictCrc32.update(dictByteArray, 0, dictByteArray.length);
+												
+						// chunk type
+						output.writeByte(CHUNK_TYPE_DICTIONARY);
+						
+						// version
+						output.writeByte(0);
+
+						// element count (optional)
+						output.writeInt(newEntriesCount, true);
+						
+						// data len
+						output.writeInt(dictByteArray.length, true);
+						
+						// crc32 checksum
+						output.writeLong(dictCrc32.getValue());
+						
+						// data
+						output.write(dictByteArray);
+					}
 					
 					Checksum crc32 = new CRC32();
 					crc32.update(byteArray, 0, byteArray.length);
 					
-					Output output = new Output(fileOutputStream);
 					
-					output.writeInt(0, true);
+					// chunk type
+					output.writeByte(CHUNK_TYPE_TRANSACTIONS);
+					
+					// version
+					output.writeByte(0);
+
+					// element count (optional)
+					output.writeInt(transactionCount, true);
+					
+					
+					// data len
 					output.writeInt(byteArray.length, true);
+					
+					// crc32 checksum
 					output.writeLong(crc32.getValue());
+					
+					// data
 					output.write(byteArray);
 					output.flush();
 					output.close();
@@ -141,10 +197,11 @@ public class KryoPersistence implements TransactionPersistence {
 
 				try (Input input = new Input(new FileInputStream(file))) {
 					while (true) {
-						int chunkType = input.readInt(true);
-						if (chunkType != 0) {
-							throw new AssertionError();
-						}
+						byte chunkType = input.readByte();
+						byte version = input.readByte();
+						
+						int elementCount = input.readInt(true);
+
 						int byteArrayLen = input.readInt(true);
 						long crc23Orig = input.readLong();
 						byte[] data = input.readBytes(byteArrayLen);
@@ -156,17 +213,23 @@ public class KryoPersistence implements TransactionPersistence {
 						}
 
 						try (Input nestedInput = new Input(new ByteArrayInputStream(data))) {
-							while (true) {
-								PersistentTransaction po = KryoPersistence.this.getKryo().readObject(nestedInput, PersistentTransaction.class);
-								transactionConsumer.accept(po);
-								lastWrittenSeqNum = po.getSeqNum();
+							switch (chunkType) {
+							case CHUNK_TYPE_TRANSACTIONS:
+								for (int i = 0; i < elementCount; i++) {
+									PersistentTransaction po = KryoPersistence.this.getKryo().readObject(nestedInput, PersistentTransaction.class);
+									transactionConsumer.accept(po);
+									lastWrittenSeqNum = po.getSeqNum();
+								}
+								break;
+							case CHUNK_TYPE_DICTIONARY:
+								dictionary.load(nestedInput);
+								break;
+							default:
+								throw new AssertionError("Invalid chunk type " + chunkType);
+								
 							}
 						} catch (KryoException exc) {
-							if (exc.getMessage().contains("Buffer underflow")) {
-								// that is the expected way how this party ends
-							} else {
-								throw new PersistenceException("error reading kryo data", exc);
-							}
+							throw new PersistenceException("error reading kryo data", exc);
 						}	
 					}
 				} catch (KryoException exc) {

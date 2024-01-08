@@ -18,8 +18,16 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 	private InstantSerializer instantSerializer = new InstantSerializer(); 
 	private KryoDictionary dictionary;
 	
+	public PersistentTransactionSerializer(KryoDictionary dictionary) {
+		this.dictionary = Objects.requireNonNull(dictionary);
+	}
+
 	@Override
 	public void write(Kryo kryo, Output output, PersistentTransaction pt) {
+		if (dictionary.hasNewEntries()) {
+			throw new AssertionError();
+		}
+		
 		// mark transaction entry
 		output.writeByte(0);
 
@@ -53,7 +61,8 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 				} else {
 					output.writeVarInt(pit.getPropertyUpdates().length, true);
 					for (PersistentProperty prop : pit.getPropertyUpdates()) {
-						output.writeString(Objects.requireNonNull(prop.getProperty()));
+						Integer code = dictionary.getOrCreate(Objects.requireNonNull(prop.getProperty()));
+						output.writeInt(code.intValue(), true);
 						kryo.writeClassAndObject(output, prop.getValue());
 					}
 				}
@@ -100,7 +109,11 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 					for (int j = 0; j < numProperties; j++) {
 						PersistentProperty property = new PersistentProperty();
 						propArray[j] = property;
-						property.setProperty(input.readString());
+						String propText = dictionary.textByCode(input.readInt(true));
+						if (propText == null) {
+							throw new AssertionError("Property text not found");
+						}
+						property.setProperty(propText);
 						property.setValue(kryo.readClassAndObject(input));
 					}
 				}	
