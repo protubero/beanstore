@@ -20,5 +20,5 @@ public interface TransactionEvent {
 	 */
 	TransactionPhase phase();
 	
-	
+	Integer getTargetStateVersion();
 }

@@ -6,18 +6,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.BeanStoreBase;
 import de.protubero.beanstore.api.BeanStoreCallbacks;
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
 import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
-import de.protubero.beanstore.api.ExecutableLockedBeanStoreTransaction;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
@@ -144,21 +143,31 @@ public class BeanStoreImpl implements BeanStore {
 	}
 	
 	@Override
-	public CompletableFuture<Void> locked(Consumer<Supplier<ExecutableLockedBeanStoreTransaction>> consumer) {
+	public CompletableFuture<Void> lockedAsync(Consumer<BeanStoreBase> consumer) {
 		if (closed) {
 			throw new RuntimeException("Closed store does not accept transactions");
 		}
 		
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		taskAsync(() -> {
-			consumer.accept(new Supplier<>() {
+			consumer.accept(new BeanStoreBase() {
 
 				@Override
-				public ExecutableLockedBeanStoreTransaction get() {
+				public ExecutableBeanStoreTransaction transaction() {
 					// the creation of the transaction has to be within the task
 					Transaction transaction = Transaction.of(store.companionsShip());
-					ExecutableLockedBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, BeanStoreImpl.this);
+					ExecutableBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, BeanStoreImpl.this);
 					return bsTransaction;
+				}
+
+				@Override
+				public BeanStoreSnapshot snapshot() {
+					return BeanStoreImpl.this.snapshot();
+				}
+
+				@Override
+				public BeanStoreMetaInfo meta() {
+					return BeanStoreImpl.this.meta();
 				}
 				
 			});	
@@ -182,6 +191,9 @@ public class BeanStoreImpl implements BeanStore {
 	public BeanStoreMetaInfo meta() {
 		return new BeanStoreMetaInfoImpl(store);
 	}
+
+
+
 
 
 }

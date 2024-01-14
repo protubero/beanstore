@@ -65,6 +65,7 @@ public final class Transaction implements TransactionEvent {
 		result.state(State.RECORD);
 		
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Create,
 				companion, 
 				null, 
@@ -117,6 +118,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		TransactionElement<AbstractPersistentObject> elt = new TransactionElement<AbstractPersistentObject>(
+				this,
 				InstanceEventType.Delete,
 				(Companion) companion.get(), 
 				id, 
@@ -134,6 +136,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		TransactionElement<AbstractPersistentObject> elt = new TransactionElement<AbstractPersistentObject>(
+				this,
 				InstanceEventType.Delete,
 				(Companion) companion.get(), 
 				id, 
@@ -150,6 +153,7 @@ public final class Transaction implements TransactionEvent {
 		}
 
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Delete,
 				companion.get(), 
 				id, 
@@ -167,6 +171,7 @@ public final class Transaction implements TransactionEvent {
 		}
 
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Delete,
 				companion.get(), 
 				id, 
@@ -183,6 +188,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings("unchecked")
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Delete,
 				(Companion<T>) instance.companion(), 
 				instance.id(),
@@ -201,6 +207,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings("unchecked")
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Delete,
 				(Companion<T>) instance.companion(), 
 				instance.id(),
@@ -222,6 +229,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings("unchecked")
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Update,
 				(Companion<T>) instance.companion(), 
 				instance.id(), 
@@ -247,6 +255,7 @@ public final class Transaction implements TransactionEvent {
 
 		@SuppressWarnings("unchecked")
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Update,
 				(Companion<T>) instance.companion(), 
 				instance.id(), 
@@ -270,6 +279,7 @@ public final class Transaction implements TransactionEvent {
 		recordInstance.version(version);
 
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Update,
 				(Companion<T>) companion.get(), 
 				id, 
@@ -298,6 +308,7 @@ public final class Transaction implements TransactionEvent {
 		recordInstance.state(State.RECORD);
 
 		TransactionElement<MapObject> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Update,
 				(MapObjectCompanion) companion.get(), 
 				id, 
@@ -319,6 +330,7 @@ public final class Transaction implements TransactionEvent {
 		recordInstance.state(State.RECORD);
 
 		TransactionElement<T> elt = new TransactionElement<>(
+				this,
 				InstanceEventType.Update,
 				(Companion<T>) companion.get(), 
 				id, 
@@ -378,6 +390,7 @@ public final class Transaction implements TransactionEvent {
 		this.timestamp = timestamp;
 	}
 
+	@Override
 	public Integer getTargetStateVersion() {
 		return targetStateVersion;
 	}
@@ -385,6 +398,7 @@ public final class Transaction implements TransactionEvent {
 	public void setTargetStateVersion(Integer targetStateVersion) {
 		this.targetStateVersion = targetStateVersion;
 	}
+
 
 
 }	

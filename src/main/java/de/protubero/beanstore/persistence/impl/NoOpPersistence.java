@@ -52,7 +52,7 @@ public class NoOpPersistence implements TransactionPersistence {
 	}
 
 	@Override
-	public void lockConfiguration() {
+	public void onStartStoreBuild() {
 		// NOP
 	}
 

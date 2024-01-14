@@ -53,7 +53,7 @@ public class StoreWriter  {
 
 	public void onChangeAsync(Consumer<TransactionEvent> consumer) {
 		transactionSubject
-			.subscribeOn(Schedulers.single())				
+			.observeOn(Schedulers.computation())				
 			.subscribe(tx -> {
 				consumer.accept(tx);
 			});
@@ -69,7 +69,7 @@ public class StoreWriter  {
 
 	public void onChangeInstanceAsync(Consumer<InstanceTransactionEvent<?>> consumer) {
 		instanceTransactionSubject
-			.subscribeOn(Schedulers.single())		
+			.observeOn(Schedulers.computation())		
 			.subscribe(itx -> {
 				consumer.accept(itx);
 			});

@@ -8,5 +8,5 @@ public interface TransactionPersistence {
 	
 	boolean isEmpty();
 	
-	void lockConfiguration();
+	void onStartStoreBuild();
 }

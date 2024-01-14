@@ -28,6 +28,7 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 	
 	public KryoConfigurationImpl() {
 		kryo = new Kryo();
+		
 		kryo.setRegistrationRequired(true);
 		kryo.setWarnUnregisteredClasses(true);
 		

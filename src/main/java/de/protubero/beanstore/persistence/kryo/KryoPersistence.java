@@ -44,10 +44,15 @@ public class KryoPersistence implements TransactionPersistence {
 	private KryoConfiguration config;
 	private KryoDictionary dictionary;
 	private int lastWrittenSeqNum = -1;
+	private TransactionReader reader;
+	private boolean used;
+	
 	
 	public static KryoPersistence of(File file, KryoConfiguration config) {
 		return new KryoPersistence(file, config);
 	}
+	
+	
 	
 	KryoPersistence(File file, KryoConfiguration config) {
 		this.file = Objects.requireNonNull(file);
@@ -59,6 +64,65 @@ public class KryoPersistence implements TransactionPersistence {
 		if (file.isDirectory()) {
 			throw new PersistenceException("path parameter is a directory");
 		}
+		
+		reader = new TransactionReader() {
+
+			@Override
+			public void load(Consumer<PersistentTransaction> transactionConsumer) {
+				if (!file.exists()) {
+					return;
+				}
+
+				try (Input input = new Input(new FileInputStream(file))) {
+					while (true) {
+						byte chunkType = input.readByte();
+						byte version = input.readByte();
+						
+						int elementCount = input.readInt(true);
+
+						int byteArrayLen = input.readInt(true);
+						long crc23Orig = input.readLong();
+						byte[] data = input.readBytes(byteArrayLen);
+						
+						Checksum crc32 = new CRC32();
+						crc32.update(data, 0, data.length);
+						if (crc32.getValue() != crc23Orig) {
+							throw new RuntimeException("CRC32 error reading file " + file);
+						}
+
+						try (Input nestedInput = new Input(new ByteArrayInputStream(data))) {
+							switch (chunkType) {
+							case CHUNK_TYPE_TRANSACTIONS:
+								for (int i = 0; i < elementCount; i++) {
+									PersistentTransaction po = KryoPersistence.this.getKryo().readObject(nestedInput, PersistentTransaction.class);
+									transactionConsumer.accept(po);
+									lastWrittenSeqNum = po.getSeqNum();
+								}
+								break;
+							case CHUNK_TYPE_DICTIONARY:
+								dictionary.load(nestedInput);
+								break;
+							default:
+								throw new AssertionError("Invalid chunk type " + chunkType);
+								
+							}
+						} catch (KryoException exc) {
+							throw new PersistenceException("error reading kryo data", exc);
+						}	
+					}
+				} catch (KryoException exc) {
+					if (exc.getMessage().contains("Buffer underflow")) {
+						// that is the expected way how this party ends
+					} else {
+						throw new PersistenceException("error reading kryo data", exc);
+					}
+				} catch (FileNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+		};
+		
 		
 		writer = new TransactionWriter() {
 
@@ -180,6 +244,10 @@ public class KryoPersistence implements TransactionPersistence {
 		};
 	}
 
+	public KryoPersistence clonePersistence() {
+		return KryoPersistence.of(file, config);
+	}
+	
 	Kryo getKryo() {
 		return ((KryoConfigurationImpl) config).getKryo();
 	}
@@ -187,63 +255,7 @@ public class KryoPersistence implements TransactionPersistence {
 
 	@Override
 	public TransactionReader reader() {
-		return new TransactionReader() {
-
-			@Override
-			public void load(Consumer<PersistentTransaction> transactionConsumer) {
-				if (!file.exists()) {
-					return;
-				}
-
-				try (Input input = new Input(new FileInputStream(file))) {
-					while (true) {
-						byte chunkType = input.readByte();
-						byte version = input.readByte();
-						
-						int elementCount = input.readInt(true);
-
-						int byteArrayLen = input.readInt(true);
-						long crc23Orig = input.readLong();
-						byte[] data = input.readBytes(byteArrayLen);
-						
-						Checksum crc32 = new CRC32();
-						crc32.update(data, 0, data.length);
-						if (crc32.getValue() != crc23Orig) {
-							throw new RuntimeException("CRC32 error reading file " + file);
-						}
-
-						try (Input nestedInput = new Input(new ByteArrayInputStream(data))) {
-							switch (chunkType) {
-							case CHUNK_TYPE_TRANSACTIONS:
-								for (int i = 0; i < elementCount; i++) {
-									PersistentTransaction po = KryoPersistence.this.getKryo().readObject(nestedInput, PersistentTransaction.class);
-									transactionConsumer.accept(po);
-									lastWrittenSeqNum = po.getSeqNum();
-								}
-								break;
-							case CHUNK_TYPE_DICTIONARY:
-								dictionary.load(nestedInput);
-								break;
-							default:
-								throw new AssertionError("Invalid chunk type " + chunkType);
-								
-							}
-						} catch (KryoException exc) {
-							throw new PersistenceException("error reading kryo data", exc);
-						}	
-					}
-				} catch (KryoException exc) {
-					if (exc.getMessage().contains("Buffer underflow")) {
-						// that is the expected way how this party ends
-					} else {
-						throw new PersistenceException("error reading kryo data", exc);
-					}
-				} catch (FileNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-		};
+		return reader;
 	}
 
 	@Override
@@ -259,9 +271,14 @@ public class KryoPersistence implements TransactionPersistence {
 	public KryoConfiguration getConfig() {
 		return config;
 	}
-
+	
 	@Override
-	public void lockConfiguration() {
+	public void onStartStoreBuild() {
+		if (used) {
+			throw new RuntimeException("Persistence is already in use by another store builder");
+		}
+
+		used = true;
 		((KryoConfigurationImpl) config).lock();
 	}
 

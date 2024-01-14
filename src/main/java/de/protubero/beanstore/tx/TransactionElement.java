@@ -1,5 +1,7 @@
 package de.protubero.beanstore.tx;
 
+import java.util.Objects;
+
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.Companion;
@@ -16,13 +18,16 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 	private T newInstance;
 	private T replacedInstance;
 	private boolean optimisticLocking;
+	private Transaction transaction;
 	
 	public TransactionElement(
+			Transaction aTransaction,
 			InstanceEventType type, 
 			Companion<T> companion, 
 			Long id,
 			T recordInstance,
 			T refInstance) {
+		this.transaction = Objects.requireNonNull(aTransaction);
 		this.type = type;
 		this.companion = companion;
 		this.id = id;
@@ -103,6 +108,12 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 
 	void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	
+	@Override
+	public TransactionEvent transactionEvent() {
+		return transaction;
 	}
 	
 	

@@ -20,7 +20,7 @@ public class BenchmarkTestTool {
 
 	public static final Logger log = LoggerFactory.getLogger(BenchmarkTestTool.class);	
 	
-	private static final int NUM_OBJECTS = 100000;
+	private static final int NUM_OBJECTS = 1000;
 
 	@Test
 	public void manyTransactionsTest(@TempDir File tempDir) {

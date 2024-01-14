@@ -23,13 +23,5 @@ public class ExecutableBeanStoreTransactionImpl extends BeanStoreTransactionImpl
 		return beanStore.execute(transaction);
 	}
 
-	@Override
-	public BeanStoreTransactionResult execute() {
-		try {
-			return executeAsync().get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 }

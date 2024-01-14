@@ -51,7 +51,7 @@ public abstract class AbstractStoreBuilder {
 		throwExceptionIfAlreadyCreated();
 		
 		created = true;
-		persistence.lockConfiguration();
+		persistence.onStartStoreBuild();
 		deferredTransactionWriter = new DeferredTransactionWriter(persistence.writer());
 	}
 	

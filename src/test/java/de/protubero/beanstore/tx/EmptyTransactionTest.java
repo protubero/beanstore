@@ -55,7 +55,7 @@ public class EmptyTransactionTest extends AbstractBeanStoreTest {
 		store.locked(txf -> {
 			BeanStoreTransactionResult txEvent2;
 			try {
-				txEvent2 = txf.get().executeAsync().get();
+				txEvent2 = txf.transaction().executeAsync().get();
 				assertTrue(txEvent2.success());
 				assertEquals(0, txEvent2.getInstanceEvents().size());
 			} catch (InterruptedException | ExecutionException e) {

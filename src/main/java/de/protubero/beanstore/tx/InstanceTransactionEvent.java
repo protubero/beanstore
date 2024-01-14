@@ -41,5 +41,6 @@ public interface InstanceTransactionEvent<T extends AbstractPersistentObject> {
 	 */
 	BeanStoreEntity<T> entity();
 	
+	TransactionEvent transactionEvent();
 	
 }

@@ -1,4 +1,14 @@
 Systematic Automated Tests
+- Persistence
+- Callbacks
+- Store MetaINfo
+- Transaction
+- Migration 
+- Snapshot reads
+- entity/companion
+- Builder
+- Store Init
+
 Comment API
 
 make Transactions unchangeable by plugins/callbacks
@@ -9,26 +19,11 @@ Statistic plugin (Loaded Data)
 
 entity.onSetInitialDefaultValues() {}
 entity.onSetComputedDefaultValues() {}
-@NotNull
-
+Add more kryo default classes
 
 Auto-Release
 ------------------------------------- 0.8.5
 switch to Protected Main branch / feature branches
 Improve Documentation
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
 
 

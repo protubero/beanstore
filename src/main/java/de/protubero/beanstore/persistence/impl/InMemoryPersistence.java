@@ -76,7 +76,7 @@ public class InMemoryPersistence implements TransactionPersistence {
 	}
 
 	@Override
-	public void lockConfiguration() {
+	public void onStartStoreBuild() {
 		// NOP
 	}
 
