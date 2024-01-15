@@ -4,6 +4,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+import de.protubero.beanstore.tx.TransactionFailure;
+
 /**
  *  
  * The main BeanStore class.
@@ -13,18 +15,20 @@ import java.util.function.Consumer;
 public interface BeanStore extends BeanStoreBase {
 	
 	
-	
-	
 	/**
 	 * Access Store and execute transactions on a locked store.
 	 * The method blocks the calling thread until the operation is finished.   
 	 * 
 	 */
-	default void locked(Consumer<BeanStoreBase> consumer) {
+	default void locked(Consumer<BeanStoreBase> consumer) throws TransactionFailure {
 		try {
 			lockedAsync(consumer).get();
 		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
+			if (e.getCause() instanceof TransactionFailure) {
+				throw (TransactionFailure) e.getCause(); 
+			} else {
+				throw new RuntimeException(e);
+			}	
 		}
 	}
 

@@ -17,11 +17,12 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.BeanStoreException;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreImpl;
-import de.protubero.beanstore.impl.BeanStoreStateImpl;
+import de.protubero.beanstore.impl.BeanStoreSnapshotImpl;
 import de.protubero.beanstore.impl.BeanStoreTransactionImpl;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
@@ -151,6 +152,10 @@ public class BeanStoreBuilderImpl extends AbstractStoreBuilder implements BeanSt
 		var tx = Transaction.of(companionSet, initialTransactionId, PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
 		initialMigration.accept(new BeanStoreTransactionImpl(tx));
 		aStoreSet = createStoreWriter().execute(tx, aStoreSet);
+		
+		if (tx.failed()) {
+			throw new RuntimeException("Init store failed", tx.failure());
+		}
 
 		// call transaction listener
 		for (BuilderTransactionListener listener : transactionListener) {
@@ -225,8 +230,12 @@ public class BeanStoreBuilderImpl extends AbstractStoreBuilder implements BeanSt
 
 				var tx = Transaction.of(migratedMapStore.companionsShip(), mig.getMigrationId(),
 						PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-				mig.getMigration().accept(new MigrationTransactionImpl(tx, new BeanStoreStateImpl(migratedMapStore)));
+				mig.getMigration().accept(new MigrationTransactionImpl(tx, new BeanStoreSnapshotImpl(migratedMapStore)));
 				migratedMapStore = migrationStoreWriter.execute(tx, migratedMapStore);
+				
+				if (tx.failed()) {
+					throw new RuntimeException("Migration failed: " + mig.getMigrationId(), tx.failure());
+				}
 				
 				// call transaction listener
 				for (BuilderTransactionListener listener : transactionListener) {

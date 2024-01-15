@@ -9,4 +9,6 @@ public interface TransactionPersistence {
 	boolean isEmpty();
 	
 	void onStartStoreBuild();
+	
+	Integer lastSeqNum();
 }

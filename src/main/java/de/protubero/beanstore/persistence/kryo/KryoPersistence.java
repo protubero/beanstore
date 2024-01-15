@@ -43,7 +43,7 @@ public class KryoPersistence implements TransactionPersistence {
 	private TransactionWriter writer;
 	private KryoConfiguration config;
 	private KryoDictionary dictionary;
-	private int lastWrittenSeqNum = -1;
+	private Integer lastWrittenSeqNum;
 	private TransactionReader reader;
 	private boolean used;
 	
@@ -51,8 +51,6 @@ public class KryoPersistence implements TransactionPersistence {
 	public static KryoPersistence of(File file, KryoConfiguration config) {
 		return new KryoPersistence(file, config);
 	}
-	
-	
 	
 	KryoPersistence(File file, KryoConfiguration config) {
 		this.file = Objects.requireNonNull(file);
@@ -143,7 +141,7 @@ public class KryoPersistence implements TransactionPersistence {
 						transactionCount++;
 						PersistentTransaction nextTransaction = transactions.next();
 						
-						if (lastWrittenSeqNum == -1) {
+						if (lastWrittenSeqNum == null) {
 							if (1 != nextTransaction.getSeqNum()) {
 								throw new AssertionError("First transaction number is unexpectedly != 1. It is " + nextTransaction.getSeqNum());
 							}
@@ -280,6 +278,11 @@ public class KryoPersistence implements TransactionPersistence {
 
 		used = true;
 		((KryoConfigurationImpl) config).lock();
+	}
+
+	@Override
+	public Integer lastSeqNum() {
+		return lastWrittenSeqNum;
 	}
 
 

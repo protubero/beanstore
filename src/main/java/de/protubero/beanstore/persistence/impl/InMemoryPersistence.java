@@ -80,6 +80,14 @@ public class InMemoryPersistence implements TransactionPersistence {
 		// NOP
 	}
 
+	@Override
+	public Integer lastSeqNum() {
+		if (transactionList.isEmpty()) {
+			return null;
+		}
+		return transactionList.get(transactionList.size() - 1).getSeqNum();
+	}
+
 
 	
 }

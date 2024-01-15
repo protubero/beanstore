@@ -3,6 +3,8 @@ package de.protubero.beanstore.api;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import de.protubero.beanstore.tx.TransactionFailure;
+
 /**
  * An executable transaction is explicitly executed by client code, 
  * in contrast to e.g. migration transactions.
@@ -18,12 +20,29 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 	//BeanStoreTransactionResult execute();
 
 	CompletableFuture<BeanStoreTransactionResult> executeAsync();
-	
-	default BeanStoreTransactionResult execute() {
+
+	default BeanStoreTransactionResult executeNonThrowing() {
 		try {
 			return executeAsync().get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	
+	default BeanStoreTransactionResult execute() throws TransactionFailure {
+		try {
+			BeanStoreTransactionResult result = executeAsync().get();
+			if (result.failed()) {
+				throw result.exception();
+			}
+			return result;
+		} catch (InterruptedException | ExecutionException e) {
+			if (e.getCause() instanceof TransactionFailure) {
+				throw new AssertionError();
+			} else {
+				throw new RuntimeException(e);
+			}	
 		}
 	}
 }

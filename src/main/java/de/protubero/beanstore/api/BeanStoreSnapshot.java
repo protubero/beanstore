@@ -16,7 +16,7 @@ import de.protubero.beanstore.entity.MapObject;
  * BeanStore read operations. 
  *
  */
-public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
+public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 
 	int version();
 	
@@ -30,14 +30,14 @@ public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 	 * Throws a BeanStoreException if the alias is invalid. 
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends AbstractPersistentObject> EntityState<T> entity(String alias) {
-		return (EntityState<T>) entityOptional(alias).orElseThrow(() -> {
+	default <T extends AbstractPersistentObject> EntityStoreSnapshot<T> entity(String alias) {
+		return (EntityStoreSnapshot<T>) entityOptional(alias).orElseThrow(() -> {
 			throw new BeanStoreException("invalid alias");
 		});
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	default EntityState<MapObject> mapEntity(String alias) {
+	default EntityStoreSnapshot<MapObject> mapEntity(String alias) {
 		var e = entityOptional(alias);
 		if (e.isEmpty()) {
 			throw new BeanStoreException("invalid alias: " + alias);
@@ -45,7 +45,7 @@ public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 		if (e.get().meta().isBean()) {
 			throw new BeanStoreException("not a map entity: " + alias);
 		}
-		return (EntityState) e.get();
+		return (EntityStoreSnapshot) e.get();
 	}
 
 	
@@ -53,7 +53,7 @@ public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 	 * Access read operations of a single entity with the given Java Bean class.<br> 
 	 * Throws a BeanStoreException if the parameter is invalid. 
 	 */
-	default <T extends AbstractEntity> EntityState<T> entity(Class<T> aClass) {
+	default <T extends AbstractEntity> EntityStoreSnapshot<T> entity(Class<T> aClass) {
 		return entityOptional(aClass).orElseThrow(() -> {
 			throw new BeanStoreException("invalid bean class: " + aClass.getName());
 		});
@@ -62,12 +62,12 @@ public interface BeanStoreSnapshot extends Iterable<EntityState<?>> {
 	/**
 	 * Access read operations of a single entity with the given <i>alias</i>
 	 */
-	<T extends AbstractPersistentObject> Optional<EntityState<T>> entityOptional(String alias);
+	<T extends AbstractPersistentObject> Optional<EntityStoreSnapshot<T>> entityOptional(String alias);
 
 	/**
 	 * Access read operations of a single entity with the given Java Bean class. 
 	 */
-	<T extends AbstractEntity> Optional<EntityState<T>> entityOptional(Class<T> aClass);
+	<T extends AbstractEntity> Optional<EntityStoreSnapshot<T>> entityOptional(Class<T> aClass);
 	
 	
 	/**

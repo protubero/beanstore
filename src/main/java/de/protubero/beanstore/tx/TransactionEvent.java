@@ -11,14 +11,18 @@ public interface TransactionEvent {
 		return !failed();
 	}
 	
-	boolean failed();
+	default boolean failed() {
+		return failure() != null;
+	}
 	
-	TransactionFailure exception();
+	TransactionFailure failure();
 	
 	/**
 	 * The transaction phase. 
 	 */
 	TransactionPhase phase();
+	
+	Integer getSourceStateVersion();
 	
 	Integer getTargetStateVersion();
 }

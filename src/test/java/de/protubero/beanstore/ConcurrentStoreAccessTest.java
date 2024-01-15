@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.EntityState;
+import de.protubero.beanstore.api.EntityStoreSnapshot;
 import de.protubero.beanstore.model.Employee;
 
 public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
@@ -29,7 +29,7 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 	public void test()  {
 		var store = addSampleData(createEmptyStore());
 
-		EntityState<Employee> employeeStore = store.snapshot().entity(Employee.class);
+		EntityStoreSnapshot<Employee> employeeStore = store.snapshot().entity(Employee.class);
 		
 		// in the meanwhile ...
 		// create a new instance

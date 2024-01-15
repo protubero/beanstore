@@ -9,44 +9,9 @@ import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.persistence.impl.InMemoryPersistence;
 import de.protubero.beanstore.tx.TransactionPhase;
 
-public class CallbackTest {
+public class CallbackOnChangeTest {
 
 	
-	private class CallbackInfo {
-		private int calledCount;
-		private Long callbackThreadId;
-		private Long transactionsThreadId;
-
-		public int getCalledCount() {
-			return calledCount;
-		}
-		
-		public void incCallCount() {
-			calledCount++;
-		}
-
-		public void setCallbackThreadId(long aThreadId) {
-			this.callbackThreadId = aThreadId;
-		}
-
-		public Long getCallbackThreadId() {
-			return callbackThreadId;
-		}
-
-		public void onCallWithThread(long aThreadId) {
-			incCallCount();
-			setCallbackThreadId(aThreadId);
-		}
-
-		public Long getTransactionsThreadId() {
-			return transactionsThreadId;
-		}
-
-		public void setTransactionsThreadId(long aTransactionsThreadId) {
-			this.transactionsThreadId = aTransactionsThreadId;
-		}
-	}
-
 	@Test
 	public void testOnChange() throws InterruptedException, ExecutionException {
 		InMemoryPersistence persistence = InMemoryPersistence.create();
@@ -60,8 +25,7 @@ public class CallbackTest {
 		store.callbacks().onChange(event -> {
 			info.onCallWithThread(Thread.currentThread().getId());
 			
-			var lastTransaction = persistence.getTransactionList().get(persistence.getTransactionList().size() - 1);
-			Assertions.assertEquals(event.getTargetStateVersion().intValue(), lastTransaction.getSeqNum());
+			Assertions.assertEquals(event.getTargetStateVersion().intValue(), persistence.lastSeqNum());
 			
 			Assertions.assertEquals(1, event.getInstanceEvents().size());
 			Assertions.assertEquals(TransactionPhase.COMMITTED_SYNC, event.phase());
@@ -126,12 +90,11 @@ public class CallbackTest {
 			try {
 				Thread.sleep(200l);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			info.onCallWithThread(Thread.currentThread().getId());
 			
-			var lastTransaction = persistence.getTransactionList().get(persistence.getTransactionList().size() - 1);
-			Assertions.assertEquals(event.getTargetStateVersion().intValue(), lastTransaction.getSeqNum());
+			Assertions.assertEquals(event.getTargetStateVersion().intValue(), persistence.lastSeqNum());
 			
 			Assertions.assertEquals(1, event.getInstanceEvents().size());
 			Assertions.assertEquals(TransactionPhase.COMMITTED_ASYNC, event.phase());
@@ -152,5 +115,43 @@ public class CallbackTest {
 		Assertions.assertEquals(1, info.getCalledCount());
 		Assertions.assertNotEquals(info.getTransactionsThreadId(), info.getCallbackThreadId());
 	}
+	
+	@Test
+	public void testOnChangeInstanceAsync() throws InterruptedException, ExecutionException {
+		InMemoryPersistence persistence = InMemoryPersistence.create();
+		var builder = BeanStoreBuilder.init(persistence);
+		builder.registerMapEntity("user");
+		var store = builder.build();
+		
+		CallbackInfo info = new CallbackInfo();
+		
+		store.callbacks().onChangeInstanceAsync(event -> {
+			try {
+				Thread.sleep(200l);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			info.onCallWithThread(Thread.currentThread().getId());
+						
+			Assertions.assertEquals("user", event.entity().alias());
+			Assertions.assertEquals(TransactionPhase.COMMITTED_ASYNC, event.transactionEvent().phase());
+		});
+		
+		store.locked(ctx -> {
+			info.setTransactionsThreadId(Thread.currentThread().getId());
+			
+			var tx = ctx.transaction();
+			var user = tx.create("user");
+			user.put("name", "Mario");
+			tx.execute();
+			
+		});
+		
+		Assertions.assertEquals(0, info.getCalledCount());
+		Thread.sleep(500l);
+		Assertions.assertEquals(1, info.getCalledCount());
+		Assertions.assertNotEquals(info.getTransactionsThreadId(), info.getCallbackThreadId());
+	}
+	
 	
 }

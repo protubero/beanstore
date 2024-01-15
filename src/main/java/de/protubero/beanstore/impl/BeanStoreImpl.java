@@ -20,6 +20,7 @@ import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
+import de.protubero.beanstore.tx.TransactionFailure;
 
 public class BeanStoreImpl implements BeanStore {
 
@@ -62,6 +63,7 @@ public class BeanStoreImpl implements BeanStore {
 			
 			closedStoreFuture.complete(0);
 		});
+		taskThread.setName("Bean Store Transaction Worker");
 		taskThread.setUncaughtExceptionHandler((thread, throwable) -> {
 			log.error("Uncaught task execution exception", throwable);
 		});
@@ -119,7 +121,11 @@ public class BeanStoreImpl implements BeanStore {
 		ImmutableEntityStoreSet sourceStoreSet = store;
 		ImmutableEntityStoreSet resultStoreSet = storeWriter.execute(transaction, sourceStoreSet);
 		result = new BeanStoreTransactionResultImpl(transaction, 
-				new BeanStoreStateImpl(sourceStoreSet), new BeanStoreStateImpl(resultStoreSet));
+				new BeanStoreSnapshotImpl(sourceStoreSet), new BeanStoreSnapshotImpl(resultStoreSet));
+		if (transaction.failed() && sourceStoreSet != resultStoreSet) {
+			throw new AssertionError();
+		}
+		
 		store = resultStoreSet;
 		return result;
 	}
@@ -150,27 +156,31 @@ public class BeanStoreImpl implements BeanStore {
 		
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		taskAsync(() -> {
-			consumer.accept(new BeanStoreBase() {
-
-				@Override
-				public ExecutableBeanStoreTransaction transaction() {
-					// the creation of the transaction has to be within the task
-					Transaction transaction = Transaction.of(store.companionsShip());
-					ExecutableBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, BeanStoreImpl.this);
-					return bsTransaction;
-				}
-
-				@Override
-				public BeanStoreSnapshot snapshot() {
-					return BeanStoreImpl.this.snapshot();
-				}
-
-				@Override
-				public BeanStoreMetaInfo meta() {
-					return BeanStoreImpl.this.meta();
-				}
-				
-			});	
+			try { 
+				consumer.accept(new BeanStoreBase() {
+	
+					@Override
+					public ExecutableBeanStoreTransaction transaction() {
+						// the creation of the transaction has to be within the task
+						Transaction transaction = Transaction.of(store.companionsShip());
+						ExecutableBeanStoreTransaction bsTransaction = new ExecutableLockedBeanStoreTransactionImpl(transaction, BeanStoreImpl.this);
+						return bsTransaction;
+					}
+	
+					@Override
+					public BeanStoreSnapshot snapshot() {
+						return BeanStoreImpl.this.snapshot();
+					}
+	
+					@Override
+					public BeanStoreMetaInfo meta() {
+						return BeanStoreImpl.this.meta();
+					}
+					
+				});
+			} catch (Exception e) {
+				result.completeExceptionally(e);
+			}
 			result.complete(null);
 		});
 		
@@ -179,7 +189,7 @@ public class BeanStoreImpl implements BeanStore {
 
 	@Override
 	public BeanStoreSnapshot snapshot() {
-		return new BeanStoreStateImpl(store);
+		return new BeanStoreSnapshotImpl(store);
 	}
 
 	@Override

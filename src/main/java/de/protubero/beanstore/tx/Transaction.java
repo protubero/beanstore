@@ -29,6 +29,7 @@ public final class Transaction implements TransactionEvent {
 	private byte transactionType;
 	private Instant timestamp;	
 	private Integer targetStateVersion;
+	private Integer sourceStateVersion;
 
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
 	
@@ -352,12 +353,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	@Override
-	public boolean failed() {
-		return failure != null;
-	}
-
-	@Override
-	public TransactionFailure exception() {
+	public TransactionFailure failure() {
 		return failure;
 	}
 
@@ -395,8 +391,17 @@ public final class Transaction implements TransactionEvent {
 		return targetStateVersion;
 	}
 
-	public void setTargetStateVersion(Integer targetStateVersion) {
+	void setTargetStateVersion(Integer targetStateVersion) {
 		this.targetStateVersion = targetStateVersion;
+	}
+
+	@Override
+	public Integer getSourceStateVersion() {
+		return sourceStateVersion;
+	}
+
+	void setSourceStateVersion(Integer sourceStateVersion) {
+		this.sourceStateVersion = sourceStateVersion;
 	}
 
 

@@ -6,32 +6,32 @@ import java.util.Optional;
 
 import de.protubero.beanstore.api.BeanStoreMetaInfo;
 import de.protubero.beanstore.api.BeanStoreSnapshot;
-import de.protubero.beanstore.api.EntityState;
+import de.protubero.beanstore.api.EntityStoreSnapshot;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 
-public class BeanStoreStateImpl implements BeanStoreSnapshot {
+public class BeanStoreSnapshotImpl implements BeanStoreSnapshot {
 
 	private EntityStoreSet<?> store;
 
 
-	public BeanStoreStateImpl(EntityStoreSet<?> store) {
+	public BeanStoreSnapshotImpl(EntityStoreSet<?> store) {
 		this.store = Objects.requireNonNull(store);
 	}
 
 
 	@Override
-	public <T extends AbstractEntity> Optional<EntityState<T>> entityOptional(Class<T> aClass) {
-		return store.storeOptional(aClass).map(e -> new EntityStateImpl<>(e));
+	public <T extends AbstractEntity> Optional<EntityStoreSnapshot<T>> entityOptional(Class<T> aClass) {
+		return store.storeOptional(aClass).map(e -> new EntityStoreSnapshotImpl<>(e));
 	}
 
 	@Override
-	public <T extends AbstractPersistentObject> Optional<EntityState<T>> entityOptional(String alias) {
+	public <T extends AbstractPersistentObject> Optional<EntityStoreSnapshot<T>> entityOptional(String alias) {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<EntityStore<T>> opt = (Optional) store.storeOptional(alias);
-		return opt.map(e -> new EntityStateImpl<>(e));
+		return opt.map(e -> new EntityStoreSnapshotImpl<>(e));
 	}
 
 	@Override
@@ -40,9 +40,9 @@ public class BeanStoreStateImpl implements BeanStoreSnapshot {
 	}
 
 	@Override
-	public Iterator<EntityState<?>> iterator() {
+	public Iterator<EntityStoreSnapshot<?>> iterator() {
 		var baseIterator = store.iterator();
-		return new Iterator<EntityState<?>> () {
+		return new Iterator<EntityStoreSnapshot<?>> () {
 
 			@Override
 			public boolean hasNext() {
@@ -50,8 +50,8 @@ public class BeanStoreStateImpl implements BeanStoreSnapshot {
 			}
 
 			@Override
-			public EntityState<?> next() {
-				return new EntityStateImpl<>(baseIterator.next());
+			public EntityStoreSnapshot<?> next() {
+				return new EntityStoreSnapshotImpl<>(baseIterator.next());
 			}
 			
 		};

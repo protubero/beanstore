@@ -36,7 +36,7 @@ public class BeanStoreTransactionResultImpl implements BeanStoreTransactionResul
 
 	@Override
 	public TransactionFailure exception() {
-		return baseResult.exception();
+		return baseResult.failure();
 	}
 
 	@Override

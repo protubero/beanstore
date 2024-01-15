@@ -1,7 +1,7 @@
 Systematic Automated Tests
 - Persistence
 - Callbacks
-- Store MetaINfo
+- Store MetaInfo
 - Transaction
 - Migration 
 - Snapshot reads
@@ -13,12 +13,17 @@ Comment API
 
 make Transactions unchangeable by plugins/callbacks
 lock file within VM and in OS
+
 Load Store State X (from cache and from file)
+Store Diff
+
 UnmanagedCompanion?
+
 Statistic plugin (Loaded Data)
 
 entity.onSetInitialDefaultValues() {}
 entity.onSetComputedDefaultValues() {}
+
 Add more kryo default classes
 
 Auto-Release

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import de.protubero.beanstore.entity.MapObject;
-import de.protubero.beanstore.impl.BeanStoreStateImpl;
+import de.protubero.beanstore.impl.BeanStoreSnapshotImpl;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.tx.StoreWriter;

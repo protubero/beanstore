@@ -39,8 +39,8 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		empUpd2.setEmployeeNumber(14);
 		
 		tx1.execute();
-		ExecutionException failure = assertThrows(ExecutionException.class, () -> tx2.executeAsync().get());
-		assertSame(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, ((TransactionFailure) failure.getCause()).getType());
+		TransactionFailure failure = assertThrows(TransactionFailure.class, () -> tx2.execute());
+		assertSame(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, failure.getType());
 	}
 
 	@Override

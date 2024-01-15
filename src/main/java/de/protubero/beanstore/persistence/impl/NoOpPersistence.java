@@ -56,4 +56,9 @@ public class NoOpPersistence implements TransactionPersistence {
 		// NOP
 	}
 
+	@Override
+	public Integer lastSeqNum() {
+		return null;
+	}
+
 }

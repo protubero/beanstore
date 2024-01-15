@@ -121,17 +121,30 @@ public class StoreWriter  {
 		}
 	}
 		
+
+	public synchronized <E extends EntityStore<?>, S extends EntityStoreSet<E>> S execute(Transaction aTransaction, S aStoreSet) {
+		try {
+			S result = executeImpl(aTransaction, aStoreSet);
+			return result;
+		} catch (TransactionFailure tf) {
+			aTransaction.setFailure(tf);
+			return aStoreSet;
+		}
+	}
+
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public synchronized <E extends EntityStore<?>, S extends EntityStoreSet<E>> S execute(Transaction aTransaction, S aStoreSet) throws TransactionFailure {
+	private <E extends EntityStore<?>, S extends EntityStoreSet<E>> S executeImpl(Transaction aTransaction, S aStoreSet) throws TransactionFailure {
 		if (aTransaction.getTimestamp() != null) {
 			throw new RuntimeException("Re-Execution of Transaction");
 		}
 		aTransaction.setTimestamp(Instant.now());
+		aTransaction.setSourceStateVersion(aStoreSet.version());
 		
 		// Clone Store Set
 		S workStoreSet = (S) Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
 		S result = aStoreSet;
+		
 		
 		
 		if (!aTransaction.isEmpty()) {		
