@@ -14,7 +14,6 @@ Comment API
 KeyValue Plugin
 Statistic plugin (Loaded Data)
 
-Add more kryo default classes
 
 Auto-Release
 ------------------------------------- 0.8.5
@@ -26,6 +25,7 @@ lock file within VM and in OS
 UnmanagedCompanion?
 make Transactions unchangeable by plugins/callbacks
 Lifecycle Listener (initBean)
+int2enum enum2int (EnumCompanion)
 
 Load Store State X (from cache and from file) => Github issues
 Store Diff => Github Issue

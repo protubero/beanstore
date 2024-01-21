@@ -2,13 +2,25 @@ package de.protubero.beanstore.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
@@ -32,10 +44,21 @@ public class KryoTestEntity extends AbstractEntity {
 	
 	private Instant instantValue;
 	private Duration duration; 
-
 	private LocalDate localDate;
 	private LocalTime localTime;
 	private LocalDateTime localDateTime;
+	private ZoneOffset zoneOffset;
+	private ZoneId zoneId;
+	private OffsetTime offsetTime;
+	private OffsetDateTime offsetDateTime;
+	private ZonedDateTime zonedDateTime;		
+	private Year year;
+	private YearMonth yearMonth;
+	private MonthDay monthDay;
+	private Period period;
+	private DayOfWeek dayOfWeek;
+	private Month month;
+	
 	
 	private byte[] byteArray;
 	private int[] intArray;
@@ -49,6 +72,7 @@ public class KryoTestEntity extends AbstractEntity {
 	
 	private BigDecimal bigDecimal;
 	private BigInteger bigInteger;
+	private RoundingMode roundingMode;
 	
 	private Date date;
 	private Currency currency;
@@ -57,8 +81,6 @@ public class KryoTestEntity extends AbstractEntity {
 	private Charset charset;
 	
 	private URL url;
-	
-	
 	
 	public Long getLongValue() {
 		return longValue;
@@ -299,6 +321,102 @@ public class KryoTestEntity extends AbstractEntity {
 
 	public void setDuration(Duration duration) {
 		this.duration = duration;
+	}
+
+	public ZoneOffset getZoneOffset() {
+		return zoneOffset;
+	}
+
+	public void setZoneOffset(ZoneOffset zoneOffset) {
+		this.zoneOffset = zoneOffset;
+	}
+
+	public ZoneId getZoneId() {
+		return zoneId;
+	}
+
+	public void setZoneId(ZoneId zoneId) {
+		this.zoneId = zoneId;
+	}
+
+	public OffsetTime getOffsetTime() {
+		return offsetTime;
+	}
+
+	public void setOffsetTime(OffsetTime offsetTime) {
+		this.offsetTime = offsetTime;
+	}
+
+	public OffsetDateTime getOffsetDateTime() {
+		return offsetDateTime;
+	}
+
+	public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+		this.offsetDateTime = offsetDateTime;
+	}
+
+	public ZonedDateTime getZonedDateTime() {
+		return zonedDateTime;
+	}
+
+	public void setZonedDateTime(ZonedDateTime zonedDateTime) {
+		this.zonedDateTime = zonedDateTime;
+	}
+
+	public Year getYear() {
+		return year;
+	}
+
+	public void setYear(Year year) {
+		this.year = year;
+	}
+
+	public YearMonth getYearMonth() {
+		return yearMonth;
+	}
+
+	public void setYearMonth(YearMonth yearMonth) {
+		this.yearMonth = yearMonth;
+	}
+
+	public MonthDay getMonthDay() {
+		return monthDay;
+	}
+
+	public void setMonthDay(MonthDay monthDay) {
+		this.monthDay = monthDay;
+	}
+
+	public Period getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Period period) {
+		this.period = period;
+	}
+
+	public RoundingMode getRoundingMode() {
+		return roundingMode;
+	}
+
+	public void setRoundingMode(RoundingMode roundingMode) {
+		this.roundingMode = roundingMode;
+	}
+
+	public DayOfWeek getDayOfWeek() {
+		return dayOfWeek;
+	}
+
+	public void setDayOfWeek(DayOfWeek dayOfWeek) {
+		this.dayOfWeek = dayOfWeek;
+	}
+
+	public Month getMonth() {
+		return month;
+	}
+
+	public void setMonth(Month month) {
+		this.month = month;
 	}
 	
 }

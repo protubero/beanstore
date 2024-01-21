@@ -2,12 +2,16 @@ package de.protubero.beanstore.persistence.kryo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.net.URI;
 import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.MonthDay;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
@@ -43,7 +47,9 @@ import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.CurrencySe
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.DateSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.KryoSerializableSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.LocaleSerializer;
+import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.URISerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.URLSerializer;
+import com.esotericsoftware.kryo.kryo5.serializers.EnumNameSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.DurationSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.InstantSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.LocalDateSerializer;
@@ -74,33 +80,25 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 	
 	public KryoConfigurationImpl() {
 		kryo = new Kryo();
-		
 		kryo.setRegistrationRequired(true);
 		kryo.setWarnUnregisteredClasses(true);
 		kryo.setAutoReset(true);
 		kryo.setReferences(false);
-		
-		// java.lang
-		// Add RecordSerializer if JDK 14+ available
-//		if (isClassAvailable("java.lang.Record")) {
-//			addDefaultSerializer("java.lang.Record", RecordSerializer.class);
-//		}		
-		
+				
 		// java.math
 		kryo.register(BigInteger.class, new BigIntegerSerializer(), 19);
 		kryo.register(BigDecimal.class, new BigDecimalSerializer(), 20);
-		// RoundingMode enum
-		
-		// java.net
-		kryo.register(URL.class, new URLSerializer(), 27);
-		// URL
-		// Inet4Address
-		// Inet6Address
+		kryo.register(RoundingMode.class, new EnumNameSerializer(RoundingMode.class), 21);
 		
 		// java.util
-		kryo.register(Locale.class, new LocaleSerializer(), 25);
-		kryo.register(Date.class, new DateSerializer(), 21);
 		kryo.register(Currency.class, new CurrencySerializer(), 22);
+		kryo.register(Locale.class, new LocaleSerializer(), 23);
+		kryo.register(Date.class, new DateSerializer(), 24);
+
+		// java.net
+		kryo.register(URL.class, new URLSerializer(), 25);
+		kryo.register(URI.class, new URISerializer(), 26);
+		
 		
 		// java.time
 		kryo.register(Instant.class, new InstantSerializer(), 29);
@@ -117,23 +115,23 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(YearMonth.class, new YearMonthSerializer(), 40);
 		kryo.register(MonthDay.class, new MonthDaySerializer(), 41);
 		kryo.register(Period.class, new PeriodSerializer(), 42);
-		// DayOfWeek
-		// Month
+		kryo.register(DayOfWeek.class, new EnumNameSerializer(DayOfWeek.class), 43);
+		kryo.register(Month.class, new EnumNameSerializer(Month.class), 44);
 		
 		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);
 	}
 
 	@Override
 	public void registerDefaultArrays() {
-		kryo.register(byte[].class, new ByteArraySerializer(), 10);
-		kryo.register(char[].class, new CharArraySerializer(), 11);
-		kryo.register(short[].class, new ShortArraySerializer(), 12);
-		kryo.register(int[].class, new IntArraySerializer(), 13);
-		kryo.register(long[].class, new LongArraySerializer(), 14);
-		kryo.register(float[].class, new FloatArraySerializer(), 15);
-		kryo.register(double[].class, new DoubleArraySerializer(), 16);
-		kryo.register(boolean[].class, new BooleanArraySerializer(), 17);
-		kryo.register(String[].class, new StringArraySerializer(), 18);
+		kryo.register(byte[].class, new ByteArraySerializer(), 70);
+		kryo.register(char[].class, new CharArraySerializer(), 71);
+		kryo.register(short[].class, new ShortArraySerializer(), 72);
+		kryo.register(int[].class, new IntArraySerializer(), 73);
+		kryo.register(long[].class, new LongArraySerializer(), 74);
+		kryo.register(float[].class, new FloatArraySerializer(), 75);
+		kryo.register(double[].class, new DoubleArraySerializer(), 76);
+		kryo.register(boolean[].class, new BooleanArraySerializer(), 77);
+		kryo.register(String[].class, new StringArraySerializer(), 78);
 	}
 	
 	@Override
