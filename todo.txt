@@ -11,18 +11,8 @@ Systematic Automated Tests
 
 Comment API
 
-make Transactions unchangeable by plugins/callbacks
-lock file within VM and in OS
-
-Load Store State X (from cache and from file)
-Store Diff
-
-UnmanagedCompanion?
-
+KeyValue Plugin
 Statistic plugin (Loaded Data)
-
-entity.onSetInitialDefaultValues() {}
-entity.onSetComputedDefaultValues() {}
 
 Add more kryo default classes
 
@@ -31,4 +21,12 @@ Auto-Release
 switch to Protected Main branch / feature branches
 Improve Documentation
 
+-- next release
+lock file within VM and in OS
+UnmanagedCompanion?
+make Transactions unchangeable by plugins/callbacks
+Lifecycle Listener (initBean)
+
+Load Store State X (from cache and from file) => Github issues
+Store Diff => Github Issue
 

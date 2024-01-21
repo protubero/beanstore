@@ -1,4 +1,4 @@
-package de.protubero.beanstore;
+package de.protubero.beanstore.entity;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;

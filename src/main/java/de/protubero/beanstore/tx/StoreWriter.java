@@ -30,7 +30,6 @@ public class StoreWriter  {
 	// async callbacks
 	private PublishSubject<Transaction> transactionSubject = PublishSubject.create(); 	
 	private PublishSubject<InstanceTransactionEvent<?>> instanceTransactionSubject = PublishSubject.create(); 	
-	
 		
 
 	public StoreWriter() {

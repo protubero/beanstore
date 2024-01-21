@@ -1,6 +1,17 @@
 package de.protubero.beanstore.model;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Currency;
+import java.util.Date;
+import java.util.Locale;
 
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.Entity;
@@ -16,11 +27,39 @@ public class KryoTestEntity extends AbstractEntity {
 	private Double doubleValue;
 	private Boolean booleanValue;
 	private Character charValue;
-
+	
 	private String stringValue;
 	
 	private Instant instantValue;
+	private Duration duration; 
 
+	private LocalDate localDate;
+	private LocalTime localTime;
+	private LocalDateTime localDateTime;
+	
+	private byte[] byteArray;
+	private int[] intArray;
+	private long[] longArray;
+	private short[] shortArray;
+	private char[] charArray;
+	private float[] floatArray;
+	private double[] doubleArray;
+	private String[] stringArray;
+	private boolean[] booleanArray;
+	
+	private BigDecimal bigDecimal;
+	private BigInteger bigInteger;
+	
+	private Date date;
+	private Currency currency;
+	
+	private Locale locale;
+	private Charset charset;
+	
+	private URL url;
+	
+	
+	
 	public Long getLongValue() {
 		return longValue;
 	}
@@ -99,6 +138,167 @@ public class KryoTestEntity extends AbstractEntity {
 
 	public void setInstantValue(Instant instantValue) {
 		this.instantValue = instantValue;
+	}
+
+	public LocalDate getLocalDate() {
+		return localDate;
+	}
+
+	public void setLocalDate(LocalDate localDate) {
+		this.localDate = localDate;
+	}
+
+	public LocalTime getLocalTime() {
+		return localTime;
+	}
+
+	public void setLocalTime(LocalTime localTime) {
+		this.localTime = localTime;
+	}
+
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
+	}
+
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
+	}
+
+
+	public byte[] getByteArray() {
+		return byteArray;
+	}
+
+	public void setByteArray(byte[] byteArray) {
+		this.byteArray = byteArray;
+	}
+
+	public int[] getIntArray() {
+		return intArray;
+	}
+
+	public void setIntArray(int[] intArray) {
+		this.intArray = intArray;
+	}
+
+	public long[] getLongArray() {
+		return longArray;
+	}
+
+	public void setLongArray(long[] longArray) {
+		this.longArray = longArray;
+	}
+
+	public short[] getShortArray() {
+		return shortArray;
+	}
+
+	public void setShortArray(short[] shortArray) {
+		this.shortArray = shortArray;
+	}
+
+	public char[] getCharArray() {
+		return charArray;
+	}
+
+	public void setCharArray(char[] charArray) {
+		this.charArray = charArray;
+	}
+
+	public float[] getFloatArray() {
+		return floatArray;
+	}
+
+	public void setFloatArray(float[] floatArray) {
+		this.floatArray = floatArray;
+	}
+
+	public double[] getDoubleArray() {
+		return doubleArray;
+	}
+
+	public void setDoubleArray(double[] doubleArray) {
+		this.doubleArray = doubleArray;
+	}
+
+	public String[] getStringArray() {
+		return stringArray;
+	}
+
+	public void setStringArray(String[] stringArray) {
+		this.stringArray = stringArray;
+	}
+
+	public boolean[] getBooleanArray() {
+		return booleanArray;
+	}
+
+	public void setBooleanArray(boolean[] booleanArray) {
+		this.booleanArray = booleanArray;
+	}
+
+	public BigDecimal getBigDecimal() {
+		return bigDecimal;
+	}
+
+	public void setBigDecimal(BigDecimal bigDecimal) {
+		this.bigDecimal = bigDecimal;
+	}
+
+	public BigInteger getBigInteger() {
+		return bigInteger;
+	}
+
+	public void setBigInteger(BigInteger bigInteger) {
+		this.bigInteger = bigInteger;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public Currency getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public Charset getCharset() {
+		return charset;
+	}
+
+	public void setCharset(Charset charset) {
+		this.charset = charset;
+	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+	public Duration getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Duration duration) {
+		this.duration = duration;
 	}
 	
 }
