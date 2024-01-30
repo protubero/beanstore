@@ -34,7 +34,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<version.lucene>9.9.1</version.lucene>
+		<version.lucene>9.9.2</version.lucene>
 
 		<version.slf4j>2.0.11</version.slf4j>
 		<version.junit-jupiter>5.10.1</version.junit-jupiter>
