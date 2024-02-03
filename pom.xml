@@ -52,7 +52,7 @@
 		<version.rxjava>3.1.8</version.rxjava>
 		<version.jakarta-el>4.0.2</version.jakarta-el>
 		<version.hibernate-validator>7.0.3.Final</version.hibernate-validator>
-		<version.archunit>0.23.1</version.archunit>
+		<version.archunit>1.2.1</version.archunit>
 	</properties>
 
 
