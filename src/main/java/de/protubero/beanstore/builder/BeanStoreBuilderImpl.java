@@ -17,7 +17,6 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.BeanStoreEntity;
-import de.protubero.beanstore.entity.BeanStoreException;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.entity.MapObjectCompanion;

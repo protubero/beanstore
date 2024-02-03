@@ -11,11 +11,28 @@ Systematic Automated Tests
 
 Comment API
 
-KeyValue Plugin
-Statistic plugin (Loaded Data)
+Transaction text, user, etc.		
+
+entities created by migrations??
+
+Improve History Plugin 		
+	states	
+Load Store State X (from history plugin, ReadOnlyMapStore)
+Load Store State X (ReadOnlyMapStore)
+
+Spring Boot based example with annotation based
+	- Aggregates
+		@InstanceListener(ToDo.class)
+	- Entity discovery
+	- @Configuiration / @Bean  BeanStore, SearchPlugin, HistoryPlugin 
+	- Endpoint
+		States
+		Aggregate
+		entities (Store?)
+	- Commands ohne abstr. super type	
 
 
-Auto-Release
+Auto-Release // Include License info
 ------------------------------------- 0.8.5
 switch to Protected Main branch / feature branches
 Improve Documentation
@@ -26,7 +43,9 @@ UnmanagedCompanion?
 make Transactions unchangeable by plugins/callbacks
 Lifecycle Listener (initBean)
 int2enum enum2int (EnumCompanion)
+Spring Integration
 
-Load Store State X (from cache and from file) => Github issues
-Store Diff => Github Issue
-
+Config based on SingleTonMap
+Index2Map Plugin function Entity -> Key
+SingletonMap Plugin
+Key-Value Store
