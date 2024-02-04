@@ -16,7 +16,7 @@ import de.protubero.beanstore.store.CompanionSetImpl;
 public class StoreInitialization {
 
 	private List<Migration> migrations = new ArrayList<>();
-	private Consumer<BeanStoreTransaction> initMigration = (tx) -> {};
+	private Consumer<BeanStoreTransaction> initMigration;
 	private CompanionSetImpl companionSet = new CompanionSetImpl();
 	
 	/**
@@ -82,8 +82,8 @@ public class StoreInitialization {
 	 */
 	public List<Migration> findMigrationsToApply(List<String> appliedMigrationIds) {
 		String lastMigrationId = appliedMigrationIds.get(appliedMigrationIds.size() -1);
-		if (lastMigrationId == null) {
-			// store was initialized with no migration history presen
+		if (lastMigrationId.equals(StoreInitializer.INIT_ID)) {
+			// store was initialized with no migration history present
 			return migrations;
 		} else {
 			Optional<Migration> lastMigrationApplied = migrations.stream().filter(m -> m.getMigrationId().equals(lastMigrationId)).findAny();

@@ -44,7 +44,7 @@ public class BeanStoreState {
 		}
 		if (transactionId.startsWith(StoreInitializer.INIT_ID)) {
 			if (transactionId.equals(StoreInitializer.INIT_ID)) {
-				return null;
+				return Optional.ofNullable(StoreInitializer.INIT_ID);
 			} else {
 				return Optional.of(transactionId.substring(StoreInitializer.INIT_ID.length()));
 			}

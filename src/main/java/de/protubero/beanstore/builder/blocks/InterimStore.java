@@ -142,7 +142,7 @@ public class InterimStore {
 		// this is the first time that data gets written to the file
 		cachingTransactionWriter.dump(persistence.writer());
 
-		return BuildUtil.build((ImmutableEntityStoreSet) store, persistence.writer());
+		return BuildUtil.build((ImmutableEntityStoreSet) store, persistence.writer(), transactionListener);
 	}
 	
 }

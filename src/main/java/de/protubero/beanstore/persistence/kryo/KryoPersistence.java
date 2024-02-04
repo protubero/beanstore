@@ -153,6 +153,12 @@ public class KryoPersistence implements TransactionPersistence {
 							lastWrittenSeqNum = nextTransaction.getSeqNum();
 						}
 						
+						if (nextTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION) {
+							if (nextTransaction.getTransactionId() == null) {
+								throw new AssertionError();
+							}
+						}
+						
 						KryoPersistence.this.getKryo().writeObject(output, nextTransaction);
 					}
 				}

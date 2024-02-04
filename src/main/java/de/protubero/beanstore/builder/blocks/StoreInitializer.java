@@ -40,20 +40,24 @@ public class StoreInitializer implements Consumer<InterimStore> {
 		this.initialization = Objects.requireNonNull(initialization);
 	}
 
-	public StoreInitializer of(StoreInitialization initialization) {
+	public static StoreInitializer of(StoreInitialization initialization) {
 		return new StoreInitializer(initialization);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void accept(InterimStore interimStore) {
 		if (interimStore.getStore() == null) {
 			log.info("Init store");
 			interimStore.setStore(new ImmutableEntityStoreSet(initialization.getCompanionSet(), 0));
 			
+			// we need to store the transaction even if it is empty
 			var tx = Transaction.of(initialization.getCompanionSet(), initialization.initMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
-			initialization.getInitMigration().accept(new BeanStoreTransactionImpl(tx));
+			if (initialization.getInitMigration() != null) {
+				initialization.getInitMigration().accept(new BeanStoreTransactionImpl(tx));
+			}	
 			interimStore.execute(tx);
-			
+
 			if (tx.failed()) {
 				throw new RuntimeException("Init store failed", tx.failure());
 			}

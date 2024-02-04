@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public class LoadedStoreData {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public BeanStore build() {
+	public BeanStore build(Consumer<PersistentTransaction> aTransactionListener) {
 		ImmutableEntityStoreSet finalStoreSet = null;
 		
 		if (store == null) {
@@ -94,7 +95,7 @@ public class LoadedStoreData {
 		}
 		
 		
-		return BuildUtil.build(finalStoreSet, persistence.writer());
+		return BuildUtil.build(finalStoreSet, persistence.writer(), aTransactionListener );
 	}
 	
 	

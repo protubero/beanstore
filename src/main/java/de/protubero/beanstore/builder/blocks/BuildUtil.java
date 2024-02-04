@@ -1,5 +1,7 @@
 package de.protubero.beanstore.builder.blocks;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +19,15 @@ public class BuildUtil {
 	public static final Logger log = LoggerFactory.getLogger(BuildUtil.class);
 	
 	
-	public static BeanStore build(ImmutableEntityStoreSet store, TransactionWriter writer) {
+	public static BeanStore build(ImmutableEntityStoreSet store, TransactionWriter writer, Consumer<PersistentTransaction> transactionListener) {
 		StoreWriter storeWriter = new StoreWriter();
 		storeWriter.registerSyncInternalTransactionListener(TransactionPhase.PERSIST, t -> {
 			PersistentTransaction pTransaction = TxUtil.createPersistentTransaction(t);
+			
+			if (transactionListener != null) {
+				transactionListener.accept(pTransaction);
+			}
+			
 			writer.append(pTransaction);
 		});
 		

@@ -41,11 +41,11 @@ public final class StoreDataLoader implements Supplier<LoadedStoreData> {
 		this(persistence, null);
 	}
 
-	public StoreDataLoader of(TransactionPersistence persistence, Consumer<PersistentTransaction> transactionListener) {
+	public static StoreDataLoader of(TransactionPersistence persistence, Consumer<PersistentTransaction> transactionListener) {
 		return new StoreDataLoader(persistence, transactionListener);
 	}
 
-	public StoreDataLoader of(TransactionPersistence persistence) {
+	public static StoreDataLoader of(TransactionPersistence persistence) {
 		return new StoreDataLoader(persistence);
 	}
 	
