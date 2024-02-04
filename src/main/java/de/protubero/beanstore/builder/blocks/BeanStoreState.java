@@ -1,6 +1,9 @@
 package de.protubero.beanstore.builder.blocks;
 
 import java.time.Instant;
+import java.util.Optional;
+
+import de.protubero.beanstore.persistence.api.PersistentTransaction;
 
 public class BeanStoreState {
 
@@ -34,5 +37,21 @@ public class BeanStoreState {
 	public int getState() {
 		return state;
 	}
+	
+	public Optional<String> migrationId() {
+		if (transactionType == PersistentTransaction.TRANSACTION_TYPE_DEFAULT) {
+			return Optional.empty();
+		}
+		if (transactionId.startsWith(StoreInitializer.INIT_ID)) {
+			if (transactionId.equals(StoreInitializer.INIT_ID)) {
+				return null;
+			} else {
+				return Optional.of(transactionId.substring(StoreInitializer.INIT_ID.length()));
+			}
+		} else {
+			return Optional.of(transactionId);
+		}
+	}
+	
 	
 }

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import de.protubero.beanstore.builder.MigrationTransaction;
 
-class Migration {
+public class Migration {
 
 	private String migrationId;
 	private Consumer<MigrationTransaction> migration;

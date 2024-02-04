@@ -3,18 +3,26 @@ package de.protubero.beanstore.builder.blocks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.builder.blocks.InterimStore.Phase;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.impl.BeanStoreImpl;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
+import de.protubero.beanstore.store.CompanionSetImpl;
+import de.protubero.beanstore.store.ImmutableEntityStoreBase;
+import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
 
@@ -149,5 +157,6 @@ public final class StoreDataLoader implements Supplier<LoadedStoreData> {
 		return new LoadedStoreData(persistence, store, states);
 	}
 
+	
 	
 }
