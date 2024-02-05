@@ -101,10 +101,8 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 	@Override
 	public BeanStore build() {
 		throwExceptionIfAlreadyCreated();
-		
-		if (initialization.getCompanionSet().isEmpty()) {
-			throw new RuntimeException("Mode RegisteredEntities does not allow zero registered entities");
-		}
+
+		initialization.check();
 		
 		created = true;
 		
@@ -131,6 +129,16 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		});
 		
 		return beanStoreImpl;
+	}
+
+	@Override
+	public boolean isAutoCreateEntities() {
+		return initialization.isAutoCreateEntities();
+	}
+
+	@Override
+	public void setAutoCreateEntities(boolean autoCreateEntities) {
+		this.initialization.setAutoCreateEntities(autoCreateEntities);
 	}
 
 

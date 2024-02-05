@@ -20,11 +20,10 @@ import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
 
-public class MapStoreSnapshotBuilderImpl /*extends AbstractStoreBuilder implements MapStoreSnapshotBuilder*/ {
+public class MapStoreSnapshotBuilderImpl  implements MapStoreSnapshotBuilder {
 
 	public static final Logger log = LoggerFactory.getLogger(MapStoreSnapshotBuilderImpl.class);
 	
-	/*
 	public MapStoreSnapshotBuilderImpl(TransactionPersistence persistence) {
 		super(persistence);
 	}
@@ -67,21 +66,6 @@ public class MapStoreSnapshotBuilderImpl /*extends AbstractStoreBuilder implemen
 		return beanStoreImpl;
 	}
 
-
-	@Override
-	protected void onReadMigrationTransaction(PersistentTransaction pt) {
-		// NOOP
-	}
-
-	@Override
-	protected void onReadTransaction(PersistentTransaction pt) {
-		// NOOP
-	}
-
-	@Override
-	protected void onWriteTransaction(PersistentTransaction pt) {
-		// NOOP
-	}
 
 	@Override
 	public BeanStoreSnapshot build(int state) {

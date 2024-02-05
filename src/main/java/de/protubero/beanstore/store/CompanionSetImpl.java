@@ -17,6 +17,10 @@ public class CompanionSetImpl implements CompanionSet {
 	private List<Companion<?>> companionList = new ArrayList<>();
 	
 
+	public void add(Companion<?> companion) {
+		companionList.add(companion);
+	}
+	
 	public MapObjectCompanion addMapEntity(String alias) {
 		if (companionByAlias(alias).isPresent()) {
 			throw new RuntimeException("Companion with alias already exists: " + alias);
@@ -74,6 +78,8 @@ public class CompanionSetImpl implements CompanionSet {
 	public Iterator<Companion<?>> iterator() {
 		return companionList.iterator();
 	}
+
+
 
 
 

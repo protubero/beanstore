@@ -14,6 +14,9 @@ Comment API
 Transaction text, user, etc.		
 
 entities created by migrations??
+mapEntities keep Companion created during load??
+
+StoreSet, Store, ... toString()  
 
 Improve History Plugin 		
 	states	

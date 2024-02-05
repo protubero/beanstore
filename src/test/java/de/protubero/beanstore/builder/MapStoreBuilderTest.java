@@ -32,7 +32,9 @@ public class MapStoreBuilderTest {
 		store.close();
 		
 		
-		var mapStore = MapStoreBuilder.init(persistence.clonePersistence()).build();
+		BeanStoreBuilder mapStoreBuilder = BeanStoreBuilder.init(persistence.clonePersistence());
+		mapStoreBuilder.setAutoCreateEntities(true);
+		var mapStore = mapStoreBuilder.build();
 		var es = mapStore.snapshot().mapEntity("employee");
 		Assertions.assertEquals(1, es.count());
 		

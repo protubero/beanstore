@@ -9,12 +9,14 @@ import java.util.function.Consumer;
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.store.CompanionSetImpl;
 
 public class StoreInitialization {
 
+	private boolean autoCreateEntities; 
 	private List<Migration> migrations = new ArrayList<>();
 	private Consumer<BeanStoreTransaction> initMigration;
 	private CompanionSetImpl companionSet = new CompanionSetImpl();
@@ -31,6 +33,11 @@ public class StoreInitialization {
 		return companionSet.addMapEntity(alias);
 	}
 
+	void register(Companion<?> companion) {
+		companionSet.add(companion);
+	}
+	
+	
 	public void addMigration(Migration migration) {
 
 		if (migration.getMigrationId().startsWith("_")) {
@@ -95,6 +102,21 @@ public class StoreInitialization {
 			}
 		}
 	}
+
+	public boolean isAutoCreateEntities() {
+		return autoCreateEntities;
+	}
+
+	public void setAutoCreateEntities(boolean autoCreateEntities) {
+		this.autoCreateEntities = autoCreateEntities;
+	}
+
+	public void check() {
+		if (!autoCreateEntities && companionSet.isEmpty()) {
+			throw new RuntimeException("Zero registered entities");
+		}
+	}
+
 
 			
 }

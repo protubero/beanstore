@@ -67,6 +67,15 @@ public class StoreInitializer implements Consumer<InterimStore> {
 		} else {
 			log.info("Migrate store");
 			
+			// enhance registered entities with persisted entities not yet registered 
+			if (initialization.isAutoCreateEntities()) {
+				interimStore.getStore().companionsShip().forEach(companion -> {
+					if (initialization.getCompanionSet().companionByAlias(companion.alias()).isEmpty()) {
+						initialization.register(companion);
+					}
+				});
+			}
+			
 			// fill up map store with registered entities without any persisted instances
 			initialization.getCompanionSet().companions().forEach(companion -> {
 				if (interimStore.getStore().companionsShip().companionByAlias(companion.alias()).isEmpty()) {

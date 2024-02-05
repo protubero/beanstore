@@ -6,6 +6,7 @@ import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
@@ -56,7 +57,10 @@ public interface BeanStoreBuilder {
 	 */
 	BeanStore build();
 
-	MapObjectCompanion registerMapEntity(String alias);
+	BeanStoreEntity<MapObject> registerMapEntity(String alias);
 
-		
+	boolean isAutoCreateEntities();
+
+	void setAutoCreateEntities(boolean autoCreateEntities);
+
 }

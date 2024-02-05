@@ -1,6 +1,5 @@
 package de.protubero.beanstore.entity;
 
-import java.util.Map;
 import java.util.Objects;
 
 public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
