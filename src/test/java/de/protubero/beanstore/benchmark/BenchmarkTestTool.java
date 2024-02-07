@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.builder.AbstractStoreBuilder;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;

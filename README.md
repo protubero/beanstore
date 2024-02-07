@@ -1,14 +1,34 @@
-# BeanStore - Persistent Java Beans
+# BeanStore - an easy and comfortable in-memory data store with transaction-log based persistence
 
 
 
 
-## When to consider?
+Store your data as Maps or as Data Beans - you decide. You can choose for each entity. Change your decision easily at any time.
+Access Data Beans like maps.
 
 
-BeanStore provides a data storage option when simplicity and flexibility are the primary requirements. All data is held in memory as immutable Java Beans. Changes to the data are expressed as transactions. After a transaction has been successfully applied to the in-memory store it is written to a persistent transaction log. When the store starts up the next time the transactions are applied sequentially to an empty store to recover the last state of the store.
 
-BeanStore should fit perfectly if one tries to quickly put together a little web application. On the client side you usually choose a JS lib like Vue.js or svelte but on the server side you want to stick with good ole' java. There are plenty of good and simple web server libs available, like [Javalin](https://javalin.io/) for example. But when it comes to data persistence there is nothing that fits really well. Here comes BeanStore for the rescue.
+
+
+migratable data
+
+in-memory data / single file db
+
+persistent state / snapshot queries with java streams
+
+
+
+Full customizable Transaction validiation
+Bean Validation
+transactional changes 
+
+Optimistic locking
+locked Store
+
+full change and state history
+
+Rich plugin API lets you easily build custom read models.
+
 
 Key selling points:
 
@@ -22,7 +42,27 @@ Key selling points:
 * full change history
 * A plugin interface
 
+## When to consider?
+
+...
+
+
+### build on
+
 We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize transactions, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
+
+PCollections
+
+ByteBuddy
+
+lucene 
+
+rxjava
+
+### Development
+
+Version 0.9, 0.8, 1.0
+multi-module in future
 
 
 ## Getting Started
@@ -33,7 +73,7 @@ We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deseria
 <dependency>
     <groupId>de.protubero</groupId>
     <artifactId>beanstore</artifactId>
-    <version>0.8.2</version>
+    <version>0.8.5</version>
 </dependency>
 ```
 

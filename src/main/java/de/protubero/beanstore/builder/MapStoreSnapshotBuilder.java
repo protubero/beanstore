@@ -10,8 +10,7 @@ public interface MapStoreSnapshotBuilder {
 
 	public static MapStoreSnapshotBuilder init(TransactionPersistence persistence) {
 		return new MapStoreSnapshotBuilderImpl(persistence);
-	}
-	
+	}	
 	
 	BeanStoreSnapshot build();	
 

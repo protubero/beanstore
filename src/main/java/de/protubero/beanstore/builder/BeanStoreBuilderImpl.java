@@ -112,7 +112,7 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 			for (PersistenceReadListener listener : persistenceReadListener) {
 				listener.onReadTransaction(tx);
 			}
-		}).get();
+		}).load(null);
 
 		InterimStore interimStore = InterimStore.of(storeData, tx -> {
 			for (PersistenceWriteListener listener : persistenceWriteListener) {

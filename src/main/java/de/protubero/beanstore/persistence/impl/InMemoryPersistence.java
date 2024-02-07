@@ -3,14 +3,13 @@ package de.protubero.beanstore.persistence.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransactionConsumer;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.api.TransactionWriter;
-import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 
 public class InMemoryPersistence implements TransactionPersistence {
 
@@ -55,8 +54,13 @@ public class InMemoryPersistence implements TransactionPersistence {
 		return new TransactionReader() {
 			
 			@Override
-			public void load(Consumer<PersistentTransaction> transactionConsumer) {
-				transactionList.forEach(t -> transactionConsumer.accept(t));
+			public void load(PersistentTransactionConsumer transactionConsumer) {
+				for (PersistentTransaction pt : transactionList) {
+					if (!transactionConsumer.wantsNextTransaction()) {
+						return;
+					}
+					transactionConsumer.accept(pt);
+				}
 			}
 		};
 	}

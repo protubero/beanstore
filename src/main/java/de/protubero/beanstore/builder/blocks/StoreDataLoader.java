@@ -18,6 +18,7 @@ import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransactionConsumer;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.store.CompanionSetImpl;
@@ -26,7 +27,7 @@ import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
 
-public final class StoreDataLoader implements Supplier<LoadedStoreData> {
+public final class StoreDataLoader {
 
 	private int lastReadTransactionId;
 	private TransactionPersistence persistence;
@@ -49,103 +50,132 @@ public final class StoreDataLoader implements Supplier<LoadedStoreData> {
 		return new StoreDataLoader(persistence);
 	}
 	
-	@Override
-	public LoadedStoreData get() {
+	public LoadedStoreData load(Integer state) {
 		if (persistence.isEmpty()) {
+			if (state != null) {
+				throw new RuntimeException("Empty store has no state " + state);
+			}
 			return new LoadedStoreData(persistence, null, Collections.emptyList());
 		} else {
-			return load(persistence.reader()); 
+			return load(persistence.reader(), state); 
 		}
 	}	
+
+	
+	public List<BeanStoreState> loadStates() {
+		List<BeanStoreState> states = new ArrayList<>();
+		persistence.reader().load(pt -> {
+			states.add(transactionToState(pt));
+		});
+		
+		
+		return Collections.unmodifiableList(states);
+	}
+
+	private BeanStoreState transactionToState(PersistentTransaction pt) {
+		BeanStoreState storeState = new BeanStoreState(
+				pt.getTransactionId(), 
+				pt.getTimestamp(), 
+				pt.getTransactionType(),
+				pt.getSeqNum()
+				);
+		return storeState;
+	}
+	
 	
 	@SuppressWarnings("unchecked")
-	private LoadedStoreData load(TransactionReader reader) {
+	private LoadedStoreData load(TransactionReader reader, Integer state) {
 		lastReadTransactionId = -1;
 		List<BeanStoreState> states = new ArrayList<>();
 		
 		final MutableEntityStoreSet store = new MutableEntityStoreSet();
 		store.setAcceptNonGeneratedIds(true);
 		
-		reader.load(pt -> {
-			if (lastReadTransactionId == -1) {
-				lastReadTransactionId = pt.getSeqNum();
-				if (lastReadTransactionId != 1) {
-					throw new RuntimeException("First transaction sequence num != 0");
-				}
-			} else {
-				if (lastReadTransactionId  != (pt.getSeqNum() - 1)) {
-					throw new RuntimeException("Transaction sequence broken " + lastReadTransactionId + " -> " + pt.getSeqNum());
-				}
-				lastReadTransactionId = pt.getSeqNum();
-			}
+		PersistentTransactionConsumer ptc = new PersistentTransactionConsumer() {
 			
-			
-			PersistentInstanceTransaction[] instanceTransactions = pt.getInstanceTransactions();
-			if (instanceTransactions == null) {
-				if (pt.getTransactionId() == null) {
-					throw new RuntimeException("empty transaction");
+			@Override
+			public void accept(PersistentTransaction pt) {
+				if (lastReadTransactionId == -1) {
+					lastReadTransactionId = pt.getSeqNum();
+					if (lastReadTransactionId != 1) {
+						throw new RuntimeException("First transaction sequence num != 0");
+					}
 				} else {
-					instanceTransactions = new PersistentInstanceTransaction[0];
+					if (lastReadTransactionId  != (pt.getSeqNum() - 1)) {
+						throw new RuntimeException("Transaction sequence broken " + lastReadTransactionId + " -> " + pt.getSeqNum());
+					}
+					lastReadTransactionId = pt.getSeqNum();
 				}
-			}
-
-			for (PersistentInstanceTransaction pit : instanceTransactions) {
-				@SuppressWarnings({ "rawtypes" })
-				MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
-						.orElseGet(() -> {
-							return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
-						});
-
-				AbstractPersistentObject instance = null;
-				switch (pit.getType()) {
-				case PersistentInstanceTransaction.TYPE_CREATE:
-					instance = entityStore.companion().createInstance();
-					instance.id(pit.getId());
-					instance.state(State.PREPARE);
-					entityStore.put(instance);
-					
-					break;
-				case PersistentInstanceTransaction.TYPE_DELETE:
-					if (entityStore.remove(pit.getId()) == null) {
-						throw new AssertionError();
+				
+				
+				PersistentInstanceTransaction[] instanceTransactions = pt.getInstanceTransactions();
+				if (instanceTransactions == null) {
+					if (pt.getTransactionId() == null) {
+						throw new RuntimeException("empty transaction");
+					} else {
+						instanceTransactions = new PersistentInstanceTransaction[0];
 					}
-					break;
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					instance = entityStore.get(pit.getId());
-					if (instance == null) {
-						throw new AssertionError();
-					}
-					break;
-				default:
-					throw new AssertionError();
 				}
 
-				// update fields
-				switch (pit.getType()) {
-				case PersistentInstanceTransaction.TYPE_CREATE:
-				case PersistentInstanceTransaction.TYPE_UPDATE:
-					instance.version(pit.getVersion());
-					if (pit.getPropertyUpdates() != null) {
-						for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
-							instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
+				for (PersistentInstanceTransaction pit : instanceTransactions) {
+					@SuppressWarnings({ "rawtypes" })
+					MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
+							.orElseGet(() -> {
+								return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
+							});
+
+					AbstractPersistentObject instance = null;
+					switch (pit.getType()) {
+					case PersistentInstanceTransaction.TYPE_CREATE:
+						instance = entityStore.companion().createInstance();
+						instance.id(pit.getId());
+						instance.state(State.PREPARE);
+						entityStore.put(instance);
+						
+						break;
+					case PersistentInstanceTransaction.TYPE_DELETE:
+						if (entityStore.remove(pit.getId()) == null) {
+							throw new AssertionError();
+						}
+						break;
+					case PersistentInstanceTransaction.TYPE_UPDATE:
+						instance = entityStore.get(pit.getId());
+						if (instance == null) {
+							throw new AssertionError();
+						}
+						break;
+					default:
+						throw new AssertionError();
+					}
+
+					// update fields
+					switch (pit.getType()) {
+					case PersistentInstanceTransaction.TYPE_CREATE:
+					case PersistentInstanceTransaction.TYPE_UPDATE:
+						instance.version(pit.getVersion());
+						if (pit.getPropertyUpdates() != null) {
+							for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
+								instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
+							}
 						}
 					}
-				}
 
+				}
+				
+				if (transactionListener != null) {
+					transactionListener.accept(pt);
+				}
+				
+				states.add(transactionToState(pt));
 			}
 			
-			if (transactionListener != null) {
-				transactionListener.accept(pt);
+			@Override
+			public boolean wantsNextTransaction() {
+				return state == null || lastReadTransactionId < state.intValue();
 			}
-			
-			BeanStoreState state = new BeanStoreState(
-					pt.getTransactionId(), 
-					pt.getTimestamp(), 
-					pt.getTransactionType(),
-					pt.getSeqNum()
-					);
-			states.add(state);
-		});
+		};
+		
+		reader.load(ptc);
 		
 		// set state of all instances to 'Stored'
 		store.forEach(es -> {
@@ -156,6 +186,7 @@ public final class StoreDataLoader implements Supplier<LoadedStoreData> {
 		
 		return new LoadedStoreData(persistence, store, states);
 	}
+
 
 	
 	

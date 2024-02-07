@@ -22,6 +22,8 @@ Improve History Plugin
 	states	
 Load Store State X (from history plugin, ReadOnlyMapStore)
 Load Store State X (ReadOnlyMapStore)
+Partly loading (Entities/values)
+- entity inclusions, entity exclusions
 
 Spring Boot based example with annotation based
 	- Aggregates

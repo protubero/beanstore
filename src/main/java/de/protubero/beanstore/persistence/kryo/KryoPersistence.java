@@ -9,10 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -26,6 +24,7 @@ import com.esotericsoftware.kryo.kryo5.io.Output;
 
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransactionConsumer;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.api.TransactionWriter;
@@ -66,13 +65,13 @@ public class KryoPersistence implements TransactionPersistence {
 		reader = new TransactionReader() {
 
 			@Override
-			public void load(Consumer<PersistentTransaction> transactionConsumer) {
+			public void load(PersistentTransactionConsumer transactionConsumer) {
 				if (!file.exists()) {
 					return;
 				}
 
 				try (Input input = new Input(new FileInputStream(file))) {
-					while (true) {
+					while (transactionConsumer.wantsNextTransaction()) {
 						byte chunkType = input.readByte();
 						byte version = input.readByte();
 						

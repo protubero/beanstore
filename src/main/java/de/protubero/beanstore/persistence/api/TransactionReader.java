@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public interface TransactionReader {
 
-	void load(Consumer<PersistentTransaction> transactionConsumer);
+	void load(PersistentTransactionConsumer transactionConsumer);
 
 	default List<PersistentTransaction> load() {
 		List<PersistentTransaction> result = new ArrayList<>();		

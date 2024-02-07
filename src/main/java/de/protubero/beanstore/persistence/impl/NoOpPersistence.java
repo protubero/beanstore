@@ -1,9 +1,9 @@
 package de.protubero.beanstore.persistence.impl;
 
 import java.util.Iterator;
-import java.util.function.Consumer;
 
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
+import de.protubero.beanstore.persistence.api.PersistentTransactionConsumer;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.persistence.api.TransactionReader;
 import de.protubero.beanstore.persistence.api.TransactionWriter;
@@ -19,7 +19,7 @@ public class NoOpPersistence implements TransactionPersistence {
 		return new TransactionReader() {
 			
 			@Override
-			public void load(Consumer<PersistentTransaction> transactionConsumer) {
+			public void load(PersistentTransactionConsumer transactionConsumer) {
 				// do nothing
 			}
 		};
