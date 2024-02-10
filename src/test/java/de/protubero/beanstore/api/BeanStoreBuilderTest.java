@@ -50,7 +50,7 @@ public class BeanStoreBuilderTest {
 		employee1.setLastName("Lennon");		
 		employee1.setAge(44);		
 		
-		tx.executeAsync();
+		tx.execute();
 		store.close();
 		
 		var builder2 = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));

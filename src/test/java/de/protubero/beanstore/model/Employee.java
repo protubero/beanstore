@@ -11,7 +11,7 @@ public class Employee extends AbstractEntity {
 	private String firstName;
 	private String lastName;
 		
-	@Min(value = 1, message = "Age should not be less than 18")
+	@Min(value = 18, message = "Age should not be less than 18")
     @Max(value = 100, message = "Age should not be greater than 150")	
 	private Integer age;
 

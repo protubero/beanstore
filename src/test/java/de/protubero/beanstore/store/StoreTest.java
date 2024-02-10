@@ -21,7 +21,7 @@ public class StoreTest {
 	public void testImmutableStore() {
 		List<ImmutableEntityStoreBase<?>> baseList = new ArrayList<>();
 		ImmutableEntityStoreBase<Employee> base = new ImmutableEntityStoreBase<>();
-		EntityCompanion<Employee> companion = new EntityCompanion<>(Employee.class);
+		EntityCompanion<Employee> companion = EntityCompanion.getOrCreate(Employee.class);
 		base.setCompanion(companion);
 		base.setNextInstanceId(13);
 		base.setObjectMap(new HashMap<>());

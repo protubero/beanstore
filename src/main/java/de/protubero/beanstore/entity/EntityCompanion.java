@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 
 	public static final Logger log = LoggerFactory.getLogger(EntityCompanion.class);
 	
+	private static Map<Class<?>, EntityCompanion<?>> companionMap = new HashMap<>();
+	
 	private Class<T> beanClass;
 	private BeanInfo beanInfo;
 	private List<PropertyDescriptor> descriptors;
@@ -36,7 +39,7 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 
 	
 	@SuppressWarnings("unchecked")
-	public EntityCompanion(Class<T> originalBeanClass) {
+	private EntityCompanion(Class<T> originalBeanClass) {
 		if (!AbstractEntity.class.isAssignableFrom(originalBeanClass)) {
 			throw new RuntimeException("No tricks, dude.");
 		}
@@ -107,6 +110,17 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends AbstractEntity> EntityCompanion<T> getOrCreate(Class<T> originalBeanClass) {
+		EntityCompanion<T> result = (EntityCompanion<T>) companionMap.get(Objects.requireNonNull(originalBeanClass));
+		if (result == null) {
+			result = new EntityCompanion<T>(originalBeanClass);
+			companionMap.put(originalBeanClass, result);
+		}
+		return result;
+	}
+	
 
 	public Class<T> beanClass() {
 		return beanClass;

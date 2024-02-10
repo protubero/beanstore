@@ -72,7 +72,7 @@ public class SearchTest {
 		emp.setFirstName("Wilhelm");
 		emp.setLastName("the Conquerer");
 		emp.setAge(33);
-		tx.executeAsync();
+		tx.execute();
 		
 		Thread.sleep(1000l);
 		

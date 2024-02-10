@@ -19,8 +19,8 @@ public class EntityTest {
 
 	@Test
 	public void testCompanionTypeFlags() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
-		MapObjectCompanion mapCompanion = new MapObjectCompanion("employee");
+		EntityCompanion<Employee> entityCompanion =  EntityCompanion.getOrCreate(Employee.class);
+		MapObjectCompanion mapCompanion = MapObjectCompanion.getOrCreate("employee");
 		
 		assertTrue(entityCompanion.isBean());	
 		assertFalse(entityCompanion.isMapCompanion());
@@ -32,8 +32,8 @@ public class EntityTest {
 	
 	@Test
 	public void testEntityClassAndAlias() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
-		MapObjectCompanion mapCompanion = new MapObjectCompanion("employee");
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
+		MapObjectCompanion mapCompanion = MapObjectCompanion.getOrCreate("employee");
 
 		assertEquals("employee", entityCompanion.alias());
 		assertEquals("employee", mapCompanion.alias());
@@ -46,8 +46,8 @@ public class EntityTest {
 	
 	@Test
 	public void createInstanceWithoutId() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
-		MapObjectCompanion mapCompanion = new MapObjectCompanion("employee");
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
+		MapObjectCompanion mapCompanion = MapObjectCompanion.getOrCreate("employee");
 		
 		// create and check instance without id
 		final Employee aBeanInstance = entityCompanion.createInstance();
@@ -77,7 +77,7 @@ public class EntityTest {
 	
 	@Test
 	public void settingUnknownPropThrowsException() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
 		final Employee aBeanInstance = entityCompanion.createInstance();
 		aBeanInstance.state(State.PREPARE);
 		
@@ -88,7 +88,7 @@ public class EntityTest {
 	
 	@Test
 	public void gettingUnknownPropThrowsException() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
 		final Employee aBeanInstance = entityCompanion.createInstance();
 		aBeanInstance.state(State.PREPARE);
 		
@@ -99,8 +99,8 @@ public class EntityTest {
 
 	@Test
 	public void createInstanceWithId() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
-		MapObjectCompanion mapCompanion = new MapObjectCompanion("employee");
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
+		MapObjectCompanion mapCompanion = MapObjectCompanion.getOrCreate("employee");
 		
 		final Employee aBeanInstance = entityCompanion.createInstance(12);
 		assertEquals(12, aBeanInstance.id());
@@ -112,8 +112,8 @@ public class EntityTest {
 	
 	@Test
 	public void propChangesAreOnlyAllowedInCertainStates() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
-		MapObjectCompanion mapCompanion = new MapObjectCompanion("employee");
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
+		MapObjectCompanion mapCompanion = MapObjectCompanion.getOrCreate("employee");
 		
 		final Employee aBeanInstance = entityCompanion.createInstance(12);
 		final MapObject aMapInstance = mapCompanion.createInstance(12);
@@ -193,19 +193,19 @@ public class EntityTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void invalidEntityClasses() {
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutNoArgsConstructor.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutReadMethod.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutWriteMethod.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithDefaultValue.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithoutAnnotation.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>(EmployeeWithInvalidRef.class));
-		assertThrows(Exception.class, () -> new EntityCompanion<>((Class) EmployeeWithoutInheritence.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithoutNoArgsConstructor.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithoutReadMethod.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithoutWriteMethod.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithDefaultValue.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithoutAnnotation.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithInvalidRef.class));
+		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate((Class) EmployeeWithoutInheritence.class));
 		
 	}
 	
 	@Test
 	public void mapishEntity() {
-		EntityCompanion<Employee> entityCompanion = new EntityCompanion<>(Employee.class);
+		EntityCompanion<Employee> entityCompanion = EntityCompanion.getOrCreate(Employee.class);
 		final Employee emp = entityCompanion.createInstance(1);
 		
 		var keySet = emp.keySet();

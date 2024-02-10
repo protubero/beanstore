@@ -25,7 +25,7 @@ public class CompanionSetImpl implements CompanionSet {
 		if (companionByAlias(alias).isPresent()) {
 			throw new RuntimeException("Companion with alias already exists: " + alias);
 		}
-		MapObjectCompanion comp = new MapObjectCompanion(alias);
+		MapObjectCompanion comp = MapObjectCompanion.getOrCreate(alias);
 		companionList.add(comp);		
 		return comp;
 	}
@@ -36,7 +36,7 @@ public class CompanionSetImpl implements CompanionSet {
 		if (companion.isPresent()) {
 			throw new RuntimeException("Duplicate alias: " + companion.get().alias() + " [" + entityClazz + "]");
 		}
-		EntityCompanion<T> newCompanion = new EntityCompanion<T>(entityClazz);
+		EntityCompanion<T> newCompanion = EntityCompanion.getOrCreate(entityClazz);
 		companionList.add(newCompanion);
 		return newCompanion;
 	}

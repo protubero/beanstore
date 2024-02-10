@@ -121,7 +121,7 @@ public final class StoreDataLoader {
 					@SuppressWarnings({ "rawtypes" })
 					MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
 							.orElseGet(() -> {
-								return (MutableEntityStore) store.register(new MapObjectCompanion(pit.getAlias()));
+								return (MutableEntityStore) store.register(MapObjectCompanion.getOrCreate(pit.getAlias()));
 							});
 
 					AbstractPersistentObject instance = null;

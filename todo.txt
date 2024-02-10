@@ -8,22 +8,23 @@ Systematic Automated Tests
 - entity/companion
 - Builder
 - Store Init
+- test instance ids
 
 Comment API
 
 Transaction text, user, etc.		
 
-entities created by migrations??
-mapEntities keep Companion created during load??
-
+TEST entities created by migrations??
+Snapshots an Callbacks liefern
+Working with maps
 StoreSet, Store, ... toString()  
 
+lockedStore
+
 Improve History Plugin 		
-	states	
+Working with states	
 Load Store State X (from history plugin, ReadOnlyMapStore)
 Load Store State X (ReadOnlyMapStore)
-Partly loading (Entities/values)
-- entity inclusions, entity exclusions
 
 Spring Boot based example with annotation based
 	- Aggregates
@@ -54,3 +55,6 @@ Config based on SingleTonMap
 Index2Map Plugin function Entity -> Key
 SingletonMap Plugin
 Key-Value Store
+class ToDo implements DataBean {}
+Partly loading (Entities/values)
+- entity inclusions, entity exclusions

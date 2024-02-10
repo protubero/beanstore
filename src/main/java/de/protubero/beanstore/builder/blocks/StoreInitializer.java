@@ -17,7 +17,6 @@ import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.EntityCompanion;
-import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.impl.BeanStoreSnapshotImpl;
 import de.protubero.beanstore.impl.BeanStoreTransactionImpl;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -67,22 +66,6 @@ public class StoreInitializer implements Consumer<InterimStore> {
 		} else {
 			log.info("Migrate store");
 			
-			// enhance registered entities with persisted entities not yet registered 
-			if (initialization.isAutoCreateEntities()) {
-				interimStore.getStore().companionsShip().forEach(companion -> {
-					if (initialization.getCompanionSet().companionByAlias(companion.alias()).isEmpty()) {
-						initialization.register(companion);
-					}
-				});
-			}
-			
-			// fill up map store with registered entities without any persisted instances
-			initialization.getCompanionSet().companions().forEach(companion -> {
-				if (interimStore.getStore().companionsShip().companionByAlias(companion.alias()).isEmpty()) {
-					((MutableEntityStoreSet) interimStore.getStore()).register(new MapObjectCompanion(companion.alias()));
-				}
-			});
-
 			
 			List<String> appliedMigrationIds = interimStore.appliedMigrationIds();
 			
@@ -94,11 +77,12 @@ public class StoreInitializer implements Consumer<InterimStore> {
 			}
 			
 			List<Migration> migrationsToApply = initialization.findMigrationsToApply(appliedMigrationIds);
+			DynamicCompanionSet dynamicCompanionSet = new DynamicCompanionSet((MutableEntityStoreSet) interimStore.getStore());
 			
 			// apply remaining migrations
 			for (Migration migration : migrationsToApply) {
 
-				var tx = Transaction.of(interimStore.companionSet(), migration.getMigrationId(),
+				var tx = Transaction.of(dynamicCompanionSet, migration.getMigrationId(),
 						PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
 				migration.getMigration().accept(new MigrationTransactionImpl(tx, new BeanStoreSnapshotImpl(interimStore.getStore())));
 
@@ -111,6 +95,14 @@ public class StoreInitializer implements Consumer<InterimStore> {
 				log.info("migration applied: " + migration.getMigrationId() + " (" + tx.getInstanceEvents().size() + ")");
 			}
 
+			// enhance registered entities with persisted entities not yet registered 
+			if (initialization.isAutoCreateEntities()) {
+				interimStore.getStore().companionsShip().forEach(companion -> {
+					if (initialization.getCompanionSet().companionByAlias(companion.alias()).isEmpty()) {
+						initialization.register(companion);
+					}
+				});
+			}
 
 			// convert to immutable store set
 			List<ImmutableEntityStoreBase<?>> entityStoreBaseList = new ArrayList<>();
@@ -153,6 +145,17 @@ public class StoreInitializer implements Consumer<InterimStore> {
 					}
 				}
 			}	
+			
+			// add entity stores of registered entities not existing in the interim store
+			for (Companion<?> companion : initialization.getCompanionSet()) {
+				Optional<ImmutableEntityStoreBase<?>> existingStoreBase = entityStoreBaseList.stream().filter(esb -> esb.getCompanion().alias().equals(companion.alias())).findAny();
+				if (existingStoreBase.isEmpty()) {
+					ImmutableEntityStoreBase<AbstractPersistentObject> newEntityStore = new ImmutableEntityStoreBase<>();
+					newEntityStore.setCompanion((Companion<AbstractPersistentObject>) companion);
+					newEntityStore.setObjectMap(Map.of());
+					entityStoreBaseList.add(newEntityStore);
+				}
+			}
 
 			
 			// Create final store set
