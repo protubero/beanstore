@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
-import de.protubero.beanstore.impl.BeanStoreImpl;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.store.CompanionSet;
@@ -23,9 +22,6 @@ import de.protubero.beanstore.store.ImmutableEntityStoreBase;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStore;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
-import de.protubero.beanstore.tx.StoreWriter;
-import de.protubero.beanstore.tx.TransactionPhase;
-import de.protubero.beanstore.tx.TxUtil;
 
 public class LoadedStoreData {
 

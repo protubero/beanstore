@@ -20,7 +20,6 @@ import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
-import de.protubero.beanstore.tx.TransactionFailure;
 
 public class BeanStoreImpl implements BeanStore {
 

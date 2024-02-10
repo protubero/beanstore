@@ -1,7 +1,6 @@
 package de.protubero.beanstore.pluginapi;
 
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
-import de.protubero.beanstore.tx.TransactionEvent;
 
 public interface PersistenceReadListener extends BeanStorePlugin {
 

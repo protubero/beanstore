@@ -8,7 +8,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.model.Employee;
-import de.protubero.beanstore.tx.TransactionEvent;
 
 public class MultiUpdateTest extends AbstractBeanStoreTest {
 
