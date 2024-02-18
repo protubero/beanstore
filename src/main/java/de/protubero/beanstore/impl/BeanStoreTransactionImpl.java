@@ -52,5 +52,10 @@ public class BeanStoreTransactionImpl extends BaseTransactionImpl implements Bea
 		return transaction.update(aClass, id);
 	}
 
+	@Override
+	public void describe(String text) {
+		transaction.setDescription(text);
+	}
+
 	
 }

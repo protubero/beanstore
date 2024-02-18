@@ -10,6 +10,8 @@ import de.protubero.beanstore.entity.AbstractPersistentObject;
  */
 public interface BeanStoreTransaction extends BaseTransaction {
 	
+	void describe(String text);
+	
 	/**
 	 * Create a BeanStore bean instance of the type determined by the parameter. 
 	 */

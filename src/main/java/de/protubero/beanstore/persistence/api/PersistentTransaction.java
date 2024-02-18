@@ -14,6 +14,7 @@ public class PersistentTransaction {
 	private String transactionId;
 	private byte transactionType = TRANSACTION_TYPE_DEFAULT;
 	private int seqNum;
+	private String description;
 	
 
 	public PersistentTransaction() {
@@ -126,6 +127,14 @@ public class PersistentTransaction {
 
 	public void setSeqNum(int seqNum) {
 		this.seqNum = seqNum;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	

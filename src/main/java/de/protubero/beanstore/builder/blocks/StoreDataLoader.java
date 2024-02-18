@@ -68,7 +68,8 @@ public final class StoreDataLoader {
 				pt.getTransactionId(), 
 				pt.getTimestamp(), 
 				pt.getTransactionType(),
-				pt.getSeqNum()
+				pt.getSeqNum(),
+				pt.getDescription()
 				);
 		return storeState;
 	}

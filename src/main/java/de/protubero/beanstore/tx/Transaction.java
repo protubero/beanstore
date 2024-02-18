@@ -23,7 +23,8 @@ import de.protubero.beanstore.store.CompanionSet;
 public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
-	
+
+	private String description;	
 	private CompanionSet companionSet;
 	private String transactionId;
 	private byte transactionType;
@@ -403,6 +404,15 @@ public final class Transaction implements TransactionEvent {
 	void setSourceStateVersion(Integer sourceStateVersion) {
 		this.sourceStateVersion = sourceStateVersion;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 
 
 

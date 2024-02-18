@@ -23,5 +23,6 @@ public interface BeanStoreBase {
 	 */
 	ExecutableBeanStoreTransaction transaction();
 	
+	ExecutableBeanStoreTransaction transaction(String description);
 	
 }

@@ -9,19 +9,24 @@ public class BeanStoreState {
 
 	private String transactionId;
 	
-	public BeanStoreState(String transactionId, Instant timestamp, byte transactionType, int state) {
-		this.transactionId = transactionId;
-		this.timestamp = timestamp;
-		this.transactionType = transactionType;
-		this.state = state;
-	}
-
 	private Instant timestamp;
 	
 	private byte transactionType;
 	
 	private int state;
+	
+	private String description;
 
+	public BeanStoreState(String transactionId, Instant timestamp, byte transactionType, int state, String aDescription) {
+		this.transactionId = transactionId;
+		this.timestamp = timestamp;
+		this.transactionType = transactionType;
+		this.state = state;
+		this.description = aDescription;
+	}
+
+	
+	
 	public String getTransactionId() {
 		return transactionId;
 	}
@@ -51,6 +56,12 @@ public class BeanStoreState {
 		} else {
 			return Optional.of(transactionId);
 		}
+	}
+
+
+
+	public String getDescription() {
+		return description;
 	}
 	
 	

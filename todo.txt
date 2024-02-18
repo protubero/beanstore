@@ -10,16 +10,17 @@ Systematic Automated Tests
 - Store Init
 - test instance ids
 
+toString,equals,hashcode of AbstractPersistentObject
+
 Comment API
 
-Transaction text, user, etc.		
+Transaction text		
 
 TEST entities created by migrations??
 Snapshots an Callbacks liefern
 Working with maps
 StoreSet, Store, ... toString()  
 
-lockedStore
 
 Improve History Plugin 		
 Working with states	

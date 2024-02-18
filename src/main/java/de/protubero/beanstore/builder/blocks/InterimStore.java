@@ -66,7 +66,8 @@ public class InterimStore {
 					pTransaction.getTransactionId(), 
 					pTransaction.getTimestamp(), 
 					pTransaction.getTransactionType(),
-					pTransaction.getSeqNum()
+					pTransaction.getSeqNum(),
+					pTransaction.getDescription()
 					);
 			writtenStates.add(state);
 		});

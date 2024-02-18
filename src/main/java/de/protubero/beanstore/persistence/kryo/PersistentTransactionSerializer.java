@@ -38,6 +38,8 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 		
 
 		output.writeInt(pt.getSeqNum(), true);
+		output.writeString(pt.getDescription());
+
 		if (pt.getTimestamp() == null) {
 			instantSerializer.write(kryo, output, Instant.now());
 		} else {
@@ -86,6 +88,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 		PersistentTransaction pt = new PersistentTransaction();
 		
 		pt.setSeqNum(input.readVarInt(true));
+		pt.setDescription(input.readString());
 		pt.setTimestamp(instantSerializer.read(kryo, input, Instant.class));
 		pt.setTransactionType(input.readByte());
 		pt.setTransactionId(kryo.readObjectOrNull(input, String.class));

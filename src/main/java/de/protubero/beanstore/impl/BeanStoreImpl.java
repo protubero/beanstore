@@ -114,6 +114,13 @@ public class BeanStoreImpl implements BeanStore {
 		return new ExecutableBeanStoreTransactionImpl(transaction, this);
 	}
 
+	@Override
+	public ExecutableBeanStoreTransaction transaction(String description) {
+		ExecutableBeanStoreTransaction tx = transaction();
+		tx.describe(description);
+		return tx;
+	}
+	
 	
 	BeanStoreTransactionResult exec(Transaction transaction) {
 		BeanStoreTransactionResult result;
@@ -167,6 +174,13 @@ public class BeanStoreImpl implements BeanStore {
 					}
 	
 					@Override
+					public ExecutableBeanStoreTransaction transaction(String description) {
+						ExecutableBeanStoreTransaction tx = transaction();
+						tx.describe(description);
+						return tx;
+					}
+
+					@Override
 					public BeanStoreSnapshot snapshot() {
 						return BeanStoreImpl.this.snapshot();
 					}
@@ -175,6 +189,7 @@ public class BeanStoreImpl implements BeanStore {
 					public BeanStoreMetaInfo meta() {
 						return BeanStoreImpl.this.meta();
 					}
+
 					
 				});
 			} catch (Exception e) {
@@ -200,6 +215,7 @@ public class BeanStoreImpl implements BeanStore {
 	public BeanStoreMetaInfo meta() {
 		return new BeanStoreMetaInfoImpl(store);
 	}
+
 
 
 
