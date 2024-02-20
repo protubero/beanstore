@@ -1,5 +1,6 @@
 package de.protubero.beanstore.entity;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
-
 
 public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
 
@@ -33,6 +33,16 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	@JsonIgnore	
 	private State state;
 
+	
+	static {
+		Field idField;
+		try {
+			idField = AbstractPersistentObject.class.getDeclaredField("id");
+			idField.setAccessible(true);
+		} catch (NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		} 
+	}
 
 	protected abstract void onStateChange(State state2, State newState);
 
@@ -54,11 +64,13 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	public Long id() {
 		return id;
 	}
+	
+	
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
 		if (state == State.UNMANAGED) {
-			return null;
+			return super.toString();
 		} else {
 			return ((Companion) companion).toString(this);
 		}	
@@ -177,7 +189,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 
 	public void companion(Companion<?> companion) {		
-		if (state == State.UNMANAGED || this.companion != null) {
+		if (this.companion != null) {
 			throw new AssertionError();
 		}
 		this.companion = Objects.requireNonNull(companion);

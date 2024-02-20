@@ -24,7 +24,7 @@ public class PropertyBeanSerializer extends Serializer {
 	private boolean implementsSetPropertyValue;
 	
 	
-	public PropertyBeanSerializer(Kryo kryo, Class<?> aBeanClass) {
+	public PropertyBeanSerializer(Class<?> aBeanClass) {
 		beanClass = Objects.requireNonNull(aBeanClass);
 			
 		try {

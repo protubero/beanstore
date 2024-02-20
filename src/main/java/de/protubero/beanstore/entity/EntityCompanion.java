@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	@SuppressWarnings("unchecked")
 	private EntityCompanion(Class<T> originalBeanClass) {
 		if (!AbstractEntity.class.isAssignableFrom(originalBeanClass)) {
-			throw new RuntimeException("No tricks, dude.");
+			throw new RuntimeException("A data bean must extend AbstractEntity");
 		}
 		
 		try {
@@ -230,6 +231,12 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 
 	public int propertyCount() {
 		return descriptors.size();
+	}
+
+	public void transferProperties(Stream<Entry<String, Object>> entryStream, AbstractEntity instance) {
+		entryStream.forEach(entry -> {
+			setProperty(instance, entry.getKey(), entry.getValue());			
+		});
 	}
 
 

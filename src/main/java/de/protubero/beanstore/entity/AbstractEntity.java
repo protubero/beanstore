@@ -5,15 +5,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 
 
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY)
-public class AbstractEntity extends AbstractPersistentObject {
+
+public abstract class AbstractEntity extends AbstractPersistentObject {
 
 	@JsonIgnore	
 	private PersistentProperty[] changes;
@@ -27,6 +26,7 @@ public class AbstractEntity extends AbstractPersistentObject {
 			state(State.INSTANTIATED);			
 		} else {
 			state(State.UNMANAGED);	
+			companion(EntityCompanion.getOrCreate(getClass()));
 		}
 	}
 	

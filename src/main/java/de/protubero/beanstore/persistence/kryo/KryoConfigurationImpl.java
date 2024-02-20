@@ -142,21 +142,12 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		
 		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
 		if (pbAnnotation == null) {
-			throw new RuntimeException("Property bean classes must be annotated with PropertyBean annotation");
+			throw new RuntimeException("Property bean classes must be annotated with KryoId annotation");
 		}
 		
 		int serializationId = pbAnnotation.value();
-		
-		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
-		if (serializationId < 100) {
-			throw new PersistenceException("Invalid kryo id, should be >= 100: " + serializationId);
-		}
-		
-		if (KryoSerializable.class.isAssignableFrom(propertyBeanClass)) {
-			kryo.register(propertyBeanClass, new KryoSerializableSerializer(), serializationId);
-		} else {
-			kryo.register(propertyBeanClass, new PropertyBeanSerializer(kryo, propertyBeanClass), serializationId);
-		}	
+
+		register(propertyBeanClass, serializationId);
 	}
 	
 	@Override
@@ -181,6 +172,20 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 	KryoDictionary getDictionary() {
 		return dictionary;
+	}
+
+	@Override
+	public void register(Class<?> propertyBeanClass, int serializationId) {
+		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
+		if (serializationId < 100) {
+			throw new PersistenceException("Invalid kryo id, should be >= 100: " + serializationId);
+		}
+		
+		if (KryoSerializable.class.isAssignableFrom(propertyBeanClass)) {
+			kryo.register(propertyBeanClass, new KryoSerializableSerializer(), serializationId);
+		} else {
+			kryo.register(propertyBeanClass, new PropertyBeanSerializer(propertyBeanClass), serializationId);
+		}	
 	}
 
 	

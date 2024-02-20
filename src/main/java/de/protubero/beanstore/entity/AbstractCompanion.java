@@ -21,7 +21,7 @@ public abstract class AbstractCompanion<T extends AbstractPersistentObject> impl
 	
 	@Override
 	public String toString() {
-		return "entity " + alias() + " [" + entityClass().getSimpleName() + "]";
+		return "companion of entity " + alias() + " [" + entityClass().getSimpleName() + "]";
 	}
 	
 }

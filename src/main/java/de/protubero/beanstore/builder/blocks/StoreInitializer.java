@@ -136,7 +136,7 @@ public class StoreInitializer implements Consumer<InterimStore> {
 							newInstance.id(mapObj.id());
 							newInstance.state(State.PREPARE);
 							// copy all properties
-							((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties((Map<String, Object>) mapObj, newInstance);
+							((EntityCompanion<AbstractEntity>) registeredEntityCompanion).transferProperties(mapObj.entrySet().stream().filter(e -> e.getValue() != null), newInstance);
 
 							newInstance.state(State.STORED);
 							initialEntityMap.put(newInstance.id(), newInstance);

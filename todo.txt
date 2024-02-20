@@ -10,34 +10,26 @@ Systematic Automated Tests
 - Store Init
 - test instance ids
 
-toString,equals,hashcode of AbstractPersistentObject
 
 Comment API
 
 Transaction text		
+-> migration name?
 
 TEST entities created by migrations??
 Snapshots an Callbacks liefern
-Working with maps
-StoreSet, Store, ... toString()  
+Working with maps (mapEntity)
 
-
+Lifecycle Listener (initBean)
 Improve History Plugin 		
 Working with states	
 Load Store State X (from history plugin, ReadOnlyMapStore)
 Load Store State X (ReadOnlyMapStore)
 
-Spring Boot based example with annotation based
-	- Aggregates
-		@InstanceListener(ToDo.class)
-	- Entity discovery
-	- @Configuiration / @Bean  BeanStore, SearchPlugin, HistoryPlugin 
-	- Endpoint
-		States
-		Aggregate
-		entities (Store?)
-	- Commands ohne abstr. super type	
 
+
+register PropertyBean entfernen? 
+PropertyBeanSerializer works ?
 
 Auto-Release // Include License info
 ------------------------------------- 0.8.5
@@ -46,11 +38,8 @@ Improve Documentation
 
 -- next release
 lock file within VM and in OS
-UnmanagedCompanion?
 make Transactions unchangeable by plugins/callbacks
-Lifecycle Listener (initBean)
 int2enum enum2int (EnumCompanion)
-Spring Integration
 
 Config based on SingleTonMap
 Index2Map Plugin function Entity -> Key

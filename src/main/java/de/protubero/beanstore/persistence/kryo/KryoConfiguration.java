@@ -13,6 +13,8 @@ public interface KryoConfiguration {
 
 	void register(Class<?> propertyBeanClass);
 
+	void register(Class<?> propertyBeanClass, int id);
+	
 	void registerDefaultArrays();
 
 
