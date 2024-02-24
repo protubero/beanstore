@@ -1,5 +1,7 @@
 package de.protubero.beanstore.persistence.kryo;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -24,12 +26,12 @@ import java.time.ZonedDateTime;
 import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.kryo5.Kryo;
-import com.esotericsoftware.kryo.kryo5.KryoSerializable;
 import com.esotericsoftware.kryo.kryo5.Registration;
 import com.esotericsoftware.kryo.kryo5.Serializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultArraySerializers.BooleanArraySerializer;
@@ -45,7 +47,6 @@ import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.BigDecimal
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.BigIntegerSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.CurrencySerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.DateSerializer;
-import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.KryoSerializableSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.LocaleSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.URISerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.DefaultSerializers.URLSerializer;
@@ -118,11 +119,7 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(DayOfWeek.class, new EnumNameSerializer(DayOfWeek.class), 43);
 		kryo.register(Month.class, new EnumNameSerializer(Month.class), 44);
 		
-		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);
-	}
 
-	@Override
-	public void registerDefaultArrays() {
 		kryo.register(byte[].class, new ByteArraySerializer(), 70);
 		kryo.register(char[].class, new CharArraySerializer(), 71);
 		kryo.register(short[].class, new ShortArraySerializer(), 72);
@@ -132,23 +129,25 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(double[].class, new DoubleArraySerializer(), 76);
 		kryo.register(boolean[].class, new BooleanArraySerializer(), 77);
 		kryo.register(String[].class, new StringArraySerializer(), 78);
+		
+		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);
 	}
 	
-	@Override
-	public void register(Class<?> propertyBeanClass) {
-		if (locked) {
-			throw new RuntimeException("Kryo configuration is already locked");
-		}
-		
-		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
-		if (pbAnnotation == null) {
-			throw new RuntimeException("Property bean classes must be annotated with KryoId annotation");
-		}
-		
-		int serializationId = pbAnnotation.value();
-
-		register(propertyBeanClass, serializationId);
-	}
+//	@Override
+//	public void register(Class<?> propertyBeanClass) {
+//		if (locked) {
+//			throw new RuntimeException("Kryo configuration is already locked");
+//		}
+//		
+//		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
+//		if (pbAnnotation == null) {
+//			throw new RuntimeException("Property bean classes must be annotated with KryoId annotation");
+//		}
+//		
+//		int serializationId = pbAnnotation.value();
+//
+//		register(propertyBeanClass, serializationId);
+//	}
 	
 	@Override
 	public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
@@ -159,9 +158,43 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		if (id < 100) {
 			throw new PersistenceException("Invalid kryo id, should be >= 100: " + id);
 		}
+		
+		if (serializer instanceof DictionaryUsing) {
+			((DictionaryUsing) serializer).setDictionary(dictionary);
+		}
+		
 		return kryo.register(type, serializer, id);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Registration register(Class<T> type, Class<? extends Serializer> serializerClass, int id) {
+		Objects.requireNonNull(serializerClass);
+		
+		Constructor<? extends Serializer<T>> serializerConstructor;
+		Serializer<T> serializer = null;
+		try {
+			try {
+				serializerConstructor = (Constructor<? extends Serializer<T>>) serializerClass.getConstructor(Class.class);
+				serializer = serializerConstructor.newInstance(type);
+			} catch (NoSuchMethodException e) {
+				try {
+					serializerConstructor = (Constructor<? extends Serializer<T>>) serializerClass.getConstructor();
+					serializer = serializerConstructor.newInstance();
+				} catch (NoSuchMethodException e2) {
+					throw new RuntimeException(
+							"Missing no-arg constructor of serializer " + serializerClass.getSimpleName());
+				}
+			}
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+		
+		return register(type, serializer, id);
+	}
+	
+	
 	Kryo getKryo() {
 		return kryo;
 	}
@@ -174,19 +207,20 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		return dictionary;
 	}
 
-	@Override
-	public void register(Class<?> propertyBeanClass, int serializationId) {
-		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
-		if (serializationId < 100) {
-			throw new PersistenceException("Invalid kryo id, should be >= 100: " + serializationId);
-		}
-		
-		if (KryoSerializable.class.isAssignableFrom(propertyBeanClass)) {
-			kryo.register(propertyBeanClass, new KryoSerializableSerializer(), serializationId);
-		} else {
-			kryo.register(propertyBeanClass, new PropertyBeanSerializer(propertyBeanClass), serializationId);
-		}	
-	}
+
+//	@Override
+//	public void register(Class<?> propertyBeanClass, int serializationId) {
+//		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
+//		if (serializationId < 100) {
+//			throw new PersistenceException("Invalid kryo id, should be >= 100: " + serializationId);
+//		}
+//		
+//		if (KryoSerializable.class.isAssignableFrom(propertyBeanClass)) {
+//			kryo.register(propertyBeanClass, new KryoSerializableSerializer(), serializationId);
+//		} else {
+//			kryo.register(propertyBeanClass, new PropertyBeanSerializer(propertyBeanClass), serializationId);
+//		}	
+//	}
 
 	
 }

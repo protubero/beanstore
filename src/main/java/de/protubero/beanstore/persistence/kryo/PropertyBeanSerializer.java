@@ -15,13 +15,15 @@ import com.esotericsoftware.kryo.kryo5.io.Output;
 import de.protubero.beanstore.persistence.api.SetPropertyValue;
 
 @SuppressWarnings("rawtypes")
-public class PropertyBeanSerializer extends Serializer {
+public class PropertyBeanSerializer extends Serializer implements DictionaryUsing {
 
 	public static final Logger log = LoggerFactory.getLogger(PropertyBeanSerializer.class);
 	
 	private Class<?> beanClass;
 	private Field[] fields;
 	private boolean implementsSetPropertyValue;
+
+	private KryoDictionary dictionary;
 	
 	
 	public PropertyBeanSerializer(Class<?> aBeanClass) {
@@ -52,7 +54,7 @@ public class PropertyBeanSerializer extends Serializer {
 			try {				
 				Object value = field.get(object);
 
-				output.writeString(field.getName());
+				output.writeInt(dictionary.getOrCreate(field.getName()), true);
 				kryo.writeClassAndObject(output, value);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException("Error reading property bean value " + field.getName(), e);
@@ -68,7 +70,7 @@ public class PropertyBeanSerializer extends Serializer {
 			Object newInstance = beanClass.getConstructor().newInstance();
 			
 			for (int i = 0; i < numFields; i++) {
-				String key = input.readString();
+				String key = dictionary.textByCode(input.readInt(true));
 				Object value = kryo.readClassAndObject(input);
 				
 				if (implementsSetPropertyValue) {
@@ -97,6 +99,11 @@ public class PropertyBeanSerializer extends Serializer {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void setDictionary(KryoDictionary dictionary) {
+		this.dictionary = dictionary;
 	}
 	
 

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.io.TempDir;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.PostCode;
-import de.protubero.beanstore.model.PostCode2;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
+import de.protubero.beanstore.persistence.kryo.PropertyBeanSerializer;
 
 public class PropertyBeanTest {
 
@@ -25,7 +25,7 @@ public class PropertyBeanTest {
 	public void test() throws InterruptedException, ExecutionException {
 		File file = new File(pFileDir, getClass().getSimpleName() + ".kryo");
 		var kryoConfig = KryoConfiguration.create();
-		kryoConfig.register(PostCode.class);
+		kryoConfig.register(PostCode.class, PropertyBeanSerializer.class, 300);
 		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(file, kryoConfig));
 		builder.registerEntity(Address.class);
 		var store = builder.build();

@@ -39,7 +39,6 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		
 		assertThrows(BeanStoreException.class, () -> readStore.find(instanceKey(null, 1l)));
 		assertThrows(BeanStoreException.class, () -> readStore.find(instanceKey("employee", null)));
-		assertThrows(BeanStoreException.class, () -> readStore.find(SAMPLE_DATA[0]));
 
 		var tx =store.transaction();
 		tx.update(emp1).setAge(121);

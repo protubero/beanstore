@@ -13,6 +13,7 @@ import de.protubero.beanstore.model.Note;
 import de.protubero.beanstore.model.PostCode;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
+import de.protubero.beanstore.persistence.kryo.PropertyBeanSerializer;
 import de.protubero.beanstore.plugins.txlog.BeanStoreTransactionLogPlugin;
 
 public class BeanStoreBuilderTest {
@@ -73,7 +74,7 @@ public class BeanStoreBuilderTest {
 		
 		Assertions.assertThrows(Exception.class, () -> { builder.addMigration("xyz", tx -> {});});
 		Assertions.assertThrows(Exception.class, () -> {builder.initNewStore(tx -> {});});
-		Assertions.assertThrows(Exception.class, () -> {kryoConfig.register(PostCode.class);});
+		Assertions.assertThrows(Exception.class, () -> {kryoConfig.register(PostCode.class, PropertyBeanSerializer.class, 300);});
 		// builder.kryoConfig().register(PostCode.class, new PropertyBean);
 		Assertions.assertThrows(Exception.class, () -> {builder.addPlugin(new BeanStoreTransactionLogPlugin());});
 		Assertions.assertThrows(Exception.class, () -> {builder.build();});

@@ -2,6 +2,7 @@ package de.protubero.beanstore.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -184,13 +185,13 @@ public class EntityTest {
 		employee.setFirstName("Cicero");
 		
 		assertEquals("Cicero", employee.getFirstName());
-		assertNull(employee.companion());
+		assertNotNull(employee.companion());
 		assertNull(employee.changes());
 		assertThrows(Exception.class, () -> {employee.state(State.RECORD);});
 		assertNull(employee.id());
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void invalidEntityClasses() {
 		assertThrows(Exception.class, () -> EntityCompanion.getOrCreate(EmployeeWithoutNoArgsConstructor.class));

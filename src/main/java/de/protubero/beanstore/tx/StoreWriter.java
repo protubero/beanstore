@@ -200,9 +200,8 @@ public class StoreWriter  {
 						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
 					}
 					
-					newInstance = companion.createInstance();
+					newInstance = companion.createInstance(origInstance.id());
 					newInstance.state(State.PREPARE);
-					newInstance.id(origInstance.id());
 					newInstance.version(origInstance.version() + 1);
 
 					// transfer all properties from original instance

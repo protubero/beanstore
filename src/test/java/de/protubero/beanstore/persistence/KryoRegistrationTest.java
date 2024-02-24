@@ -44,7 +44,7 @@ public class KryoRegistrationTest {
 	@Test
 	public void test() throws MalformedURLException {
 		KryoConfiguration kryoConf = KryoConfiguration.create();
-		kryoConf.registerDefaultArrays();
+//		kryoConf.registerDefaultArrays();
 		
 		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(pFileDir, "beanstore.kryo"), kryoConf));
 		builder.registerEntity(KryoTestEntity.class);

@@ -26,10 +26,16 @@ Working with states
 Load Store State X (from history plugin, ReadOnlyMapStore)
 Load Store State X (ReadOnlyMapStore)
 
+Kryo should only write a transaction as a whole to disk (chunked?)
 
+read and understrand https://github.com/EsotericSoftware/kryo/blob/master/src/com/esotericsoftware/kryo/serializers/CompatibleFieldSerializer.java
+PropertyBeanSerializer supports
+... Field renaming
+... Field ignore (Write)
+... new Fields
+all Fields need to be set, not 2 fields on the same target
+Ready INterface
 
-register PropertyBean entfernen? 
-PropertyBeanSerializer works ?
 
 Auto-Release // Include License info
 ------------------------------------- 0.8.5

@@ -11,11 +11,7 @@ public interface KryoConfiguration {
 	
 	<T> Registration register(Class<T> type, Serializer<T> serializer, int id);
 
-	void register(Class<?> propertyBeanClass);
-
-	void register(Class<?> propertyBeanClass, int id);
-	
-	void registerDefaultArrays();
+	<T> Registration register(Class<T> type, Class<? extends Serializer> serializerClass, int id);
 
 
 }
