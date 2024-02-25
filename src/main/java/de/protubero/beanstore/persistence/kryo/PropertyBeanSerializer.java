@@ -2,6 +2,11 @@ package de.protubero.beanstore.persistence.kryo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -12,7 +17,9 @@ import com.esotericsoftware.kryo.kryo5.Serializer;
 import com.esotericsoftware.kryo.kryo5.io.Input;
 import com.esotericsoftware.kryo.kryo5.io.Output;
 
+import de.protubero.beanstore.persistence.api.AfterDeserialization;
 import de.protubero.beanstore.persistence.api.SetPropertyValue;
+import de.protubero.beanstore.persistence.api.SetPropertyValueContext;
 
 @SuppressWarnings("rawtypes")
 public class PropertyBeanSerializer extends Serializer implements DictionaryUsing {
@@ -21,8 +28,12 @@ public class PropertyBeanSerializer extends Serializer implements DictionaryUsin
 	
 	private Class<?> beanClass;
 	private Field[] fields;
+	
 	private boolean implementsSetPropertyValue;
+	private boolean implementsAfterDeserialization;
 
+	private Map<String, Field> fieldNameMap = new HashMap<>();
+	
 	private KryoDictionary dictionary;
 	
 	
@@ -38,12 +49,31 @@ public class PropertyBeanSerializer extends Serializer implements DictionaryUsin
 		}
 			
 		implementsSetPropertyValue = SetPropertyValue.class.isAssignableFrom(aBeanClass);
-		fields = aBeanClass.getDeclaredFields();
+		implementsAfterDeserialization = AfterDeserialization.class.isAssignableFrom(aBeanClass);
+		
+		Field[] fieldList = aBeanClass.getDeclaredFields();
 
-	    for (Field field: fields) {
-	        field.setAccessible(true);
+		List<Field> resultFieldList = new ArrayList<>();
+		
+	    for (Field field: fieldList) {
+			boolean isTransient = Modifier.isTransient(field.getModifiers());
+			if (!isTransient) {
+		        field.setAccessible(true);
+		        resultFieldList.add(field);
+
+		        fieldNameMap.put(field.getName(), field);
+		        KryoAlias aliasAnnotation = field.getAnnotation(KryoAlias.class);
+				if (aliasAnnotation != null) {
+					for (String fieldAlias : Objects.requireNonNull(aliasAnnotation.value())) {
+						fieldNameMap.put(Objects.requireNonNull(fieldAlias), field);
+					}
+				}
+			}    
 	    }
+	    
+	    fields = resultFieldList.toArray(new Field[resultFieldList.size()]);
 	}
+	
 
 	@Override
 	public void write(Kryo kryo, Output output, Object object) {
@@ -74,19 +104,39 @@ public class PropertyBeanSerializer extends Serializer implements DictionaryUsin
 				Object value = kryo.readClassAndObject(input);
 				
 				if (implementsSetPropertyValue) {
-						((SetPropertyValue) newInstance).setPropertyValue(key, value);
+					((SetPropertyValue) newInstance).setPropertyValue(key, value, new SetPropertyValueContext() {
+						
+						@Override
+						public void setFieldValue() {
+							PropertyBeanSerializer.this.setFieldValue(newInstance, key, value);
+						}
+					});
 				} else {
-					Field field = fieldByName(key);
-					if (field == null) {
-						throw new RuntimeException("Invalid PropertyBean property " + key  + " of " + beanClass);
-					}
-					field.set(newInstance, value);
+					setFieldValue(newInstance, key, value);
 				}
 			}	
 
+			
+			if (implementsAfterDeserialization) {
+				((AfterDeserialization) newInstance).afterDeserialization();
+			}
+			
 			return newInstance;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+
+	private void setFieldValue(Object newInstance, String key, Object value)  {
+		Field field = fieldNameMap.get(key);
+		if (field == null) {
+			throw new RuntimeException("Invalid PropertyBean property " + key  + " of " + beanClass);
+		}
+		try {
+			field.set(newInstance, value);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}

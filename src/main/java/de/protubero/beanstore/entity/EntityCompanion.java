@@ -6,6 +6,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,7 +193,7 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 			try {
 				desc.getWriteMethod().invoke(entity, value);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException("error invoking method " + desc.getWriteMethod().getName(), e);
 			}
 		}	
 	}

@@ -1,5 +1,6 @@
 package de.protubero.beanstore.entity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -137,6 +138,16 @@ public abstract class AbstractEntity extends AbstractPersistentObject {
 		return changes;
 	}
 
-
-	
+	public AbstractEntity unmanagedCopy() {
+		if (state() != State.STORED && state() != State.OUTDATED) {
+			throw new RuntimeException("Invalid state to get unmanaged copy from: " + state());
+		}
+		
+		try {
+			return companion().entityClass().getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException("Error creating unmanaged copy", e);
+		}
+	}
 }

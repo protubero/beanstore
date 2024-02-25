@@ -66,6 +66,7 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneIdSeriali
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneOffsetSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZonedDateTimeSerializer;
 
+import de.protubero.beanstore.persistence.api.KryoConfig;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 
@@ -133,21 +134,6 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);
 	}
 	
-//	@Override
-//	public void register(Class<?> propertyBeanClass) {
-//		if (locked) {
-//			throw new RuntimeException("Kryo configuration is already locked");
-//		}
-//		
-//		KryoId pbAnnotation = propertyBeanClass.getAnnotation(KryoId.class);
-//		if (pbAnnotation == null) {
-//			throw new RuntimeException("Property bean classes must be annotated with KryoId annotation");
-//		}
-//		
-//		int serializationId = pbAnnotation.value();
-//
-//		register(propertyBeanClass, serializationId);
-//	}
 	
 	@Override
 	public <T> Registration register(Class<T> type, Serializer<T> serializer, int id) {
@@ -205,6 +191,36 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 	KryoDictionary getDictionary() {
 		return dictionary;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public <T> Registration register(Class<T> type) {
+		log.info("Kryo configuration of class {}", type);
+
+		KryoConfig annotation = type.getAnnotation(KryoConfig.class);
+
+		Constructor<? extends Serializer> serializerConstructor;
+		Serializer<?> serializer = null;
+		try {
+			try {
+				serializerConstructor = annotation.serializer().getConstructor(Class.class);
+				serializer = serializerConstructor.newInstance(type);
+			} catch (NoSuchMethodException e) {
+				try {
+					serializerConstructor = annotation.serializer().getConstructor();
+					serializer = serializerConstructor.newInstance();
+				} catch (NoSuchMethodException e2) {
+					throw new RuntimeException(
+							"Missing no-arg constructor of serializer " + annotation.serializer().getSimpleName());
+				}
+			}
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+
+		return register(type, (Serializer) serializer, annotation.id());
 	}
 
 

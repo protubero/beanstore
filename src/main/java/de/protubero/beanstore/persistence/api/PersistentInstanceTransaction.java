@@ -1,7 +1,5 @@
 package de.protubero.beanstore.persistence.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class PersistentInstanceTransaction {
 
 	public static final byte TYPE_CREATE = 0;
@@ -13,9 +11,6 @@ public class PersistentInstanceTransaction {
 	private Long id;
 	private int version;
 	
-	// use for optimistic locking
-	@JsonIgnore
-	private transient Object ref;
 
 	private PersistentProperty[] propertyUpdates;
 
