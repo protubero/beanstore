@@ -1,14 +1,6 @@
 package de.protubero.beanstore.api;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
 import de.protubero.beanstore.entity.AbstractEntity;
-import de.protubero.beanstoredemo.beans.Task;
 
 public interface BeanStoreBase {
 

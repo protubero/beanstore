@@ -14,12 +14,19 @@ import de.protubero.beanstore.persistence.api.PersistentProperty;
 public final class MapObject extends AbstractPersistentObject {
 
 	private Map<String, Object> properties = new HashMap<>();
+
 	
 	public MapObject() {
-		state(State.INSTANTIATED);
+		this(State.UNMANAGED);
 	}
 	
-	@JsonIgnore
+	MapObject(State state) {
+		if (state != State.INSTANTIATED && state != State.UNMANAGED) {
+			throw new AssertionError();
+		}
+		state(state);
+	}
+	
 	private PersistentProperty[] recordedValues;
 	
 	@Override

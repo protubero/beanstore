@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
@@ -113,7 +116,7 @@ public final class StoreDataLoader {
 					@SuppressWarnings({ "rawtypes" })
 					MutableEntityStore entityStore = (MutableEntityStore) store.storeOptional(pit.getAlias())
 							.orElseGet(() -> {
-								return (MutableEntityStore) store.register(MapObjectCompanion.getOrCreate(pit.getAlias()));
+								return (MutableEntityStore) store.register(CompanionRegistry.getOrCreateMapCompanion(pit.getAlias()));
 							});
 
 					AbstractPersistentObject instance = null;

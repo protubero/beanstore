@@ -22,26 +22,34 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 	private Thread thread;
 	private SearchEngine searchEngine;
 	
-	private Map<BeanStoreEntity<?>, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap;
+	private boolean indexInTransaction = false;
 	
-	public SearchEngineAdapter(SearchEngine searchEngine, Map<BeanStoreEntity<?>, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap) {
+	
+	private Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap;
+	
+	public SearchEngineAdapter(SearchEngine searchEngine, Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap, boolean aIndexInTransaction) {
 		this.titleContentProjectionMap = titleContentProjectionMap;
 		this.searchEngine = searchEngine;
+		this.indexInTransaction = aIndexInTransaction;
 		
-		thread = new Thread(() -> {
-			while (true) {
-				try {
-					SearchEngineAction action = actionQueue.take();
-					searchEngine.index(action);
-				} catch (InterruptedException e) {
-					log.error("Search interrupted", e);
-				}				
-			}
-		});
+		if (!indexInTransaction) {
+			thread = new Thread(() -> {
+				while (true) {
+					try {
+						SearchEngineAction action = actionQueue.take();
+						searchEngine.index(action);
+					} catch (InterruptedException e) {
+						log.error("Search interrupted", e);
+					}				
+				}
+			});
+		}	
 	}
 
 	public void start() {
-		thread.start();
+		if (!indexInTransaction) {
+			thread.start();
+		}	
 	}
 	
 	void accept(AbstractPersistentObject apo) {
@@ -54,11 +62,15 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 	}
 	
 	private void enqueue(SearchEngineAction action) {
-		try {
-			actionQueue.put(action);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		if (indexInTransaction) {
+			searchEngine.index(action);
+		} else {
+			try {
+				actionQueue.put(action);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}	
 	}
 
 	@Override
@@ -95,7 +107,11 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 
 	@SuppressWarnings("unchecked")
 	protected String contentOf(AbstractPersistentObject instance) {
-		Function<? extends AbstractPersistentObject, String> titleContentProjection = titleContentProjectionMap.get(instance.entity());
+		BeanStoreEntity<?> entity = instance.entity();
+		Function<? extends AbstractPersistentObject, String> titleContentProjection = titleContentProjectionMap.get(entity.entityClass());
+		if (titleContentProjection == null) {
+			titleContentProjection = titleContentProjectionMap.get(entity.alias());
+		}
 		if (titleContentProjection != null) {
 			return ((Function<AbstractPersistentObject, String>) titleContentProjection).apply(instance);
 		}

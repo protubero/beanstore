@@ -6,15 +6,15 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +29,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 
 	public static final Logger log = LoggerFactory.getLogger(EntityCompanion.class);
 	
-	private static Map<Class<?>, EntityCompanion<?>> companionMap = new HashMap<>();
 	
 	private Class<T> beanClass;
 	private BeanInfo beanInfo;
@@ -37,11 +36,12 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	private Map<String, PropertyDescriptor> descriptorMap;
 	private String alias;
 	private Class<T> originalBeanClass;
-	private Constructor<T> constructor;
+	private Constructor<T> managedConstructor;
+	private Constructor<T> unmanagedConstructor;
 
 	
 	@SuppressWarnings("unchecked")
-	private EntityCompanion(Class<T> originalBeanClass) {
+	EntityCompanion(Class<T> originalBeanClass) {
 		if (!AbstractEntity.class.isAssignableFrom(originalBeanClass)) {
 			throw new RuntimeException("A data bean must extend AbstractEntity");
 		}
@@ -92,7 +92,13 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		});
 		
 		try {
-			constructor = beanClass.getConstructor();
+			managedConstructor = beanClass.getConstructor();
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new AssertionError();
+		}
+
+		try {
+			unmanagedConstructor = originalBeanClass.getConstructor();
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new AssertionError();
 		}
@@ -113,17 +119,6 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static <T extends AbstractEntity> EntityCompanion<T> getOrCreate(Class<T> originalBeanClass) {
-		EntityCompanion<T> result = (EntityCompanion<T>) companionMap.get(Objects.requireNonNull(originalBeanClass));
-		if (result == null) {
-			result = new EntityCompanion<T>(originalBeanClass);
-			companionMap.put(originalBeanClass, result);
-		}
-		return result;
-	}
-	
-
 	public Class<T> beanClass() {
 		return beanClass;
 	}
@@ -132,7 +127,7 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 	public T createInstance() {
 		T newInstance;
 		try {
-			newInstance = constructor.newInstance();
+			newInstance = managedConstructor.newInstance();
 			newInstance.companion(this);
 			return newInstance;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -141,7 +136,30 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		}
 	}
 
-		
+	@Override
+	public T createUnmanagedInstance() {
+		T newInstance;
+		try {
+			newInstance = unmanagedConstructor.newInstance();
+			return newInstance;
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void forEachProperty(T object, BiConsumer<String, Object> consumer) {
+		for (PropertyDescriptor descriptor : descriptors) {
+			 try {
+				consumer.accept(descriptor.getName(), descriptor.getReadMethod().invoke(object));
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	
 	@Override
 	public String alias() {
 		return alias;
@@ -185,8 +203,11 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		}	
 	}
 
+	
+	
 	public void setProperty(AbstractEntity entity, String key, Object value) {
 		PropertyDescriptor desc = descriptorMap.get(key);
+
 		if (desc == null) {
 			throw new RuntimeException("Invalid bean property: " + key);
 		} else {
@@ -240,11 +261,9 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
 		});
 	}
 
-
-
-
-
-
+	public PropertyDescriptor propertyDescriptorOf(String property) {
+		return descriptorMap.get(property);
+	}
 
 
 }

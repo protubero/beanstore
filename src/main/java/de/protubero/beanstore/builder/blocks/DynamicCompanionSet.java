@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
-import de.protubero.beanstore.entity.MapObjectCompanion;
+import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.store.CompanionSet;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
 
@@ -27,7 +27,7 @@ public class DynamicCompanionSet  implements CompanionSet {
 	public Optional<Companion<? extends AbstractPersistentObject>> companionByAlias(String alias) {
 		Optional<Companion<? extends AbstractPersistentObject>> result = entityStoreSet.companionsShip().companionByAlias(alias);
 		if (result.isEmpty()) {
-			entityStoreSet.register(MapObjectCompanion.getOrCreate(alias));
+			entityStoreSet.register(CompanionRegistry.getOrCreateMapCompanion(alias));
 			result = entityStoreSet.companionsShip().companionByAlias(alias);
 			if (result.isEmpty()) {
 				throw new AssertionError();

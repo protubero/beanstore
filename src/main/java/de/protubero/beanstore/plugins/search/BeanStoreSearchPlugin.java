@@ -19,13 +19,24 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 
 	public static final Logger log = LoggerFactory.getLogger(BeanStoreSearchPlugin.class);
 	
-	private Map<BeanStoreEntity<?>, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap = new HashMap<>();
+	private Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap = new HashMap<>();
 	private SearchEngine searchEngine;
 	private BeanStore beanStore;
+	
+	/**
+	 * If true, the search index is already updated when the transaction ends. Helpful for unit tests as well.
+	 */
+	private boolean indexInTransaction = false;
 
-	public  <X extends AbstractPersistentObject> void register(BeanStoreEntity<X> entity, Function<X, String> titleContentProjection) {
-		if (titleContentProjectionMap.put(entity, Objects.requireNonNull(titleContentProjection)) != null) {
-			throw new RuntimeException("duplicate registration of entity "+ entity);
+	public void register(String entityAlias, Function<AbstractPersistentObject, String> titleContentProjection) {
+		if (titleContentProjectionMap.put(entityAlias, Objects.requireNonNull(titleContentProjection)) != null) {
+			throw new RuntimeException("duplicate registration of entity "+ entityAlias);
+		}
+	}
+
+	public <X extends AbstractPersistentObject> void register(Class<X> entityClass, Function<X, String> titleContentProjection) {
+		if (titleContentProjectionMap.put(entityClass, Objects.requireNonNull(titleContentProjection)) != null) {
+			throw new RuntimeException("duplicate registration of entity "+ entityClass);
 		}
 	}	
 	
@@ -40,9 +51,13 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 		
 		// init search
 		searchEngine = new SearchEngine();
-		SearchEngineAdapter searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap);
+		SearchEngineAdapter searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap, indexInTransaction);
 		
-		beanStore.callbacks().onChangeInstanceAsync(searchAdapter);
+		if (indexInTransaction) {
+			beanStore.callbacks().onChangeInstance(searchAdapter);
+		} else {
+			beanStore.callbacks().onChangeInstanceAsync(searchAdapter);
+		}	
 						
 		// index asynchcronically
 		new Thread(() -> {
@@ -60,6 +75,14 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 			// start processing transactions
 			searchAdapter.start();
 		}).start();
+	}
+
+	public boolean isIndexInTransaction() {
+		return indexInTransaction;
+	}
+
+	public void setIndexInTransaction(boolean indexInTransaction) {
+		this.indexInTransaction = indexInTransaction;
 	}
 
 

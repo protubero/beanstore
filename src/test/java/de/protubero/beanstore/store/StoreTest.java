@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.model.Employee;
 
@@ -21,7 +21,7 @@ public class StoreTest {
 	public void testImmutableStore() {
 		List<ImmutableEntityStoreBase<?>> baseList = new ArrayList<>();
 		ImmutableEntityStoreBase<Employee> base = new ImmutableEntityStoreBase<>();
-		EntityCompanion<Employee> companion = EntityCompanion.getOrCreate(Employee.class);
+		EntityCompanion<Employee> companion = CompanionRegistry.getOrCreateEntityCompanion(Employee.class);
 		base.setCompanion(companion);
 		base.setNextInstanceId(13);
 		base.setObjectMap(new HashMap<>());

@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.entity.MapObjectCompanion;
 
@@ -25,7 +26,7 @@ public class CompanionSetImpl implements CompanionSet {
 		if (companionByAlias(alias).isPresent()) {
 			throw new RuntimeException("Companion with alias already exists: " + alias);
 		}
-		MapObjectCompanion comp = MapObjectCompanion.getOrCreate(alias);
+		MapObjectCompanion comp = CompanionRegistry.getOrCreateMapCompanion(alias);
 		companionList.add(comp);		
 		return comp;
 	}
@@ -36,7 +37,7 @@ public class CompanionSetImpl implements CompanionSet {
 		if (companion.isPresent()) {
 			throw new RuntimeException("Duplicate alias: " + companion.get().alias() + " [" + entityClazz + "]");
 		}
-		EntityCompanion<T> newCompanion = EntityCompanion.getOrCreate(entityClazz);
+		EntityCompanion<T> newCompanion = CompanionRegistry.getOrCreateEntityCompanion(entityClazz);
 		companionList.add(newCompanion);
 		return newCompanion;
 	}

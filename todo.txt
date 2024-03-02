@@ -14,6 +14,8 @@ do not write values of transient fields?
 
 Comment API
 
+type-specific search
+
 tx.update>> Unterscheide unmanaged (alle werte übernehmen) und managed
 
 Transaction text		

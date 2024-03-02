@@ -1,27 +1,19 @@
 package de.protubero.beanstore.entity;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 
 public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 
 	private String alias;
 
-	private static Map<String, MapObjectCompanion> companionMap = new HashMap<>();
 	
-	private MapObjectCompanion(String alias) {
+	MapObjectCompanion(String alias) {
 		this.alias = Objects.requireNonNull(alias);
 	}
 
-	public static synchronized MapObjectCompanion getOrCreate(String alias) {
-		MapObjectCompanion result = companionMap.get(Objects.requireNonNull(alias));
-		if (result == null) {
-			result = new MapObjectCompanion(alias);
-			companionMap.put(alias, result);
-		}
-		return result;
-	}
 	
 	@Override
 	public String alias() {
@@ -30,11 +22,19 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 
 	@Override
 	public MapObject createInstance() {
-		MapObject result = new MapObject();
+		MapObject result = new MapObject(State.INSTANTIATED);
 		result.companion(this);
 		return result;
 	}
 
+	@Override
+	public MapObject createUnmanagedInstance() {
+		MapObject result = new MapObject(State.UNMANAGED);
+		result.companion(this);
+		return result;
+	}
+	
+	
 	@Override
 	public Class<MapObject> entityClass() {
 		throw new UnsupportedOperationException();
@@ -49,5 +49,15 @@ public final class MapObjectCompanion extends AbstractCompanion<MapObject> {
 	public void transferProperties(MapObject origInstance, MapObject newInstance) {
 		newInstance.putAll(origInstance);
 	}
+
+
+	@Override
+	public void forEachProperty(MapObject instance, BiConsumer<String, Object> consumer) {
+		instance.entrySet().forEach(entry -> {
+			consumer.accept(entry.getKey(), entry.getValue());
+		});
+	}
+
+
 
 }

@@ -4,11 +4,12 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
+@JsonSerialize(using = CustomSerializer.class)
 public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
 
 	public static enum State {
@@ -21,18 +22,13 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		OUTDATED; 	
 	}
 	
-	@JsonProperty("id")
 	private Long id;
 	
-	@JsonProperty("version")
 	private int version;
 	
-	@JsonIgnore	
 	private Companion<?> companion;
 	
-	@JsonIgnore	
 	private State state;
-
 	
 	static {
 		Field idField;
@@ -188,6 +184,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return companion;
 	}
 
+	
 	public void companion(Companion<?> companion) {		
 		if (this.companion != null) {
 			throw new AssertionError();

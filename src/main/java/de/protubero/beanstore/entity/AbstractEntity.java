@@ -7,18 +7,16 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 
-
-
+@JsonDeserialize(using = CustomDeserializer.class)
 public abstract class AbstractEntity extends AbstractPersistentObject {
 
-	@JsonIgnore	
 	private PersistentProperty[] changes;
 	
-	@JsonIgnore	
 	private Set<String> changedFields;
 
 	
@@ -27,7 +25,7 @@ public abstract class AbstractEntity extends AbstractPersistentObject {
 			state(State.INSTANTIATED);			
 		} else {
 			state(State.UNMANAGED);	
-			companion(EntityCompanion.getOrCreate(getClass()));
+			companion(CompanionRegistry.getOrCreateEntityCompanion(getClass()));
 		}
 	}
 	
