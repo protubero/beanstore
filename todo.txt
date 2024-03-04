@@ -10,9 +10,9 @@ Systematic Automated Tests
 - Store Init
 - test instance ids
 
-do not write values of transient fields?
 
 Comment API
+
 
 type-specific search
 

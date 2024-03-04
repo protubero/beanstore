@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ public final class EntityCompanion<T extends AbstractEntity> extends AbstractCom
         descriptorMap = new HashMap<>();
 		descriptors.forEach(desc -> {
 			log.info("bean property " + desc.getName());
-			
+						
 			if (AbstractPersistentObject.class.isAssignableFrom(desc.getPropertyType())) {
 				throw new RuntimeException("Invalid Property type: " + desc.getPropertyType());
 			}

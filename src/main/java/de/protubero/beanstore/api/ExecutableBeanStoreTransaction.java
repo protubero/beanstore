@@ -3,6 +3,7 @@ package de.protubero.beanstore.api;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import de.protubero.beanstore.store.InstanceNotFoundException;
 import de.protubero.beanstore.tx.TransactionFailure;
 
 /**
@@ -30,18 +31,22 @@ public interface ExecutableBeanStoreTransaction extends BeanStoreTransaction {
 	}
 
 	
-	default BeanStoreTransactionResult execute() throws TransactionFailure {
+	default BeanStoreTransactionResult execute() throws TransactionFailure, InstanceNotFoundException {
 		try {
 			BeanStoreTransactionResult result = executeAsync().get();
 			if (result.failed()) {
 				throw result.exception();
 			}
 			return result;
-		} catch (InterruptedException | ExecutionException e) {
-			if (e.getCause() instanceof TransactionFailure) {
-				throw new AssertionError();
+		} catch (InterruptedException ie) {
+			throw new RuntimeException(ie);
+		} catch (ExecutionException ee) {
+			if (ee.getCause() instanceof TransactionFailure) {
+				throw (TransactionFailure) ee.getCause();
+			} else if (ee.getCause() instanceof InstanceNotFoundException) {	
+				throw (InstanceNotFoundException) ee.getCause();
 			} else {
-				throw new RuntimeException(e);
+				throw new RuntimeException(ee.getCause());
 			}	
 		}
 	}

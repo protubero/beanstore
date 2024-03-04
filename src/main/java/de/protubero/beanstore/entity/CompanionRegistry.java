@@ -48,5 +48,11 @@ public class CompanionRegistry {
 	public static Optional<MapObjectCompanion>getMapCompanionByAlias(String alias) {
 		return Optional.ofNullable(mapCompanionByAliasMap.get(Objects.requireNonNull(alias)));
 	}
+
+
+	@SuppressWarnings("unchecked")
+	public static <T extends AbstractEntity> Optional<EntityCompanion<T>> getEntityCompanionByClass(Class<T> type) {
+		return Optional.ofNullable((EntityCompanion<T>) entityCompanionByClassMap.get(type));
+	}
 	
 }

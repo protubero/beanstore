@@ -56,7 +56,8 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 				output.writeByte(pit.getType());
 				output.writeVarLong(pit.getId(), true);
 				output.writeVarInt(pit.getVersion(), true);
-				output.writeString(Objects.requireNonNull(pit.getAlias()));
+				Integer aliasCode = dictionary.getOrCreate(Objects.requireNonNull(pit.getAlias()));
+				output.writeInt(aliasCode, true);
 				
 				if (pit.getPropertyUpdates() == null) {
 					output.writeVarInt(0, true);
@@ -103,7 +104,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 				pit.setType(input.readByte());
 				pit.setId(input.readVarLong(true));
 				pit.setVersion(input.readVarInt(true));
-				pit.setAlias(input.readString());
+				pit.setAlias(dictionary.textByCode(input.readInt(true)));
 				
 				int numProperties = input.readVarInt(true);
 				if (numProperties > 0) {
