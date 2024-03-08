@@ -2,9 +2,9 @@ package de.protubero.beanstore.plugins.search;
 
 import java.util.Objects;
 
-import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
-public class SearchResult implements InstanceKey {
+public class SearchResult implements PersistentObjectKey {
 
 	private Long id;
 	private String type;

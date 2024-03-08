@@ -35,15 +35,8 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 		this.nextInstanceId = nextInstanceId;
 	}
 	
-
 	public T get(Long id) {
-		T result = objectMap.get(Objects.requireNonNull(id));
-		
-		if (result == null) {
-			throw new InstanceNotFoundException(companion.alias(), id);
-		}
-		
-		return result;
+		return objectMap.get(Objects.requireNonNull(id));
 	}
 
 	public T getNullable(Long id) {

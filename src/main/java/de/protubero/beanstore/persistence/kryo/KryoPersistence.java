@@ -153,7 +153,7 @@ public class KryoPersistence implements TransactionPersistence {
 						}
 						
 						if (nextTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION) {
-							if (nextTransaction.getTransactionId() == null) {
+							if (nextTransaction.getMigrationId() == null) {
 								throw new AssertionError();
 							}
 						}

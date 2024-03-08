@@ -46,7 +46,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 			instantSerializer.write(kryo, output, pt.getTimestamp());
 		}	
 		output.writeByte(pt.getTransactionType());
-		kryo.writeObjectOrNull(output, pt.getTransactionId(), String.class);
+		kryo.writeObjectOrNull(output, pt.getMigrationId(), String.class);
 		if (pt.getInstanceTransactions() == null) {
 			output.writeVarInt(0, true);
 		} else {
@@ -92,7 +92,7 @@ public class PersistentTransactionSerializer extends Serializer<PersistentTransa
 		pt.setDescription(input.readString());
 		pt.setTimestamp(instantSerializer.read(kryo, input, Instant.class));
 		pt.setTransactionType(input.readByte());
-		pt.setTransactionId(kryo.readObjectOrNull(input, String.class));
+		pt.setMigrationId(kryo.readObjectOrNull(input, String.class));
 		
 		int numInstanceTransactions = input.readVarInt(true);
 		if (numInstanceTransactions > 0) {

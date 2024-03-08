@@ -34,7 +34,7 @@ public class BeanStoreHistoryPlugin implements BeanStorePlugin, PersistenceReadL
 				
 				change.setId(it.getId().longValue());
 				change.setTimestamp(transaction.getTimestamp());
-				change.setTransactionId(transaction.getTransactionId());
+				change.setMigrationId(transaction.getMigrationId());
 				change.setTransactionType(transaction.getTransactionType());
 				change.setChangeType(it.getType());
 				change.setPropertyChanges(it.getPropertyUpdates());

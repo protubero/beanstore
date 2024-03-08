@@ -74,34 +74,12 @@ public class StoreInitialization {
 	
 	public String initMigrationId() {
 		if (migrations.size() == 0) {
-			return StoreInitializer.INIT_ID;
+			return null;
 		} else {
-			return StoreInitializer.INIT_ID + (migrations.get(migrations.size() - 1)).getMigrationId();
+			return migrations.get(migrations.size() - 1).getMigrationId();
 		}
 	}
 
-	/**
-	 * It is not checked whether the sequence of migrations of the persisted data matches the registered
-	 * migrations! Its enough to find a registered migration matching the last migration applied to the data.
-	 * 
-	 * @param appliedMigrationIds
-	 * @return
-	 */
-	public List<Migration> findMigrationsToApply(List<String> appliedMigrationIds) {
-		String lastMigrationId = appliedMigrationIds.get(appliedMigrationIds.size() -1);
-		if (lastMigrationId.equals(StoreInitializer.INIT_ID)) {
-			// store was initialized with no migration history present
-			return migrations;
-		} else {
-			Optional<Migration> lastMigrationApplied = migrations.stream().filter(m -> m.getMigrationId().equals(lastMigrationId)).findAny();
-			if (lastMigrationApplied.isEmpty()) {
-				throw new RuntimeException("missing migration id " + lastMigrationId);
-			} else {
-				// apply remaining migrations
-				return migrations.subList(migrations.indexOf(lastMigrationApplied.get()) + 1, migrations.size());
-			}
-		}
-	}
 
 	public boolean isAutoCreateEntities() {
 		return autoCreateEntities;

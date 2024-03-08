@@ -68,7 +68,7 @@ public final class StoreDataLoader {
 
 	private BeanStoreState transactionToState(PersistentTransaction pt) {
 		BeanStoreState storeState = new BeanStoreState(
-				pt.getTransactionId(), 
+				pt.getMigrationId(), 
 				pt.getTimestamp(), 
 				pt.getTransactionType(),
 				pt.getSeqNum(),
@@ -105,7 +105,8 @@ public final class StoreDataLoader {
 				
 				PersistentInstanceTransaction[] instanceTransactions = pt.getInstanceTransactions();
 				if (instanceTransactions == null) {
-					if (pt.getTransactionId() == null) {
+					// normal transactions should not be empty
+					if (pt.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_DEFAULT) {
 						throw new RuntimeException("empty transaction");
 					} else {
 						instanceTransactions = new PersistentInstanceTransaction[0];

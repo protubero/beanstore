@@ -9,60 +9,60 @@ public class SearchEngineAction {
 	}
 
 	private Type actionType;
-	private String id;
+	private long id;
 	private String type;
 	private String content;
 
 	
-	public SearchEngineAction(Type actionType, String id, String type) {
+	public SearchEngineAction(Type actionType, long id, String type) {
 		this.actionType = Objects.requireNonNull(actionType);
-		this.id = Objects.requireNonNull(id);
+		this.id = id;
 		
 		this.type = Objects.requireNonNull(type);
 	}
 	
-	public static SearchEngineAction create(String type, String id, String content) {
+	public static SearchEngineAction create(String type, long id, String content) {
 		SearchEngineAction action = new SearchEngineAction(SearchEngineAction.Type.CREATE, id, type);
 		action.setContent(content);
 		return action;
 	}
 
-	public static SearchEngineAction update(String type, String id, String content) {
+	public static SearchEngineAction update(String type, long id, String content) {
 		SearchEngineAction action = new SearchEngineAction(SearchEngineAction.Type.UPDATE, id, type);
 		action.setContent(content);
 		return action;
 	}
 
-	public static SearchEngineAction delete(String type, String id) {
+	public static SearchEngineAction delete(String type, long id) {
 		return new SearchEngineAction(SearchEngineAction.Type.DELETE, id, type);
 	}
 
-	public static SearchEngineAction create(String type, Long id, String content) {
-		return create(type, String.valueOf(id), content);
-	}
+//	public static SearchEngineAction create(String type, Long id, String content) {
+//		return create(type, String.valueOf(id), content);
+//	}
+//
+//	public static SearchEngineAction update(String type, Long id, String content) {
+//		return update(type, String.valueOf(id), content);
+//	}
+//
+//	public static SearchEngineAction delete(String type, Long id) {
+//		return delete(type, String.valueOf(id));
+//	}
 
-	public static SearchEngineAction update(String type, Long id, String content) {
-		return update(type, String.valueOf(id), content);
-	}
-
-	public static SearchEngineAction delete(String type, Long id) {
-		return delete(type, String.valueOf(id));
-	}
-
-	public static SearchEngineAction create(String type, long id, String content) {
-		return create(type, String.valueOf(id), content);
-	}
-
-	public static SearchEngineAction update(String type, long id, String content) {
-		return update(type, String.valueOf(id), content);
-	}
-
-	public static SearchEngineAction delete(String type, long id) {
-		return delete(type, String.valueOf(id));
-	}
+//	public static SearchEngineAction create(String type, long id, String content) {
+//		return create(type, String.valueOf(id), content);
+//	}
+//
+//	public static SearchEngineAction update(String type, long id, String content) {
+//		return update(type, String.valueOf(id), content);
+//	}
+//
+//	public static SearchEngineAction delete(String type, long id) {
+//		return delete(type, String.valueOf(id));
+//	}
 	
 	
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 

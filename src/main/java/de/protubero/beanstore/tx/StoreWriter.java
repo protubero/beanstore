@@ -247,7 +247,7 @@ public class StoreWriter  {
 			notifyTransactionListener(aTransaction, (e) -> {throw new TransactionFailure(TransactionFailureType.VERIFICATION_FAILED, e);});
 		}	
 		
-		if (!aTransaction.isEmpty() || (aTransaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)) {		
+		if (!aTransaction.isEmpty() || (aTransaction.getTransactionType() != PersistentTransaction.TRANSACTION_TYPE_DEFAULT)) {		
 			// 3. persist
 			aTransaction.setTargetStateVersion(workStoreSet.version());
 			// only return clones StoreSet if there actually transactions

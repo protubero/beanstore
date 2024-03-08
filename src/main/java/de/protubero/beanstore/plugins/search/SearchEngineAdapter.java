@@ -2,6 +2,7 @@ package de.protubero.beanstore.plugins.search;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,34 +23,31 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 	private Thread thread;
 	private SearchEngine searchEngine;
 	
-	private boolean indexInTransaction = false;
-	
 	
 	private Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap;
 	
-	public SearchEngineAdapter(SearchEngine searchEngine, Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap, boolean aIndexInTransaction) {
+	public SearchEngineAdapter(SearchEngine searchEngine, Map<Object, Function<? extends AbstractPersistentObject, String>> titleContentProjectionMap) {
 		this.titleContentProjectionMap = titleContentProjectionMap;
 		this.searchEngine = searchEngine;
-		this.indexInTransaction = aIndexInTransaction;
 		
-		if (!indexInTransaction) {
-			thread = new Thread(() -> {
-				while (true) {
-					try {
-						SearchEngineAction action = actionQueue.take();
-						searchEngine.index(action);
-					} catch (InterruptedException e) {
-						log.error("Search interrupted", e);
-					}				
-				}
-			});
-		}	
+		thread = new Thread(() -> {
+			while (true) {
+				try {
+					SearchEngineAction action = actionQueue.take();
+					index(action);
+				} catch (InterruptedException e) {
+					log.error("Search interrupted", e);
+				}				
+			}
+		});
+	}
+
+	private void index(SearchEngineAction action) {
+		searchEngine.index(action);
 	}
 
 	public void start() {
-		if (!indexInTransaction) {
-			thread.start();
-		}	
+		thread.start();
 	}
 	
 	void accept(AbstractPersistentObject apo) {
@@ -62,15 +60,11 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 	}
 	
 	private void enqueue(SearchEngineAction action) {
-		if (indexInTransaction) {
-			searchEngine.index(action);
-		} else {
-			try {
-				actionQueue.put(action);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}	
+		try {
+			actionQueue.put(action);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -116,6 +110,16 @@ class SearchEngineAdapter implements Consumer<InstanceTransactionEvent<?>> {
 			return ((Function<AbstractPersistentObject, String>) titleContentProjection).apply(instance);
 		}
 		return null;
+	}
+
+	public void waitForCompletion() {		
+		// TODO :-)
+		try {
+			Thread.sleep(5000l);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

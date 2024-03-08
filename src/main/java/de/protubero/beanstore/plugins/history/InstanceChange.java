@@ -20,7 +20,7 @@ public class InstanceChange {
 	
 	private Instant timestamp;
 
-	private String transactionId;
+	private String migrationId;
 	
 	private int transactionType;
 	
@@ -50,12 +50,12 @@ public class InstanceChange {
 		this.timestamp = timestamp;
 	}
 
-	public String getTransactionId() {
-		return transactionId;
+	public String getMigrationId() {
+		return migrationId;
 	}
 
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
+	public void setMigrationId(String migrationId) {
+		this.migrationId = migrationId;
 	}
 
 	public int getTransactionType() {

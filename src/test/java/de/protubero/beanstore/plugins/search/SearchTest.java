@@ -52,7 +52,6 @@ public class SearchTest {
 	@Test
 	public void test2() throws InterruptedException, ExecutionException {
 		BeanStoreSearchPlugin searchPlugin = new BeanStoreSearchPlugin(); 
-		searchPlugin.setIndexInTransaction(true);
 
 		BeanStoreBuilder builder = BeanStoreBuilder.init(NoOpPersistence.create());
 		builder.addPlugin(searchPlugin);
@@ -71,6 +70,7 @@ public class SearchTest {
 		emp.setAge(33);
 		tx.execute();
 		
+		searchPlugin.waitForCompletion();
 		List<AbstractPersistentObject> searchResult = searchPlugin.search("Wilhelm");
 		assertEquals(1, searchResult.size());
 		assertEquals("the Conquerer", searchResult.get(0).get("lastName"));

@@ -33,16 +33,6 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 	
 
 	public T get(Long id) {
-		T result = objectMap.get(Objects.requireNonNull(id));
-		
-		if (result == null) {
-			throw new InstanceNotFoundException(companion.alias(), id);
-		}
-		
-		return result;
-	}
-
-	public T getNullable(Long id) {
 		return objectMap.get(Objects.requireNonNull(id));
 	}
 	

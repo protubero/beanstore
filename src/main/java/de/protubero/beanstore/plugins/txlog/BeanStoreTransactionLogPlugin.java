@@ -28,8 +28,8 @@ public class BeanStoreTransactionLogPlugin implements BeanStorePlugin, Persisten
 		if (transaction.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION) {
 			sb.append("* ");
 		}	
-		if (transaction.getTransactionId() != null) {
-			sb.append("#" + transaction.getTransactionId());
+		if (transaction.getMigrationId() != null) {
+			sb.append("#" + transaction.getMigrationId());
 		}	
 
 		if (transaction.getInstanceTransactions() != null) {

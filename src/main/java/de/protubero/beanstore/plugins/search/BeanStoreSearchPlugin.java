@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
@@ -23,11 +24,8 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	private SearchEngine searchEngine;
 	private BeanStore beanStore;
 	
-	/**
-	 * If true, the search index is already updated when the transaction ends. Helpful for unit tests as well.
-	 */
-	private boolean indexInTransaction = false;
-
+	private SearchEngineAdapter searchAdapter;
+	
 	public void register(String entityAlias, Function<AbstractPersistentObject, String> titleContentProjection) {
 		if (titleContentProjectionMap.put(entityAlias, Objects.requireNonNull(titleContentProjection)) != null) {
 			throw new RuntimeException("duplicate registration of entity "+ entityAlias);
@@ -51,20 +49,18 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 		
 		// init search
 		searchEngine = new SearchEngine();
-		SearchEngineAdapter searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap, indexInTransaction);
+		searchAdapter = new SearchEngineAdapter(searchEngine, titleContentProjectionMap);
 		
-		if (indexInTransaction) {
-			beanStore.callbacks().onChangeInstance(searchAdapter);
-		} else {
-			beanStore.callbacks().onChangeInstanceAsync(searchAdapter);
-		}	
-						
+		beanStore.callbacks().onChangeInstanceAsync(searchAdapter);
+
+		BeanStoreSnapshot snapshot = beanStore.snapshot();
+		
 		// index asynchcronically
 		new Thread(() -> {
 			log.info("Start initial indexing");
 			AtomicInteger counter = new AtomicInteger();
 			
-			for (var era : beanStore.snapshot()) {
+			for (var era : snapshot) {
 				for (var apo : era) {
 					counter.getAndIncrement();
 					searchAdapter.accept(apo);
@@ -77,13 +73,8 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 		}).start();
 	}
 
-	public boolean isIndexInTransaction() {
-		return indexInTransaction;
+	public void waitForCompletion() {
+		searchAdapter.waitForCompletion();
 	}
-
-	public void setIndexInTransaction(boolean indexInTransaction) {
-		this.indexInTransaction = indexInTransaction;
-	}
-
 
 }

@@ -14,22 +14,26 @@ Systematic Automated Tests
 Comment API
 
 
-type-specific search
+entity-specific search
 
-tx.update>> Unterscheide unmanaged (alle werte übernehmen) und managed
+tx.update(instance) auf instanceKey umarbeiten
+-- instance.key()
+-- xVersionKey -> OptLocked
 
 Transaction text		
 -> migration name?
 
-TEST entities created by migrations??
-Snapshots an Callbacks liefern
+TEST entities auto-created by migrations??
+
+
 Working with maps (mapEntity)
 
-Lifecycle Listener (initBean)
-Improve History Plugin 		
-Working with states	
-Load Store State X (from history plugin, ReadOnlyMapStore)
-Load Store State X (ReadOnlyMapStore)
+Load instance History
+-- from history plugin & from persistent file 
+
+Load Store State X
+-- from history plugin & from persistent file 
+-- into ReadOnlyMapStore
 
 
 

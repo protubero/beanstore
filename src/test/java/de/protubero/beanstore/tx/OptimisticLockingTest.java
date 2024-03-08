@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.AbstractBeanStoreTest;
-import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.model.Employee;
 
 public class OptimisticLockingTest extends AbstractBeanStoreTest {
@@ -25,7 +25,7 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		var readStore = store.snapshot();
 
 		// data has been correctly stored
-		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
+		Employee emp1 = readStore.find(PersistentObjectKey.of("employee", 1));
 		
 		var tx1 = store.transaction();
 		var tx2 = store.transaction();

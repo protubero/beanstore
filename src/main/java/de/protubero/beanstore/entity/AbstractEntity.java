@@ -29,6 +29,11 @@ public abstract class AbstractEntity extends AbstractPersistentObject {
 		}
 	}
 	
+	public EntityKey<?> key() {
+		return EntityKey.of(companion(), id());
+	}
+	
+	
 	public EntityCompanion<?> companion() {
 		return (EntityCompanion<?>) super.companion();
 	}

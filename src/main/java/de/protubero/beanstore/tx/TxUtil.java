@@ -9,7 +9,9 @@ import de.protubero.beanstore.persistence.api.PersistentTransaction;
 public class TxUtil {
 
 	public static PersistentTransaction createPersistentTransaction(Transaction transaction) {
-		PersistentTransaction pt = new PersistentTransaction(transaction.getTransactionType(), transaction.getTransactionId());		
+		PersistentTransaction pt = new PersistentTransaction(transaction.getTransactionType(), transaction.getMigrationId());
+		pt.setDescription(transaction.getDescription());
+		
 		pt.setTimestamp(Objects.requireNonNull(transaction.getTimestamp()));
 		if (transaction.getTargetStateVersion() == null) {
 			throw new AssertionError();

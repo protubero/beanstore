@@ -6,7 +6,7 @@ import java.util.Objects;
  * The <i>complete</i> key of an instance, consisting of the entity alias and the id. 
  *
  */
-public interface InstanceKey {
+public interface PersistentObjectKey {
 
 	/**
 	 * The entity alias. 
@@ -25,11 +25,10 @@ public interface InstanceKey {
 		return alias() + "[" + id() + "]";
 	}
 	
-	public static InstanceKey of(String alias, long id) {
+	public static PersistentObjectKey of(String alias, long id) {
 		Objects.requireNonNull(alias);
-		Objects.requireNonNull(id);
 		
-		return new InstanceKey() {
+		return new PersistentObjectKey() {
 
 			@Override
 			public String alias() {

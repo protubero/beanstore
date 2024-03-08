@@ -29,8 +29,6 @@ import de.protubero.beanstore.tx.Transaction;
 public class StoreInitializer implements Consumer<InterimStore> {
 
 	public static final Logger log = LoggerFactory.getLogger(StoreInitializer.class);
-
-	public static final String INIT_ID = "_INIT_";
 	
 	
 	private StoreInitialization initialization;
@@ -51,7 +49,7 @@ public class StoreInitializer implements Consumer<InterimStore> {
 			interimStore.setStore(new ImmutableEntityStoreSet(initialization.getCompanionSet(), 0));
 			
 			// we need to store the transaction even if it is empty
-			var tx = Transaction.of(initialization.getCompanionSet(), initialization.initMigrationId(), PersistentTransaction.TRANSACTION_TYPE_MIGRATION);
+			var tx = Transaction.of(initialization.getCompanionSet(), initialization.initMigrationId(), PersistentTransaction.TRANSACTION_TYPE_INIT);
 			if (initialization.getInitMigration() != null) {
 				initialization.getInitMigration().accept(new BeanStoreTransactionImpl(tx));
 			}	
@@ -70,13 +68,24 @@ public class StoreInitializer implements Consumer<InterimStore> {
 			List<String> appliedMigrationIds = interimStore.appliedMigrationIds();
 			
 			// migrate store		
+			log.info("No. of applied migration transactions: " + appliedMigrationIds.size());
+			
+			
+			List<Migration> migrationsToApply = null;
 			if (appliedMigrationIds.size() == 0) {
-				throw new AssertionError("missing init migration");
+				migrationsToApply = initialization.getMigrations();
 			} else {
-				log.info("No. of applied migration transactions (incl. init): " + appliedMigrationIds.size());
+				String lastMigrationId = appliedMigrationIds.get(appliedMigrationIds.size() - 1); 
+				Optional<Migration> lastMigrationApplied = initialization.getMigrations().stream().filter(m -> m.getMigrationId().equals(lastMigrationId)).findAny();
+				if (lastMigrationApplied.isEmpty()) {
+					throw new RuntimeException("missing migration id " + lastMigrationId);
+				} else {
+					// apply remaining migrations
+					migrationsToApply = initialization.getMigrations().subList(initialization.getMigrations().indexOf(lastMigrationApplied.get()) + 1, initialization.getMigrations().size());
+				}
+				
 			}
 			
-			List<Migration> migrationsToApply = initialization.findMigrationsToApply(appliedMigrationIds);
 			DynamicCompanionSet dynamicCompanionSet = new DynamicCompanionSet((MutableEntityStoreSet) interimStore.getStore());
 			
 			// apply remaining migrations

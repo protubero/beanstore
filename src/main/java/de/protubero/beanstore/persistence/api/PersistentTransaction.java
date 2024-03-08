@@ -1,17 +1,19 @@
 package de.protubero.beanstore.persistence.api;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class PersistentTransaction {
 
 	public static final byte TRANSACTION_TYPE_DEFAULT = 0;
 	public static final byte TRANSACTION_TYPE_MIGRATION = 1;
+	public static final byte TRANSACTION_TYPE_INIT = 2;
 	
 	
 	private PersistentInstanceTransaction[] instanceTransactions;
 
 	private Instant timestamp;
-	private String transactionId;
+	private String migrationId;
 	private byte transactionType = TRANSACTION_TYPE_DEFAULT;
 	private int seqNum;
 	private String description;
@@ -20,11 +22,31 @@ public class PersistentTransaction {
 	public PersistentTransaction() {
 	}
 	
-	public PersistentTransaction(byte transactionType, String transactionId) {
-		this.transactionType = transactionType;
-		this.transactionId = transactionId;
+
+	public PersistentTransaction(byte aTransactionType, String aMigrationId) {
+		this.transactionType = aTransactionType;
+		this.migrationId = aMigrationId;
 	}
 
+
+	public static PersistentTransaction defaultTransaction() {
+		return new PersistentTransaction();
+	}
+
+	public static PersistentTransaction initTransaction(String lastMigrationId) {
+		PersistentTransaction result = new PersistentTransaction();
+		result.setTransactionType(TRANSACTION_TYPE_INIT);
+		result.migrationId = lastMigrationId;
+		return result;
+	}
+
+	public static PersistentTransaction migrationTransaction(String aMigrationId) {
+		PersistentTransaction result = new PersistentTransaction();
+		result.setTransactionType(TRANSACTION_TYPE_MIGRATION);
+		result.migrationId = Objects.requireNonNull(aMigrationId);
+		return result;
+	}
+	
 	public PersistentInstanceTransaction[] getInstanceTransactions() {
 		return instanceTransactions;
 	}
@@ -105,13 +127,6 @@ public class PersistentTransaction {
 		this.timestamp = timestamp;
 	}
 
-	public String getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
 
 	public byte getTransactionType() {
 		return transactionType;
@@ -135,6 +150,16 @@ public class PersistentTransaction {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+
+	public String getMigrationId() {
+		return migrationId;
+	}
+
+
+	public void setMigrationId(String migrationId) {
+		this.migrationId = migrationId;
 	}
 
 	

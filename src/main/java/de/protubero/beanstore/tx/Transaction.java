@@ -26,7 +26,7 @@ public final class Transaction implements TransactionEvent {
 
 	private String description;	
 	private CompanionSet companionSet;
-	private String transactionId;
+	private String migrationId;
 	private byte transactionType;
 	private Instant timestamp;	
 	private Integer targetStateVersion;
@@ -38,9 +38,9 @@ public final class Transaction implements TransactionEvent {
 	
 	private TransactionFailure failure;
 		
-	private Transaction(CompanionSet companionSet, String transactionId, byte transactionType) {
+	private Transaction(CompanionSet companionSet, String migrationId, byte transactionType) {
 		this.companionSet = Objects.requireNonNull(companionSet);
-		this.transactionId = transactionId;
+		this.migrationId = migrationId;
 		this.transactionType = transactionType;
 	}
 	
@@ -362,8 +362,8 @@ public final class Transaction implements TransactionEvent {
 		this.failure = failure;
 	}
 
-	public String getTransactionId() {
-		return transactionId;
+	public String getMigrationId() {
+		return migrationId;
 	}
 
 	public byte getTransactionType() {

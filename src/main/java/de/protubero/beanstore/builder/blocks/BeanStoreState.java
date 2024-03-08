@@ -7,7 +7,7 @@ import de.protubero.beanstore.persistence.api.PersistentTransaction;
 
 public class BeanStoreState {
 
-	private String transactionId;
+	private String migrationId;
 	
 	private Instant timestamp;
 	
@@ -17,8 +17,8 @@ public class BeanStoreState {
 	
 	private String description;
 
-	public BeanStoreState(String transactionId, Instant timestamp, byte transactionType, int state, String aDescription) {
-		this.transactionId = transactionId;
+	public BeanStoreState(String migrationId, Instant timestamp, byte transactionType, int state, String aDescription) {
+		this.migrationId = migrationId;
 		this.timestamp = timestamp;
 		this.transactionType = transactionType;
 		this.state = state;
@@ -27,8 +27,8 @@ public class BeanStoreState {
 
 	
 	
-	public String getTransactionId() {
-		return transactionId;
+	public String getMigrationId() {
+		return migrationId;
 	}
 
 	public Instant getTimestamp() {
@@ -43,23 +43,6 @@ public class BeanStoreState {
 		return state;
 	}
 	
-	public Optional<String> migrationId() {
-		if (transactionType == PersistentTransaction.TRANSACTION_TYPE_DEFAULT) {
-			return Optional.empty();
-		}
-		if (transactionId.startsWith(StoreInitializer.INIT_ID)) {
-			if (transactionId.equals(StoreInitializer.INIT_ID)) {
-				return Optional.ofNullable(StoreInitializer.INIT_ID);
-			} else {
-				return Optional.of(transactionId.substring(StoreInitializer.INIT_ID.length()));
-			}
-		} else {
-			return Optional.of(transactionId);
-		}
-	}
-
-
-
 	public String getDescription() {
 		return description;
 	}

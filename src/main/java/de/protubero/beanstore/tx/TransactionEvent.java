@@ -25,4 +25,7 @@ public interface TransactionEvent {
 	Integer getSourceStateVersion();
 	
 	Integer getTargetStateVersion();
+	
+	String getDescription();
+	
 }

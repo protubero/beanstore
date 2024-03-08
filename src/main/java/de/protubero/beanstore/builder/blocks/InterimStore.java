@@ -63,7 +63,7 @@ public class InterimStore {
 			cachingTransactionWriter.append(pTransaction);
 			
 			BeanStoreState state = new BeanStoreState(
-					pTransaction.getTransactionId(), 
+					pTransaction.getMigrationId(), 
 					pTransaction.getTimestamp(), 
 					pTransaction.getTransactionType(),
 					pTransaction.getSeqNum(),
@@ -127,8 +127,8 @@ public class InterimStore {
 	
 	public List<String> appliedMigrationIds() {
 		List<String> appliedMigrations = loadedStates.stream()
-		.filter(state -> state.getTransactionType() == PersistentTransaction.TRANSACTION_TYPE_MIGRATION)
-		.map(state -> state.migrationId().get())
+		.filter(state -> state.getMigrationId() != null)
+		.map(state -> state.getMigrationId())
 		.collect(Collectors.toList());
 		return appliedMigrations;
 	}

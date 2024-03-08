@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 @JsonSerialize(using = CustomSerializer.class)
-public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject>, InstanceKey {
+public abstract class AbstractPersistentObject implements Map<String, Object>, Comparable<AbstractPersistentObject> {
 
 	public static enum State {
 		UNMANAGED,
@@ -56,11 +56,13 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		id = aId;
 	}
 
-	@Override
 	public Long id() {
 		return id;
 	}
-	
+
+	public PersistentObjectKey key() {
+		return PersistentObjectKey.of(alias(), id);
+	}
 	
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -208,7 +210,6 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return companion;
 	}
 	
-	@Override
 	public String alias() {
 		if (state == State.UNMANAGED) {
 			return aliasOf(this);

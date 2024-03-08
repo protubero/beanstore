@@ -12,7 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
-import de.protubero.beanstore.entity.InstanceKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.model.Employee;
 
@@ -28,13 +28,13 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		var readStore = store.snapshot();
 
 		// data has been correctly stored
-		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
+		Employee emp1 = readStore.find(PersistentObjectKey.of("employee", 1));
 		assertEqualsSampleData(emp1);
 		
 		Employee emp2 = readStore.find(emp1);
 		assertSame(emp1, emp2);
 		
-		assertThrows(NullPointerException.class, () -> readStore.find((InstanceKey) null));
+		assertThrows(NullPointerException.class, () -> readStore.find((PersistentObjectKey) null));
 		assertThrows(NullPointerException.class, () -> readStore.find((AbstractPersistentObject) null));
 		
 		assertThrows(BeanStoreException.class, () -> readStore.find(instanceKey(null, 1l)));
@@ -67,10 +67,10 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey(null, 1l)));		
 		assertThrows(BeanStoreException.class, () -> readStore.findOptional(instanceKey("employee", null)));		
-		assertThrows(BeanStoreException.class, () -> readStore.findOptional(SAMPLE_DATA[0]));
+		assertThrows(BeanStoreException.class, () -> readStore.findOptional(SAMPLE_DATA[0].key()));
 		
-		Employee emp1 = readStore.find(InstanceKey.of("employee", 1));
-		assertEquals(true, readStore.findOptional(emp1).isPresent());
+		Employee emp1 = readStore.find(PersistentObjectKey.of("employee", 1));
+		assertEquals(true, readStore.findOptional(emp1.key()).isPresent());
 		assertEquals(false, readStore.findOptional(instanceKey("employee", -1000l)).isPresent());
 	}
 
