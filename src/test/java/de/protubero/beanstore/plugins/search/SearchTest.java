@@ -25,21 +25,21 @@ public class SearchTest {
 		List<SearchResult> searchResult = engine.query("Erik");
 		
 		assertEquals(1, searchResult.size());
-		assertEquals("1", searchResult.get(0).getId());
+		assertEquals(1l, searchResult.get(0).id());
 		assertEquals("employee", searchResult.get(0).getType());
 		
 		searchResult = engine.query("the");
 
 		assertEquals(2, searchResult.size());
-		assertEquals("2", searchResult.get(0).getId());
+		assertEquals(2l, searchResult.get(0).id());
 		assertEquals("employee", searchResult.get(0).getType());
-		assertEquals("1", searchResult.get(1).getId());
+		assertEquals(1l, searchResult.get(1).id());
 		assertEquals("employee", searchResult.get(1).getType());
 		
 		engine.index(SearchEngineAction.update("employee", 1, "Erik Wikinger"));
 		searchResult = engine.query("the");
 		assertEquals(1, searchResult.size());
-		assertEquals("2", searchResult.get(0).getId());
+		assertEquals(2l, searchResult.get(0).id());
 		assertEquals("employee", searchResult.get(0).getType());
 		
 		engine.index(SearchEngineAction.delete("employee", 1));

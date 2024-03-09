@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
+import de.protubero.beanstore.keys.Keys;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
@@ -61,9 +62,9 @@ public class BeanStoreBasicTest {
 		assertEquals(44, employees.get(0).getAge());
 		assertEquals(49, employees.get(1).getAge());
 		
-		assertEquals(44, beanStore2.snapshot().find(employee1).getAge());
-		assertEquals("John", beanStore2.snapshot().find(employee1).getFirstName());
-		assertEquals(49, beanStore2.snapshot().find(employee2).getAge());
+		assertEquals(44, beanStore2.snapshot().find(Keys.key(employee1)).getAge());
+		assertEquals("John", beanStore2.snapshot().find(Keys.key(employee1)).getFirstName());
+		assertEquals(49, beanStore2.snapshot().find(Keys.key(employee2)).getAge());
 	}
 
 	private BeanStoreBuilder createBuilder(File tempDir) {

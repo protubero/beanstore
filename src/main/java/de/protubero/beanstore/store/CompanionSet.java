@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.keys.PersistentObjectKey;
 
 public interface CompanionSet extends Iterable<Companion<?>> {
 	
@@ -15,4 +16,14 @@ public interface CompanionSet extends Iterable<Companion<?>> {
 	Stream<Companion<?>> companions();
 
 	boolean isEmpty();
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	default <T extends AbstractPersistentObject> Optional<Companion<T>> companionByKey(PersistentObjectKey<T> key) {
+		if (key.entityClass() != null) {
+			return (companionByClass(key.entityClass()));
+		} else {
+			return ((Optional) companionByAlias(key.alias()));
+		}
+	}
+	
 }

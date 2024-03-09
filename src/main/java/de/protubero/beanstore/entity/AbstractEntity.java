@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
@@ -27,10 +26,6 @@ public abstract class AbstractEntity extends AbstractPersistentObject {
 			state(State.UNMANAGED);	
 			companion(CompanionRegistry.getOrCreateEntityCompanion(getClass()));
 		}
-	}
-	
-	public EntityKey<?> key() {
-		return EntityKey.of(companion(), id());
 	}
 	
 	

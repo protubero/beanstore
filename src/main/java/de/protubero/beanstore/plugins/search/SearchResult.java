@@ -2,11 +2,12 @@ package de.protubero.beanstore.plugins.search;
 
 import java.util.Objects;
 
-import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.keys.PersistentObjectKey;
 
-public class SearchResult implements PersistentObjectKey {
+public class SearchResult implements PersistentObjectKey<AbstractPersistentObject> {
 
-	private Long id;
+	private long id;
 	private String type;
 	
 	public SearchResult(String id, String type) {
@@ -14,9 +15,6 @@ public class SearchResult implements PersistentObjectKey {
 		this.type = Objects.requireNonNull(type);
 	}
 
-	public String getId() {
-		return id.toString();
-	}
 	public String getType() {
 		return type;
 	}
@@ -32,8 +30,13 @@ public class SearchResult implements PersistentObjectKey {
 	}
 
 	@Override
-	public Long id() {
+	public long id() {
 		return id;
+	}
+
+	@Override
+	public Class<AbstractPersistentObject> entityClass() {
+		return null;
 	}
 	
 	

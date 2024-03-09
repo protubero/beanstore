@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
-import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.MapObject;
+import de.protubero.beanstore.keys.PersistentObjectKey;
 
 /**
  * BeanStore read operations. 
@@ -38,16 +38,12 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	default EntityStoreSnapshot<MapObject> mapEntity(String alias) {
-		var e = entityOptional(alias);
-		if (e.isEmpty()) {
-			throw new BeanStoreException("invalid alias: " + alias);
-		}
-		if (e.get().meta().isBean()) {
+		EntityStoreSnapshot<? extends AbstractPersistentObject> e = entity(alias);
+		if (e.meta().isBean()) {
 			throw new BeanStoreException("not a map entity: " + alias);
 		}
-		return (EntityStoreSnapshot) e.get();
+		return (EntityStoreSnapshot<MapObject>) e;
 	}
-
 	
 	/**
 	 * Access read operations of a single entity with the given Java Bean class.<br> 
@@ -58,6 +54,17 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 			throw new BeanStoreException("invalid bean class: " + aClass.getName());
 		});
 	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	default <T extends AbstractPersistentObject> EntityStoreSnapshot<T> entity(PersistentObjectKey<T> key) {
+		if (key.entityClass() != null) {
+			// Please call me if you know why this Cast is necessary??
+			return entity((Class) key.entityClass());
+		} else {
+			return entity(key.alias());
+		}
+	}
+	
 	
 	/**
 	 * Access read operations of a single entity with the given <i>alias</i>
@@ -70,25 +77,13 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 	<T extends AbstractEntity> Optional<EntityStoreSnapshot<T>> entityOptional(Class<T> aClass);
 	
 	
-	/**
-	 * Resolve a list of instance references into a list of instances. The <i>missingKeyConsumer</i>
-	 * is notified for each reference which cannot be resolved. 
-	 */
-	default List<AbstractPersistentObject> resolve(Iterable<? extends PersistentObjectKey> keyList, 
-			Consumer<PersistentObjectKey> missingKeyConsumer) {
-		List<AbstractPersistentObject> result = new ArrayList<>();
-		for (PersistentObjectKey key : keyList) {
-			Optional<AbstractPersistentObject> opt = findOptional(key);
-			if (opt.isEmpty()) {
-				if (missingKeyConsumer != null) {
-					missingKeyConsumer.accept(key);
-				}
-			} else {
-				result.add(opt.get());
-			}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	default Optional<EntityStoreSnapshot<MapObject>> mapEntityOptional(String alias) {
+		Optional<EntityStoreSnapshot<AbstractPersistentObject>> e = entityOptional(alias);
+		if (e.get().meta().isBean()) {
+			throw new BeanStoreException("not a map entity: " + alias);
 		}
-		
-		return result;
+		return (Optional) e;
 	}
 
 
@@ -96,59 +91,72 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 	 * Find an instance determined by an instance reference.<br>
 	 * Throws a BeanStoreException if the reference is invalid (either alias or id)
 	 */
-	@SuppressWarnings("unchecked")
-	default <T extends AbstractPersistentObject> T find(PersistentObjectKey key) {
+	default <T extends AbstractPersistentObject> T find(PersistentObjectKey<T> key) {
 		Objects.requireNonNull(key);
 		
-		if (key instanceof AbstractPersistentObject) {
-			return (T) find((AbstractPersistentObject) key);
-		}
-		
-		if (key.alias() == null || key.id() == null) {
-			throw new BeanStoreException("Incomplete key");
-		}
-		return (T) entity(key.alias()).find(key.id());
+		return (T) entity(key).find(key.id());
 	}
 
 	/**
 	 * Find the <b>current</b> instance determined by an instance. The result might even be the instance itself.<br>
 	 * Throws a BeanStoreException if the reference is invalid (either alias or id).
 	 */
-	@SuppressWarnings("unchecked")
-	default <T extends AbstractPersistentObject> T find(T ref) {
-		Objects.requireNonNull(ref);
-		if (ref.companion() == null) {
-			throw new BeanStoreException("Instance was not created by the store");
-		}
-		return (T) entity(ref.alias()).find(ref.id());
-	}
+//	@SuppressWarnings("unchecked")
+//	default <T extends AbstractPersistentObject> T find(T ref) {
+//		Objects.requireNonNull(ref);
+//		if (ref.companion() == null) {
+//			throw new BeanStoreException("Instance was not created by the store");
+//		}
+//		return (T) entity(ref.alias()).find(ref.id());
+//	}
 	
 	/**
 	 * Find an instance determined by an instance reference.<br>
 	 */
-	@SuppressWarnings("unchecked")
-	default <T extends AbstractPersistentObject> Optional<T> findOptional(PersistentObjectKey key) {
+	default <T extends AbstractPersistentObject> Optional<T> findOptional(PersistentObjectKey<T> key) {
 		Objects.requireNonNull(key);
-		if (key.alias() == null || key.id() == null) {
-			throw new BeanStoreException("Incomplete key");
-		}
-		return (Optional<T>) entity(key.alias()).findOptional(key.id());
+		return (Optional<T>) entity(key).findOptional(key.id());
 	}
+	
+
+	
+	/**
+	 * Resolve a list of instance references into a list of instances. The <i>missingKeyConsumer</i>
+	 * is notified for each reference which cannot be resolved. 
+	 */
+	default List<AbstractPersistentObject> resolve(Iterable<? extends PersistentObjectKey<?>> keyList, 
+			Consumer<PersistentObjectKey<?>> missingKeyConsumer) {
+		List<AbstractPersistentObject> result = new ArrayList<>();
+		for (PersistentObjectKey<?> key : keyList) {
+			AbstractPersistentObject obj = entity(key).find(key);
+			if (obj == null) {
+				if (missingKeyConsumer != null) {
+					missingKeyConsumer.accept(key);
+				}
+			} else {
+				result.add(obj);
+			}
+		}
+		
+		return result;
+	}
+	
 	
 	/**
 	 * Resolve a list of instance references into a list of instances.
 	 * Non-resolve references are ignored.	
 	 */
-	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends PersistentObjectKey> keyList) {
+	default List<AbstractPersistentObject> resolveExisting(Iterable<? extends PersistentObjectKey<?>> keyList) {
 		return resolve(keyList, null);
 	}
 	/**
 	 * Resolve a list of instance references into a list of instances.
 	 * Non-resolve references lead to a BeanStoreException.	
 	 */
-	default List<AbstractPersistentObject> resolveAll(Iterable<? extends PersistentObjectKey> keyList) {
-		return resolve(keyList, key -> {throw new BeanStoreException("invalid key " + key.toKeyString());});
+	default List<AbstractPersistentObject> resolve(Iterable<? extends PersistentObjectKey<?>> keyList) {
+		return resolve(keyList, key -> {throw new BeanStoreException("invalid key " + key.toString());});
 	}
+
 	
 	
 }

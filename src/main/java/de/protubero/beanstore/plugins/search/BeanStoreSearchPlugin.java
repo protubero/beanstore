@@ -39,7 +39,7 @@ public class BeanStoreSearchPlugin implements BeanStorePlugin {
 	}	
 	
 	public List<AbstractPersistentObject> search(String queryString) {
-		List<AbstractPersistentObject> searchResult = beanStore.snapshot().resolveAll(searchEngine.query(queryString));
+		List<AbstractPersistentObject> searchResult = beanStore.snapshot().resolveExisting(searchEngine.query(queryString));
 		return searchResult;
 	}
 

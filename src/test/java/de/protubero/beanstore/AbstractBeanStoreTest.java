@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import de.protubero.beanstore.api.BeanStore;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.AbstractEntity;
-import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.model.Address;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
@@ -66,20 +65,6 @@ public abstract class AbstractBeanStoreTest {
 	
 	protected abstract File getFileDir();
 
-	protected PersistentObjectKey instanceKey(String alias, Long id) {
-		return new PersistentObjectKey() {
-			
-			@Override
-			public Long id() {
-				return id;
-			}
-			
-			@Override
-			public String alias() {
-				return alias;
-			}
-		};
-	}
 	
 	protected Employee empByLastName(String lastName) {
 		for (Employee emp : SAMPLE_DATA) {

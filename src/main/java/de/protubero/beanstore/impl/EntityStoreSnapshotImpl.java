@@ -23,12 +23,12 @@ public class EntityStoreSnapshotImpl<T extends AbstractPersistentObject> impleme
 	}
 
 	@Override
-	public T find(Long id) {
+	public T find(long id) {
 		return store.get(id);
 	}
 
 	@Override
-	public Optional<T> findOptional(Long id) {
+	public Optional<T> findOptional(long id) {
 		return store.getOptional(id);
 	}
 

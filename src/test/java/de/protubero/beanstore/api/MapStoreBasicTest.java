@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
 import de.protubero.beanstore.entity.MapObject;
+import de.protubero.beanstore.keys.Keys;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
@@ -63,9 +64,9 @@ public class MapStoreBasicTest {
 		assertEquals(44, employees.get(0).get("age"));
 		assertEquals(49, employees.get(1).get("age"));
 		
-		assertEquals(44, beanStore2.snapshot().find(employee1).get("age"));
-		assertEquals("John", beanStore2.snapshot().find(employee1).get("firstName"));
-		assertEquals(49, beanStore2.snapshot().find(employee2).get("age"));
+		assertEquals(44, beanStore2.snapshot().find(Keys.key(employee1)).get("age"));
+		assertEquals("John", beanStore2.snapshot().find(Keys.key(employee1)).get("firstName"));
+		assertEquals(49, beanStore2.snapshot().find(Keys.key(employee2)).get("age"));
 	}
 
 	private BeanStoreBuilder createBuilder(File tempDir) {

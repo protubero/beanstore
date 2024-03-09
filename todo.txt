@@ -20,10 +20,9 @@ tx.update(instance) auf instanceKey umarbeiten
 -- instance.key()
 -- xVersionKey -> OptLocked
 
-Transaction text		
--> migration name?
-
-TEST entities auto-created by migrations??
+TEST 
+- entities auto-created by migrations??
+- transaction description
 
 
 Working with maps (mapEntity)

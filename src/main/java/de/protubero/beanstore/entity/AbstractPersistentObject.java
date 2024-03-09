@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import de.protubero.beanstore.persistence.api.KeyValuePair;
@@ -60,10 +59,6 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return id;
 	}
 
-	public PersistentObjectKey key() {
-		return PersistentObjectKey.of(alias(), id);
-	}
-	
 	 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString() {
