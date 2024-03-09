@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.EntityCompanion;
+import de.protubero.beanstore.entity.Keys;
 
 public interface BeanStoreBase {
 
@@ -43,7 +44,7 @@ public interface BeanStoreBase {
 
     default <T extends AbstractEntity> BeanStoreTransactionResult update(Class<T> beanClass, long id, Consumer<T> consumer) {
     	var tx = transaction();
-    	T recInstance = tx.update(beanClass, id);
+    	T recInstance = tx.update(Keys.key(beanClass, id));
     	consumer.accept(recInstance);
     	return tx.execute();
     }
@@ -60,7 +61,7 @@ public interface BeanStoreBase {
     	EntityCompanion<T> companion = companionOpt.get();
     	
     	var tx = transaction();
-    	T recInstance = tx.update(beanClass, id);
+    	T recInstance = tx.update(Keys.key(beanClass, id));
     	
     	updatedFields.entrySet().forEach(entry -> {
     		PropertyDescriptor propDesc = companion.propertyDescriptorOf(entry.getKey());
@@ -81,13 +82,13 @@ public interface BeanStoreBase {
 
     default <T extends AbstractEntity> BeanStoreTransactionResult delete(Class<T> entityClass, Long id) {
     	var tx = transaction();
-    	tx.delete(entityClass, id);
+    	tx.delete(Keys.key(entityClass, id));
     	return tx.execute();
     }		
 	
      default <T extends AbstractEntity> BeanStoreTransactionResult delete(T entityInstance) {
     	var tx = transaction();
-    	tx.delete(entityInstance);
+    	tx.delete(Keys.key(entityInstance));
     	return tx.execute();
     }		
 }

@@ -1,7 +1,4 @@
-package de.protubero.beanstore.keys;
-
-import de.protubero.beanstore.entity.AbstractEntity;
-import de.protubero.beanstore.entity.AbstractPersistentObject;
+package de.protubero.beanstore.entity;
 
 public final class Keys {
 
@@ -20,15 +17,15 @@ public final class Keys {
 	}
 	
 	public static <T extends AbstractEntity> PersistentObjectVersionKey<T> versionKey(Class<T> entityClass, long id, int version) {
-		return null;
+		return PersistentObjectVersionKey.of(entityClass, id, version);
 	}
 	
 	public static PersistentObjectVersionKey<AbstractPersistentObject> versionKey(String alias, long id, int version) {
-		return null;
+		return PersistentObjectVersionKey.of(alias, id, version);
 	}
 	
 	public static <T extends AbstractPersistentObject> PersistentObjectVersionKey<T> versionKey(T instance) {
-		return null;
+		return PersistentObjectVersionKey.of(instance);
 	}
 	
 	

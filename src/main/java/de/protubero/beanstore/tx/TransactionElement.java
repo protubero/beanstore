@@ -14,7 +14,6 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 	private Long id;
 	private Integer version;
 	private T recordInstance;
-	private T refInstance;
 	private T newInstance;
 	private T replacedInstance;
 	private boolean optimisticLocking;
@@ -25,14 +24,12 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 			InstanceEventType type, 
 			Companion<T> companion, 
 			Long id,
-			T recordInstance,
-			T refInstance) {
+			T recordInstance) {
 		this.transaction = Objects.requireNonNull(aTransaction);
 		this.type = type;
 		this.companion = companion;
 		this.id = id;
 		this.recordInstance = recordInstance;
-		this.refInstance = refInstance;
 	}
 	
 	@Override
@@ -82,9 +79,6 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 		this.replacedInstance = replacedInstance;
 	}
 
-	public T getRefInstance() {
-		return refInstance;
-	}
 
 	public Companion<T> getCompanion() {
 		return companion;

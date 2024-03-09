@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.EntityStoreSnapshot;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.model.Employee;
 
 public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
@@ -43,14 +44,14 @@ public class ConcurrentStoreAccessTest extends AbstractBeanStoreTest {
 		// update existing ones
 		tx = store.transaction();
 		var morlock = employeeStore.stream().filter(e -> e.getFirstName().equals("Ottmar")).findAny().get();
-		tx.update(morlock).setAge(101);
+		tx.update(Keys.key(morlock)).setAge(101);
 		tx.execute();
 
 		// delete some
 		tx = store.transaction();
 		for (var employee : employeeStore) {
 			if (!employee.getLastName().equals("Walter")) {
-				tx.delete(employee);
+				tx.delete(Keys.key(employee));
 			}	
 		}
 		tx.execute();

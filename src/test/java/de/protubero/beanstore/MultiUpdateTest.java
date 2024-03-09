@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.model.Employee;
 
 public class MultiUpdateTest extends AbstractBeanStoreTest {
@@ -28,8 +29,8 @@ public class MultiUpdateTest extends AbstractBeanStoreTest {
 		
 		var toni = readAccess.stream().filter(obj -> obj.getEmployeeNumber() == 1).findAny().get();
 		var tx = store.transaction();
-		tx.update(toni).setAge(101);
-		tx.update(toni).setLastName("Tuareg");
+		tx.update(Keys.key(toni)).setAge(101);
+		tx.update(Keys.key(toni)).setLastName("Tuareg");
 		BeanStoreTransactionResult result = tx.execute();
 		// assertEquals(1, result.getInstanceEvents().size());
 	}

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.builder.BeanStoreBuilder;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.MapObject;
-import de.protubero.beanstore.keys.Keys;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 

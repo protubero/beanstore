@@ -3,7 +3,7 @@ package de.protubero.beanstore.plugins.search;
 import java.util.Objects;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.keys.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
 public class SearchResult implements PersistentObjectKey<AbstractPersistentObject> {
 

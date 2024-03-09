@@ -12,7 +12,7 @@ import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.entity.MapObjectCompanion;
-import de.protubero.beanstore.keys.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
 public class CompanionSetImpl implements CompanionSet {
 

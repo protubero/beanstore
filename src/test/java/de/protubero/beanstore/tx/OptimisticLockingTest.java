@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.AbstractBeanStoreTest;
-import de.protubero.beanstore.keys.PersistentObjectKey;
+import de.protubero.beanstore.entity.Keys;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.model.Employee;
 
 public class OptimisticLockingTest extends AbstractBeanStoreTest {
@@ -30,8 +31,8 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		var tx1 = store.transaction();
 		var tx2 = store.transaction();
 		
-		var empUpd1 = tx1.update(emp1);
-		var empUpd2 = tx2.updateOptLocked(emp1);
+		var empUpd1 = tx1.update(Keys.key(emp1));
+		var empUpd2 = tx2.update(Keys.versionKey(emp1));
 		
 		empUpd1.setAge(13);
 		empUpd2.setEmployeeNumber(14);

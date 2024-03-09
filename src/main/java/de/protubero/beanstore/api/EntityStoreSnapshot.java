@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
-import de.protubero.beanstore.keys.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
 /**
  * Read operations related to a single entity.

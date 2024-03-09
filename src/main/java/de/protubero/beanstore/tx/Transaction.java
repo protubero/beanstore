@@ -12,11 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.entity.BeanStoreException;
-import de.protubero.beanstore.entity.Companion;
-import de.protubero.beanstore.entity.MapObject;
-import de.protubero.beanstore.entity.MapObjectCompanion;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectVersionKey;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.store.CompanionSet;
 
@@ -71,8 +70,7 @@ public final class Transaction implements TransactionEvent {
 				InstanceEventType.Create,
 				companion, 
 				null, 
-				result,
-				null);
+				result);
 		elements.add(elt);
 		
 		return result;
@@ -94,28 +92,29 @@ public final class Transaction implements TransactionEvent {
 		return create(companion.get());
 	}
 
-	public <T extends AbstractPersistentObject> T create(T instance) {
+	public <T extends AbstractPersistentObject> T create(T templateInstance) {
 		@SuppressWarnings("unchecked")
-		Companion<T> companion = (Companion<T>) instance.companion();
+		Companion<T> companion = (Companion<T>) templateInstance.companion();
 		if (companion == null) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Optional<Companion<T>> companionOpt = companionSet.companionByClass((Class) instance.getClass());
+			Optional<Companion<T>> companionOpt = companionSet.companionByClass((Class) templateInstance.getClass());
 			if (companionOpt.isEmpty()) {
-				throw new RuntimeException("Invalid entity class: " + instance.getClass());
+				throw new RuntimeException("Invalid entity class: " + templateInstance.getClass());
 			} else {
 				companion = companionOpt.get();
 			}
 		}
 		T result = create(companion);
-		companion.transferProperties(instance, result);
+		companion.transferProperties(templateInstance, result);
 		return result;
 	}
-	
 
-	public void deleteOptLocked(String alias, long id, int version) {
-		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
+	public void delete(PersistentObjectKey<?> key) {
+		Objects.requireNonNull(key);
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Optional<Companion<?>> companion = (Optional) companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid alias: " + alias);
+			throw new RuntimeException("Invalid key entity: " + key);
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -123,17 +122,18 @@ public final class Transaction implements TransactionEvent {
 				this,
 				InstanceEventType.Delete,
 				(Companion) companion.get(), 
-				id, 
-				null,
+				key.id(), 
 				null);
-		elt.setVersion(version);
 		elements.add(elt);
 	}
+	
 
-	public void delete(String alias, long id) {
-		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
+	public void delete(PersistentObjectVersionKey<?> key) {
+		Objects.requireNonNull(key);
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Optional<Companion<?>> companion = (Optional) companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid alias: " + alias);
+			throw new RuntimeException("Invalid key entity: " + key);
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -141,208 +141,56 @@ public final class Transaction implements TransactionEvent {
 				this,
 				InstanceEventType.Delete,
 				(Companion) companion.get(), 
-				id, 
-				null,
+				key.id(), 
 				null);
+		elt.setVersion(key.version());
 		elements.add(elt);
 	}
-	
 
-	public <T extends AbstractEntity> void deleteOptLocked(Class<T> aClass, long id, int version) {
-		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
+	public <T extends AbstractPersistentObject> T update(PersistentObjectKey<T> key) {
+		Optional<Companion<T>> companion = companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid entity class: " + aClass);
-		}
-
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Delete,
-				companion.get(), 
-				id, 
-				null,
-				null);
-		elt.setVersion(version);
-		elements.add(elt);
-		
-	}
-	
-	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
-		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid entity class: " + aClass);
-		}
-
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Delete,
-				companion.get(), 
-				id, 
-				null,
-				null);
-		elements.add(elt);
-		
-	}
-
-	public <T extends AbstractPersistentObject> void deleteOptLocked(T instance) {
-		if ((instance.state() != State.STORED) &&  (instance.state() != State.OUTDATED)) {
-			throw new RuntimeException("not a persistent instance");
-		}
-
-		@SuppressWarnings("unchecked")
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Delete,
-				(Companion<T>) instance.companion(), 
-				instance.id(),
-				null,
-				instance);
-		elt.setOptimisticLocking(true);
-		elt.setVersion(instance.version());
-		elements.add(elt);
-	}
-	
-	
-	public <T extends AbstractPersistentObject> void delete(T instance) {
-		if ((instance.state() != State.STORED) &&  (instance.state() != State.OUTDATED)) {
-			throw new RuntimeException("not a persistent instance");
-		}
-
-		@SuppressWarnings("unchecked")
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Delete,
-				(Companion<T>) instance.companion(), 
-				instance.id(),
-				null,
-				instance);
-		elements.add(elt);
-	}
-
-	public <T extends AbstractPersistentObject> T updateOptLocked(T instance) {
-		if ((instance.state() != State.STORED) &&  (instance.state() != State.OUTDATED)) {
-			throw new BeanStoreException("not a persistent instance");
+			throw new RuntimeException("Invalid key entity: " + key);
 		}
 		
-		@SuppressWarnings("unchecked")
-		T recordInstance = (T) instance.companion().createInstance();
+		T recordInstance = (T) companion.get().createInstance();
+		recordInstance.id(key.id());
 		recordInstance.state(State.RECORD);
-		recordInstance.id(instance.id());
-		recordInstance.version(instance.version());
 
-		@SuppressWarnings("unchecked")
 		TransactionElement<T> elt = new TransactionElement<>(
 				this,
 				InstanceEventType.Update,
-				(Companion<T>) instance.companion(), 
-				instance.id(), 
-				recordInstance,
-				instance);
-		elt.setOptimisticLocking(true);
-		elt.setVersion(instance.version());
+				companion.get(), 
+				key.id(), 
+				recordInstance);
 		elements.add(elt);
 
 		return recordInstance;
 	}
 	
-	public <T extends AbstractPersistentObject> T update(T instance) {
-		if ((instance.state() != State.STORED) &&  (instance.state() != State.OUTDATED)) {
-			throw new BeanStoreException("not a persistent instance");
-		}
-		
-		@SuppressWarnings("unchecked")
-		T recordInstance = (T) instance.companion().createInstance();
-		recordInstance.state(State.RECORD);
-		recordInstance.id(instance.id());
-		recordInstance.version(instance.version());
-
-		@SuppressWarnings("unchecked")
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Update,
-				(Companion<T>) instance.companion(), 
-				instance.id(), 
-				recordInstance,
-				instance);
-		elements.add(elt);
-
-		return recordInstance;
-	}
-
-	
-	public <T extends AbstractEntity> T updateOptLocked(Class<T> aClass, long id, int version) {
-		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
+	public <T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key) {
+		Optional<Companion<T>> companion = companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid entity class: " + aClass);
+			throw new RuntimeException("Invalid key entity: " + key);
 		}
 		
 		T recordInstance = (T) companion.get().createInstance();
 		recordInstance.state(State.RECORD);
-		recordInstance.id(id);
-		recordInstance.version(version);
+		recordInstance.id(key.id());
+		recordInstance.version(key.version());
 
 		TransactionElement<T> elt = new TransactionElement<>(
 				this,
 				InstanceEventType.Update,
-				(Companion<T>) companion.get(), 
-				id, 
-				recordInstance,
-				null);
+				companion.get(), 
+				key.id(), 
+				recordInstance);
 		elt.setOptimisticLocking(true);
-		elt.setVersion(version);
-		elements.add(elt);
-
-		return recordInstance;
-		
-	}
-
-	
-	public MapObject updateMapObject(String alias, long id) {
-		Optional<Companion<? extends AbstractPersistentObject>> companion = companionSet.companionByAlias(alias);
-		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid entity alias: " + alias);
-		}
-		if (companion.get().isBean()) {
-			throw new RuntimeException("Invalid entity alias (map alias expected): " + alias);
-		}
-		
-		MapObject recordInstance = (MapObject) companion.get().createInstance();
-		recordInstance.id(id);
-		recordInstance.state(State.RECORD);
-
-		TransactionElement<MapObject> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Update,
-				(MapObjectCompanion) companion.get(), 
-				id, 
-				recordInstance,
-				null);
+		elt.setVersion(key.version());
 		elements.add(elt);
 
 		return recordInstance;
 	}
-	
-	public <T extends AbstractEntity> T update(Class<T> aClass, long id) {
-		Optional<Companion<T>> companion = companionSet.companionByClass(aClass);
-		if (companion.isEmpty()) {
-			throw new RuntimeException("Invalid entity class: " + aClass);
-		}
-		
-		T recordInstance = (T) companion.get().createInstance();
-		recordInstance.id(id);
-		recordInstance.state(State.RECORD);
-
-		TransactionElement<T> elt = new TransactionElement<>(
-				this,
-				InstanceEventType.Update,
-				(Companion<T>) companion.get(), 
-				id, 
-				recordInstance,
-				null);
-		elements.add(elt);
-
-		return recordInstance;
-	}
-	
 	
 	@Override
 	public TransactionPhase phase() {

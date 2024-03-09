@@ -1,14 +1,31 @@
 package de.protubero.beanstore.impl;
 
+import java.util.Objects;
+
 import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectVersionKey;
 import de.protubero.beanstore.tx.Transaction;
 
-public class BeanStoreTransactionImpl extends BaseTransactionImpl implements BeanStoreTransaction {
+public class BeanStoreTransactionImpl implements BeanStoreTransaction {
+
+	protected Transaction transaction;
 
 	public BeanStoreTransactionImpl(Transaction transaction) {
-		super(transaction);
+		this.transaction = Objects.requireNonNull(transaction);
+	}
+
+	@Override
+	public AbstractPersistentObject create(String alias) {
+		return transaction.create(alias);
+	}
+	
+
+	@Override
+	public <T extends AbstractPersistentObject> T create(T instance) {
+		return transaction.create(instance);
 	}
 
 	@Override
@@ -17,44 +34,28 @@ public class BeanStoreTransactionImpl extends BaseTransactionImpl implements Bea
 	}
 
 	@Override
-	public <T extends AbstractEntity> void delete(Class<T> aClass, long id) {
-		transaction.delete(aClass, id);
-	}
-
-
-	@Override
-	public <T extends AbstractPersistentObject> void deleteOptLocked(String alias, long id, int version) {
-		transaction.deleteOptLocked(alias, id, version);
-	}
-
-	@Override
-	public <T extends AbstractEntity> void deleteOptLocked(Class<T> aClass, long id, int version) {
-		transaction.deleteOptLocked(aClass, id, version);
-	}
-
-	@Override
-	public <T extends AbstractPersistentObject> void deleteOptLocked(T instance) {
-		transaction.deleteOptLocked(instance);
-	}
-
-	@Override
-	public <T extends AbstractPersistentObject> T updateOptLocked(T instance) {
-		return transaction.updateOptLocked(instance);
-	}
-
-	@Override
-	public <T extends AbstractEntity> T updateOptLocked(Class<T> aClass, long id, int version) {
-		return transaction.updateOptLocked(aClass, id, version);
-	}
-
-	@Override
-	public <T extends AbstractEntity> T update(Class<T> aClass, long id) {
-		return transaction.update(aClass, id);
-	}
-
-	@Override
 	public void describe(String text) {
 		transaction.setDescription(text);
+	}
+
+	@Override
+	public void delete(PersistentObjectKey<?> key) {
+		transaction.delete(key);
+	}
+
+	@Override
+	public void delete(PersistentObjectVersionKey<?> key) {
+		transaction.delete(key);
+	}
+
+	@Override
+	public <T extends AbstractPersistentObject> T update(PersistentObjectKey<T> key) {
+		return transaction.update(key);
+	}
+
+	@Override
+	public <T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key) {
+		return transaction.update(key);
 	}
 
 	

@@ -2,38 +2,36 @@ package de.protubero.beanstore.api;
 
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectVersionKey;
 
 
 /**
  * Adds the explicit handling of bean-based instances to the basic transaction.
  *
  */
-public interface BeanStoreTransaction extends BaseTransaction {
+public interface BeanStoreTransaction  {
 	
-	void describe(String text);
-	
+	/**
+	 * Create a new instance of an entity with alias <i>alias</i>.<br>
+	 */
+	AbstractPersistentObject create(String alias);
+
 	/**
 	 * Create a BeanStore bean instance of the type determined by the parameter. 
 	 */
 	<T extends AbstractEntity> T create(Class<T> aClass);
+	
+	<T extends AbstractPersistentObject> T create(T templateInstance);
 
-	
-	/**
-	 * Delete a BeanStore bean instance of the type determined by the parameter and the id. 
-	 */
-	<T extends AbstractEntity> void delete(Class<T> aClass, long id);
-	
-	<T extends AbstractPersistentObject> void deleteOptLocked(String alias, long id, int version);
-	
-	<T extends AbstractEntity> void deleteOptLocked(Class<T> aClass, long id, int version);
-	
-	<T extends AbstractPersistentObject> void deleteOptLocked(T instance);
-	
-	<T extends AbstractPersistentObject> T updateOptLocked(T instance);
-	
-	<T extends AbstractEntity> T updateOptLocked(Class<T> aClass, long id, int version);
-	
-	<T extends AbstractEntity> T update(Class<T> aClass, long id);
+	void delete(PersistentObjectKey<?> key);
 
+	void delete(PersistentObjectVersionKey<?> key);	
+	
+	<T extends AbstractPersistentObject> T update(PersistentObjectKey<T> key);
+		
+	<T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key);
+		
+	void describe(String text);
 	
 }

@@ -220,7 +220,7 @@ public class StoreWriter  {
 					
 					break;
 				case Create:
-					if (elt.getId() != null || elt.getVersion() != null || elt.getRefInstance() != null) {
+					if (elt.getId() != null || elt.getVersion() != null) {
 						throw new AssertionError();
 					}
 					long newInstanceId =  entityStore.getAndIncreaseInstanceId();	

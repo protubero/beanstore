@@ -1,9 +1,7 @@
-package de.protubero.beanstore.keys;
+package de.protubero.beanstore.entity;
 
 import java.util.Objects;
 
-import de.protubero.beanstore.entity.AbstractEntity;
-import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 
 public interface PersistentObjectVersionKey<T extends AbstractPersistentObject> {

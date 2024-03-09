@@ -10,7 +10,7 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
 import de.protubero.beanstore.entity.MapObject;
-import de.protubero.beanstore.keys.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
 /**
  * BeanStore read operations. 

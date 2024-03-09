@@ -1,7 +1,4 @@
-package de.protubero.beanstore.keys;
-
-import de.protubero.beanstore.entity.AbstractEntity;
-import de.protubero.beanstore.entity.AbstractPersistentObject;
+package de.protubero.beanstore.entity;
 
 public final class PersistentObjectKeyImpl<T extends AbstractPersistentObject> implements PersistentObjectKey<T> {
 

@@ -12,9 +12,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
+import de.protubero.beanstore.entity.Keys;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
-import de.protubero.beanstore.keys.Keys;
-import de.protubero.beanstore.keys.PersistentObjectKey;
 import de.protubero.beanstore.model.Employee;
 
 public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
@@ -66,8 +66,8 @@ public class BeanStoreReadAccessTest extends AbstractBeanStoreTest {
 		var readStore = store.snapshot();
 		assertThrows(NullPointerException.class, () -> readStore.findOptional(null));
 		
-		assertThrows(BeanStoreException.class, () -> readStore.findOptional(PersistentObjectKey.of((String) null, 1l)));		
-		assertThrows(BeanStoreException.class, () -> readStore.findOptional(Keys.key(SAMPLE_DATA[0])));
+		assertThrows(NullPointerException.class, () -> readStore.findOptional(PersistentObjectKey.of((String) null, 1l)));		
+		assertThrows(NullPointerException.class, () -> readStore.findOptional(Keys.key(SAMPLE_DATA[0])));
 		
 		Employee emp1 = (Employee) readStore.find(PersistentObjectKey.of("employee", 1));
 		assertEquals(true, readStore.findOptional(Keys.key(emp1)).isPresent());

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.model.Employee;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
@@ -47,7 +48,7 @@ public class MapStoreBuilderTest {
 		
 		tx = mapStore.transaction();
 
-		MapObject exEmp = tx.update(employee);
+		MapObject exEmp = tx.update(Keys.key(employee));
 		exEmp.set("age", 50);
 		
 		employee = (MapObject) tx.create("employee");
