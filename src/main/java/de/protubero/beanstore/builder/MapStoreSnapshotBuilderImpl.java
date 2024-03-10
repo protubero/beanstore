@@ -25,7 +25,7 @@ public class MapStoreSnapshotBuilderImpl  implements MapStoreSnapshotBuilder {
 
 	@Override
 	public BeanStoreSnapshot build(int state) {
-		return build(state);
+		return build(Integer.valueOf(state));
 	}
 
 	@Override

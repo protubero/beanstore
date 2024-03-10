@@ -24,11 +24,9 @@ TEST
 
 Working with maps (mapEntity)
 
-Load instance History
--- from history plugin & from persistent file 
 
 Load Store State X
--- from history plugin & from persistent file 
+-- from persistent file 
 -- into ReadOnlyMapStore
 
 check MapObject: set Property to null, entfernt Property aus map!
