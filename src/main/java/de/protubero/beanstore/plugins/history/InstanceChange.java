@@ -6,7 +6,7 @@ import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 public class InstanceChange {
 
-	private int changeType;
+	private byte changeType;
 	
 	private int instanceVersion;
 
@@ -22,7 +22,7 @@ public class InstanceChange {
 
 	private String migrationId;
 	
-	private int transactionType;
+	private byte transactionType;
 	
 	
 
@@ -58,11 +58,11 @@ public class InstanceChange {
 		this.migrationId = migrationId;
 	}
 
-	public int getTransactionType() {
+	public byte getTransactionType() {
 		return transactionType;
 	}
 
-	public void setTransactionType(int transactionType) {
+	public void setTransactionType(byte transactionType) {
 		this.transactionType = transactionType;
 	}
 
@@ -74,11 +74,11 @@ public class InstanceChange {
 		this.alias = alias;
 	}
 
-	public int getChangeType() {
+	public byte getChangeType() {
 		return changeType;
 	}
 
-	public void setChangeType(int changeType) {
+	public void setChangeType(byte changeType) {
 		this.changeType = changeType;
 	}
 

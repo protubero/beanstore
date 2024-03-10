@@ -16,9 +16,6 @@ Comment API
 
 entity-specific search
 
-tx.update(instance) auf instanceKey umarbeiten
--- instance.key()
--- xVersionKey -> OptLocked
 
 TEST 
 - entities auto-created by migrations??
@@ -34,7 +31,7 @@ Load Store State X
 -- from history plugin & from persistent file 
 -- into ReadOnlyMapStore
 
-
+check MapObject: set Property to null, entfernt Property aus map!
 
 Auto-Release // Include License info
 ------------------------------------- 0.8.5

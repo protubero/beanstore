@@ -10,6 +10,7 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.entity.EntityCompanion;
 import de.protubero.beanstore.entity.Keys;
+import de.protubero.beanstore.tx.Transaction;
 
 public interface BeanStoreBase {
 
@@ -49,7 +50,7 @@ public interface BeanStoreBase {
     	return tx.execute();
     }
 
-    default <T extends AbstractEntity> BeanStoreTransactionResult update(Class<T> beanClass, long id, Map<String, Object> updatedFields) {
+    default <T extends AbstractEntity> BeanStoreTransactionResult update(Class<T> beanClass, long id, Integer version, Map<String, Object> updatedFields) {
     	if (updatedFields.isEmpty()) {
     		throw new RuntimeException("Update map with no entries");
     	}
@@ -61,7 +62,7 @@ public interface BeanStoreBase {
     	EntityCompanion<T> companion = companionOpt.get();
     	
     	var tx = transaction();
-    	T recInstance = tx.update(Keys.key(beanClass, id));
+    	T recInstance = startTransaction(tx, beanClass, id, version);
     	
     	updatedFields.entrySet().forEach(entry -> {
     		PropertyDescriptor propDesc = companion.propertyDescriptorOf(entry.getKey());
@@ -77,12 +78,23 @@ public interface BeanStoreBase {
     	
     	return tx.execute();
     }
-    
-    
 
-    default <T extends AbstractEntity> BeanStoreTransactionResult delete(Class<T> entityClass, Long id) {
+    private <T extends AbstractEntity> T startTransaction(ExecutableBeanStoreTransaction tx, Class<T> beanClass, long id, Integer version) {
+    	if (version != null) {
+    		return tx.update(Keys.versionKey(beanClass, id, version.intValue()));
+    	} else {
+    		return tx.update(Keys.key(beanClass, id));
+    	}	
+    }
+
+	default <T extends AbstractEntity> BeanStoreTransactionResult delete(Class<T> entityClass, Long id, Integer version) {
     	var tx = transaction();
-    	tx.delete(Keys.key(entityClass, id));
+    	if (version != null) {
+        	tx.delete(Keys.versionKey(entityClass, id, version.intValue()));
+    	} else {
+        	tx.delete(Keys.key(entityClass, id));
+    	}	
+
     	return tx.execute();
     }		
 	
@@ -90,5 +102,12 @@ public interface BeanStoreBase {
     	var tx = transaction();
     	tx.delete(Keys.key(entityInstance));
     	return tx.execute();
+    }
+     
+     default <T extends AbstractEntity> BeanStoreTransactionResult deleteOptLocked(T entityInstance) {
+    	var tx = transaction();
+    	tx.delete(Keys.versionKey(entityInstance));
+    	return tx.execute();
     }		
+     
 }
