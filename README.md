@@ -18,9 +18,12 @@ Table of contents
 
 
 # Versioning
-	0.8.x For Testing and short time projects. No Rules, undocumented breaking changes anytime, any version, no migration provided
-	0.9.x For hobby projects, breaking changes should be rare and well documented, migration will be provided
-	from 1.0.0 Semantic Versioning, migration will be provided, all kind of projects
+
+| Version   | Description |
+| ------------- | ------------- |
+| 0.8.x  | To be used for testing the library and possibly for small, time-limited personal projects. Undocumented breaking changes can occur in any release, no migration will be provided  |
+| 0.9.x  | The library is considered mature enough to be used for small private projects. Breaking changes should be rare and well documented. Migrations, e.g. for changes of the persistence file format, will be provided.  |
+| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. |
 
 # Recent releases
 	
