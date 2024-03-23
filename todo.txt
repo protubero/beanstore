@@ -24,11 +24,6 @@ TEST
 
 Working with maps (mapEntity)
 
-
-Load Store State X
--- from persistent file 
--- into ReadOnlyMapStore
-
 check MapObject: set Property to null, entfernt Property aus map!
 
 Auto-Release // Include License info

@@ -1,74 +1,33 @@
-# BeanStore - an easy and comfortable in-memory data store with transaction-log based persistence
 
 
+Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation, and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. With very frequent changes, startup time could possibly become a factor.
+
+Beanstore transactions describe changes to a set of “Java Beans”. These changes are simultaneously applied to the beans and stored in a log-structured file. The next time the application is started, all changes will be replayed to restore the last store state. If you've ever heard of event sourcing, you're already familiar with the concept. The Java Beans specification requires that beans be serializable through Java Object Serialization. Instead, we use Kryo as a serialization framework. And we require that the beans have no default values, which effectively prevents the use of native types like int and boolean. We will refer to them as “data beans” throughout this documentation. We won't use the POJO term because the classes still have to follow the remaining Java Bean Rules (getters/setters and no-arg constructor).
+
+Each store is a set of entities that resemble tables in a relational database. You can choose whether such an entity is represented by a data bean, i.e. whether there is an associated Java class. If not, beanstore uses a generic map-like representation.
+You can switch between the two representations at any time.
+
+Beanstore has a rich callback API, e.g. you can reject a transaction in callback code. This allows implementing custom validation logic. And the API makes it easy to create projections and aggregations of the data and keep them up to date.
+
+The way data is maintained and stored means that every state of the data from the past can be reproduced. Beanstore includes two ways to take advantage of this. On the one hand, you can access the complete history of a single instance. On the other hand, you can create and evaluate a snapshot of any historical state.
+
+Beanstore has a plugin API that allows third parties to offer additional data-related add-ons, e.g. for data validation, search engines, etc. Beanstore comes with a Lucene-based in-memory search engine and a validation plugin based on Java Bean Validation.
 
 
-Store your data as Maps or as Data Beans - you decide. You can choose for each entity. Change your decision easily at any time.
-Access Data Beans like maps.
+Table of contents
 
 
+# Versioning
+	0.8.x For Testing and short time projects. No Rules, undocumented breaking changes anytime, any version, no migration provided
+	0.9.x For hobby projects, breaking changes should be rare and well documented, migration will be provided
+	from 1.0.0 Semantic Versioning, migration will be provided, all kind of projects
+
+# Recent releases
+	
 
 
-
-migratable data
-
-in-memory data / single file db
-
-persistent state / snapshot queries with java streams
-
-
-
-Full customizable Transaction validiation
-Bean Validation
-transactional changes 
-
-Optimistic locking
-locked Store
-
-full change and state history
-
-Rich plugin API lets you easily build custom read models.
-
-
-Key selling points:
-
-* The data is persisted in one file
-* Everything is in memory, query your data with java streams
-* Enforce Constraints with synchronous transaction Listeners
-* Build CQRS Read Models through asynchronous transaction listeners
-* Bean Validation
-* Migrate persistent data with Migration Transactions
-* Configurable full text search with Lucene
-* full change history
-* A plugin interface
-
-## When to consider?
-
-...
-
-
-### build on
-
-We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize transactions, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
-
-PCollections
-
-ByteBuddy
-
-lucene 
-
-rxjava
-
-### Development
-
-Version 0.9, 0.8, 1.0
-multi-module in future
-
-
-## Getting Started
-
-### Add maven dependency
-
+# Installation
+	With Maven
 ```xml
 <dependency>
     <groupId>de.protubero</groupId>
@@ -76,11 +35,11 @@ multi-module in future
     <version>0.8.5</version>
 </dependency>
 ```
+	
+	
+	Building from source
 
-
-### Quickstart Code
-
-
+# Quickstart
 
 ```java
 
@@ -117,13 +76,99 @@ var allToDos = store.read().entity(ToDo.class).stream().collect(Collectors.toLis
 ```
 
 
-### Example Web Application
+	(Sample App)
 
-The [BeanStore Demo](https://github.com/protubero/beanstore-demo) demonstrates the features and typical use cases of the lib.
+# Build a store
 
-## Documentation
+The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized and how data in an outdated schema is migrated.
 
-### BeanStore Entities
+Commented Example
+ 
+
+## Builder Configuration: Persistency
+## Builder Configuration: Entities
+## Builder Configuration: New Store Initialization
+## Builder Configuration: Migrations
+## register plugins
+
+
+# Transactions
+
+The transactions are processed strictly sequentially.
+
+BeanStore has four options to execute transactions. Some of them blocking, some of them non-blocking.
+
+Blocking
+* BeanStore.locked(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
+* BeanStore.transaction().execute()
+
+Non-Blocking
+* BeanStore.lockedAsync(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
+* BeanStore.transaction().executeAsync()
+
+The BeanStore always applies the transactions to the store data *ony by one*. This is achieved by using a transaction queue. All new transactions are enqueued, the store takes the transactions one after another from the queue. The *locked* variants call the callback code just when the store pulls this 'transaction factory' from the queue. The factory is then given the possibility to create the transactions. This is, how *pessimistic locking* is implemented. E.g. if you want to update all instances of an entity at once, like you would do with a SQL update statement, you need to make sure that you don't miss any instance. 
+
+Beside synchronous transactions listeners for transaction verification (see below), this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
+
+
+## Optimistic locking
+## locked Store
+
+
+# Query store
+
+The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+
+Callbacks
+
+The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The verifyX methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
+
+# Migration
+
+# Advanced Values / Kryo
+
+# Querying Historic States
+
+
+# Plugin
+
+## Plugin API
+## Default Plugins
+
+[Jakarta Bean Validation](https://beanvalidation.org/) is a Java specification which lets you express constraints on object models via annotations. Register plugin `BeanValidationPlugin` to use this feature.
+
+```java
+class Employee extends AbstractEntity {
+	@Min(value = 18, message = "Age should not be less than 18")
+	private Integer age;
+}
+
+// configure Java Bean Validation
+BeanValidationPlugin validationPlugin = new BeanValidationPlugin();
+factory.addPlugin(validationPlugin);
+
+var employee = tx.create(Employee.class);
+employee.setAge(20);
+tx.execute(); // throws ValidationException
+	
+```
+
+
+
+### build on
+
+We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize transactions, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
+
+PCollections
+
+ByteBuddy
+
+lucene 
+
+rxjava
+
+
+# Entities
 
 BeanStore data is stored as instances of [Java Beans](https://blog.joda.org/2014/11/the-javabeans-specification.html). 
 
@@ -152,14 +197,6 @@ The `AbstractEntity` class implements a *Map* interface to make the bean propert
 The BeanStore is designed as a store of immutable objects! Stored beans will throw an exception if you call a setter method. You can easily shoot yourself in the foot by changing field values of stored beans. BeanStore only restricts access per setter method.
 
 
-### BeanStore Factory
-
-Use `BeanStoreFactory` to configure the resulting BeanStore:
-
-* register entity classes
-* register callback to initialize an empty store
-* register plugins
-* configure migration transactions
 
 
 #### Register Entity Classes
@@ -185,19 +222,6 @@ You can think of the migration name as a kind of database version.
 
 #### Transactions
 
-BeanStore has four options to execute transactions. Some of them blocking, some of them non-blocking.
-
-Blocking
-* BeanStore.locked(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
-* BeanStore.transaction().execute()
-
-Non-Blocking
-* BeanStore.lockedAsync(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
-* BeanStore.transaction().executeAsync()
-
-The BeanStore always applies the transactions to the store data *ony by one*. This is achieved by using a transaction queue. All new transactions are enqueued, the store takes the transactions one after another from the queue. The *locked* variants call the callback code just when the store pulls this 'transaction factory' from the queue. The factory is then given the possibility to create the transactions. This is, how *pessimistic locking* is implemented. E.g. if you want to update all instances of an entity at once, like you would do with a SQL update statement, you need to make sure that you don't miss any instance. 
-
-Beside synchronous transactions listeners for transaction verification (see below), this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
 
 
 #### Optimistic Locking
@@ -254,25 +278,6 @@ var searchResult = searchPlugin.search("World");
 ```
 
 
-#### Bean Validation
-
-[Jakarta Bean Validation](https://beanvalidation.org/) is a Java specification which lets you express constraints on object models via annotations. Register plugin `BeanValidationPlugin` to use this feature.
-
-```java
-class Employee extends AbstractEntity {
-	@Min(value = 18, message = "Age should not be less than 18")
-	private Integer age;
-}
-
-// configure Java Bean Validation
-BeanValidationPlugin validationPlugin = new BeanValidationPlugin();
-factory.addPlugin(validationPlugin);
-
-var employee = tx.create(Employee.class);
-employee.setAge(20);
-tx.execute(); // throws ValidationException
-	
-```
 
 #### Transaction History
 
