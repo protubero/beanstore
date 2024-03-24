@@ -19,7 +19,13 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Versioning](#versioning)
 - [Recent Releases](#recent-releases)
 - [Maven Dependency](#maven-dependency)
-- [Building from source](#bulding-from-source)
+- [Building from source](#building-from-source)
+- [Quickstart](#quickstart)
+- [Build a store](#build-a-store)
+  * [Kryo Configuration](#kryo-configuration)
+  * [Persistence Configuration](#persistence-configuration)
+  * [Register entities](#register-entities)
+  * [New Store Initialization](#new-store-initialization)
 
 
 ## Versioning
@@ -105,18 +111,23 @@ allToDos.forEach(System.out::println);
 ```
 
 
-# Build a store
+## Build a store
 
-The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized and how data in an outdated schema is migrated.
+The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized.
 
-Commented Example
- 
 
-## Builder Configuration: Persistency
-## Builder Configuration: Entities
-## Builder Configuration: New Store Initialization
-## Builder Configuration: Migrations
-## register plugins
+Some of the advanced features have their own section in the documentation:
+- [Migrations](#migrations)
+- [Plugins](#plugins)
+
+### Kryo Configuration
+
+
+### Persistence Configuration
+
+### Register entities
+
+### New Store Initialization
 
 
 # Transactions
