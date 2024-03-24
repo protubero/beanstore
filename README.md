@@ -305,12 +305,26 @@ With delete operations you have the choice between optimistic locking `delete(an
 
 
 ### Locked Store
+If multiple concurrend threads write transactions, the data may look different when a transaction is executed than it did when it transaction was created. To handle this there is the option of optimistic locking. But there might be situations where that isn't enough. It is therefore possible to lock the store and then define transactions that are immediately executed based on the current state of the store at that time. 
+
+```java
+	store.locked(ctx -> {
+		var tx = ctx.transaction();
+		ctx.snapshot().entity(Task.class).stream().forEach( task ->
+			if (task.getDeadlineDate().isAfter(now())) {
+				var task = tx.update(task);
+				task.setDeadlineReached(true);
+			}
+		);
+		tx.execute();
+	});
+```
 
 ## Appendix
 
 ### Standard Data Types
 
-All types listed in this section are already kryo-serializable, i.e. they can be used without the need to register a Kryo Serializer for them.
+All types listed in this section are already _kryo-serializable_, i.e. they can be used without the need to register a Kryo Serializer for them.
 
 #### From java.lang
 * String
@@ -369,5 +383,5 @@ short[]
 
 
 > [!WARNING]  
-> All but the arrays are immutable classes. If you use arrays as property values, you must be careful not to modify them without using transactions! 
+> All but the arrays are immutable classes. If you use arrays as property values, you must be careful not to modify them once they are values of stored instances.
 
