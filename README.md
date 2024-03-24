@@ -148,12 +148,12 @@ kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
 
 ```
 
-### PropertyBeanSerializer
+#### PropertyBeanSerializer
 Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
 
 
 
-### Framework Support
+#### Framework Support
 
 ### Persistence Configuration
 
@@ -283,6 +283,8 @@ You can think of the migration name as a kind of database version.
 
 
 
+
+
 #### Optimistic Locking
 
 Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
@@ -310,7 +312,6 @@ The `BeanStoreReadAccess` interface has methods to
 * "query" entities with java streams
 * return a snapshot version of the store (i.e. subsequent transactions will have no effect on the snapshot store.)
 
-Calling `BeanStore.close` first closes the transaction queue for new entries and then closes the transaction writer. 
 
 
 ### Plugins
@@ -346,6 +347,13 @@ Use `BeanStoreHistoryPlugin` if you need to access a full change history of each
 #### Transaction Log
 
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
+
+## Advanced topics
+
+### Close store
+
+Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. This is a blocking operation, The call will only return when everything is done.
+
 
 ## Appendix
 
