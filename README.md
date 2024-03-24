@@ -112,6 +112,15 @@ var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.t
 allToDos.forEach(System.out::println);
 ```
 
+## Entities, Instances, Values
+
+In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
+The mechanics of the store and its instances are very special and it does not behave like an ordinary list of instances of a Java class or maps:
+
+* All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
+* Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
+* At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
+
 
 ## Build a store
 
@@ -125,6 +134,17 @@ Some of the advanced features have their own section in the documentation:
 ### Kryo Configuration
 
 For persistent storage, all data is serialized using the [Kryo](https://github.com/EsotericSoftware/kryo) library. Many data types work out-of-the-box. These are listed in the appendix on [standard data types](#standard-data-types).
+
+All non-standard data types must be explicitly registered. You can write your own serializer or use one of the ones Kryo provides.
+
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+
+// register an implementation of the Kryo Serializer interface. id must be > 100
+kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
+
+
+```
 
 ### Persistence Configuration
 
@@ -333,48 +353,60 @@ The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transact
 
 ### Standard Data Types
 
+#### From java.lang
+* String
+* Integer
+* Long
+* Short
+* Float
+* Double
+* Boolean
+* Byte
+* Character
+
+
 #### From java.math
-BigInteger
-BigDecimal
-RoundingMode
+* BigInteger
+* BigDecimal
+* RoundingMode
 		
 #### From java.util
-Currency
-Locale
-Date
+* Currency
+* Locale
+* Date
 
 #### From java.net
-URL
-URI
+* URL
+* URI
 		
 #### From java.timr
-Instant
-Duration
-LocalDateTime
-LocalDate
-LocalTime
-ZoneOffset
-ZoneId
-OffsetTime
-OffsetDateTime
-ZonedDateTime
-Year
-YearMonth
-MonthDay
-Period
-DayOfWeek
-Month
+* Instant
+* Duration
+* LocalDateTime
+* LocalDate
+* LocalTime
+* ZoneOffset
+* ZoneId
+* OffsetTime
+* OffsetDateTime
+* ZonedDateTime
+* Year
+* YearMonth
+* MonthDay
+* Period
+* DayOfWeek
+* Month
 
 #### Arrays  
-byte[]
-char[]
+* byte[]
+* char[]
 short[]
-int[]
-long[]
-float[]
-double[]
-boolean[]
-String[]
+* int[]
+* long[]
+* float[]
+* double[]
+* boolean[]
+* String[]
 
 
 > [!WARNING]  
