@@ -320,7 +320,7 @@ If multiple concurrend threads write transactions, the data may look different w
 	});
 ```
 
-> [!INFO]  
+> [!NOTE]  
 > The callback code is enqeued in the normal transaction queue.
 
 ## Appendix
@@ -385,6 +385,6 @@ short[]
 * String[]
 
 
-> [!WARNING]  
+> [!CAUTION]  
 > All but the arrays are immutable classes. If you use arrays as property values, you must be careful not to modify them once they are values of stored instances.
 
