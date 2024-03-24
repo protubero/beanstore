@@ -320,6 +320,9 @@ If multiple concurrend threads write transactions, the data may look different w
 	});
 ```
 
+> [!INFO]  
+> The callback code is enqeued in the normal transaction queue.
+
 ## Appendix
 
 ### Standard Data Types
