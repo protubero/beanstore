@@ -14,10 +14,15 @@ The way data is maintained and stored means that every state of the data from th
 Beanstore has a plugin API that allows third parties to offer additional data-related add-ons, e.g. for data validation, search engines, etc. Beanstore comes with a Lucene-based in-memory search engine and a validation plugin based on Java Bean Validation.
 
 
-Table of contents
+## Table of contents
+
+- [Versioning](#versioning)
+- [Recent Releases](#recent-releases)
+- [Maven Dependency](#maven-dependency)
+- [Building from source](#bulding-from-source)
 
 
-# Versioning
+## Versioning
 
 | Version   | Description |
 | ------------- | ------------- |
@@ -26,27 +31,38 @@ Table of contents
 | 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. |
 
 # Recent releases
-	
+
+* [0.8.5](https://github.com/protubero/beanstore/releases/tag/beanstore-0.8.5) - warming up release actions after extensive refactoring.
 
 
-# Installation
-	With Maven
+## Maven Dependency
+
+To use the latest Beanstore release in your application, use this dependency entry in your `pom.xml`:
+
 ```xml
 <dependency>
-    <groupId>de.protubero</groupId>
-    <artifactId>beanstore</artifactId>
-    <version>0.8.5</version>
+   <groupId>de.protubero</groupId>
+   <artifactId>beanstore</artifactId>
+   <version>0.8.5</version>
 </dependency>
 ```
-	
-	
-	Building from source
 
-# Quickstart
+## Building from source
+
+Building Beanstore from source requires JDK11+ and Maven. To build all artifacts, run:
+
+```
+mvn clean && mvn install
+```
+
+
+## Quickstart
+
+jumping ahead to show how the library can be used:
 
 ```java
 
-// 1. Create a Java Bean Class, inherit from AbstractEntity
+// 1. Create a Data Bean Class, inherit from AbstractEntity
 @Entity(alias = "todo")
 public class ToDo extends AbstractEntity {
 
@@ -61,25 +77,25 @@ public class ToDo extends AbstractEntity {
 	}
 }
 
-// 2. Create and configure the BeanStore factory, register the bean class
-BeanStoreFactory factory = BeanStoreFactory.of(new File("c:/your/path/app.kryo"));
-factory.registerEntity(ToDo.class);
+// 2. Create and configure the Beanstore builder, register the data bean class
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+KryoPersistence persistence = KryoPersistence.of(new File("/path/to/file.bst"), kryoConfig);
+BeanStoreBuilder builder = BeanStoreBuilder.init(persistence);
+builder.registerEntity(ToDo.class);
 
 // 3. Create the BeanStore
-var store = factory.create();
+BeanStore store = builder.build();
 
-// 4. Create a new JavaBeans instance using a transaction
+// 4. Create a new instance using a transaction
 var tx = store.transaction();		
 ToDo newToDo = tx.create(ToDo.class);
 newToDo.setText("Hello World");
 tx.execute();
 
 // 5. read a list of all ToDos
-var allToDos = store.read().entity(ToDo.class).stream().collect(Collectors.toList());
+var allToDos = store.snapshot().entity(ToDo.class).stream().toList();
 ```
 
-
-	(Sample App)
 
 # Build a store
 
