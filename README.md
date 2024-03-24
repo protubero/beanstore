@@ -60,9 +60,10 @@ mvn clean && mvn install
 
 jumping ahead to show how the library can be used:
 
+First create a Data Bean Class
+
 ```java
 
-// 1. Create a Data Bean Class, inherit from AbstractEntity
 @Entity(alias = "todo")
 public class ToDo extends AbstractEntity {
 
@@ -76,24 +77,31 @@ public class ToDo extends AbstractEntity {
 		this.text = text;
 	}
 }
+```
 
-// 2. Create and configure the Beanstore builder, register the data bean class
+Then create and configure the Beanstore builder, register the data bean class, build the BeanStore
+
+```java
 KryoConfiguration kryoConfig = KryoConfiguration.create();
 KryoPersistence persistence = KryoPersistence.of(new File("/path/to/file.bst"), kryoConfig);
 BeanStoreBuilder builder = BeanStoreBuilder.init(persistence);
 builder.registerEntity(ToDo.class);
 
-// 3. Create the BeanStore
 BeanStore store = builder.build();
+```
 
-// 4. Create a new instance using a transaction
+Add some data using a transaction
+```java
 var tx = store.transaction();		
 ToDo newToDo = tx.create(ToDo.class);
 newToDo.setText("Hello World");
 tx.execute();
+```
 
-// 5. read a list of all ToDos
-var allToDos = store.snapshot().entity(ToDo.class).stream().toList();
+Query data - read list of todos
+```java
+var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.toList());
+allToDos.forEach(System.out::println);
 ```
 
 
