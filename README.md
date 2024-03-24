@@ -120,6 +120,8 @@ The mechanics of the store and its instances are very special and it does not be
 * All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
 * Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
 * At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
+* A BeanStore entity class must extend the _AbstractEntity_ class. It must have a no-argument constructor and expose its properties through setters and getters - as required by the Java Beans specification. Deviating from the specification, it does not have to be serializable in the sense of the _Java Object Serialization_. But it has to be kryo-serializable.
+* Each entity has a unique alias. For the data beans, this is determined using the _Entity_ annotation on the Java class.
 
 
 ## Build a store
@@ -145,6 +147,13 @@ kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
 
 
 ```
+
+### PropertyBeanSerializer
+Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
+
+
+
+### Framework Support
 
 ### Persistence Configuration
 
@@ -216,17 +225,6 @@ tx.execute(); // throws ValidationException
 
 
 
-### build on
-
-We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize transactions, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
-
-PCollections
-
-ByteBuddy
-
-lucene 
-
-rxjava
 
 
 # Entities
