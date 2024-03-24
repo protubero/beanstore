@@ -329,7 +329,7 @@ If multiple concurrend threads write transactions, the data may look different w
 
 All types listed in this section are already _kryo-serializable_, i.e. they can be used without the need to register a Kryo Serializer for them.
 
-#### From _java.lang_
+#### _java.lang.__
 * String
 * Integer
 * Long
@@ -341,21 +341,21 @@ All types listed in this section are already _kryo-serializable_, i.e. they can 
 * Character
 
 
-#### From _java.math_
+#### _java.math.__
 * BigInteger
 * BigDecimal
 * RoundingMode
 		
-#### From _java.util_
+#### _java.util.__
 * Currency
 * Locale
 * Date
 
-#### From _java.net_
+#### _java.net.__
 * URL
 * URI
 		
-#### From _java.time_
+#### _java.time.__
 * Instant
 * Duration
 * LocalDateTime
