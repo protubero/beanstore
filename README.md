@@ -26,7 +26,9 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
   * [Persistence Configuration](#persistence-configuration)
   * [Register entities](#register-entities)
   * [New Store Initialization](#new-store-initialization)
-
+- [Appendix](#appendix)
+  * [Standard Data Types](#standard-data-types)
+  
 
 ## Versioning
 
@@ -122,6 +124,7 @@ Some of the advanced features have their own section in the documentation:
 
 ### Kryo Configuration
 
+For persistent storage, all data is serialized using the [Kryo](https://github.com/EsotericSoftware/kryo) library. Many data types work out-of-the-box. These are listed in the appendix on [standard data types](#standard-data-types).
 
 ### Persistence Configuration
 
@@ -325,4 +328,55 @@ Use `BeanStoreHistoryPlugin` if you need to access a full change history of each
 #### Transaction Log
 
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
+
+## Appendix
+
+### Standard Data Types
+
+#### From java.math
+BigInteger
+BigDecimal
+RoundingMode
+		
+#### From java.util
+Currency
+Locale
+Date
+
+#### From java.net
+URL
+URI
+		
+#### From java.timr
+Instant
+Duration
+LocalDateTime
+LocalDate
+LocalTime
+ZoneOffset
+ZoneId
+OffsetTime
+OffsetDateTime
+ZonedDateTime
+Year
+YearMonth
+MonthDay
+Period
+DayOfWeek
+Month
+
+#### Arrays  
+byte[]
+char[]
+short[]
+int[]
+long[]
+float[]
+double[]
+boolean[]
+String[]
+
+
+> [!WARNING]  
+> Arrays are inherently mutable. If you use them as values ​​in entities, you must be careful not to change them without using transactions! 
 
