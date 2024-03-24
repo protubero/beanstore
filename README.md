@@ -205,15 +205,27 @@ Other callback options allow listeners to be informed on any change to the store
 All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
 
 
-# Migration
+## Migration
 
 At the startup process, when the transactions are loaded initially from the file, the BeanStore factory does not use the Java Bean Classes to store the data. Instead it stores all data in maps. Only at the end of the startup process the maps are replaced by Java Bean instances. But just before that happens, the loaded data can be transformed through migration transactions. 
 
 Use the `addMigration` method to register migrations. Each migration need to have a unique name. Make sure to always add migration transactions in the same order and with the same name. 
 
-The BeanStore stores information about the last migration applied in the persistent file. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
+The BeanStore stores information about the every migration applied in the persistent file. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
 
 You can think of the migration name as a kind of database version.
+
+```java
+
+// renaming 'color' property into 'backgroundColor' property
+builder.addMigration("rename-color-property", mtx -> {
+	mtx.snapshot().mapEntity("picture").stream()
+		.forEach(p -> {
+			var update = mtx.update(p);
+			update.put("backgroundColor", e.getString("color"));
+		});	
+});
+```
 
 
 # Advanced Values / Kryo
@@ -298,6 +310,8 @@ With delete operations you have the choice between optimistic locking `delete(an
 
 ### Standard Data Types
 
+All types listed in this section are already kryo-serializable, i.e. they can be used without the need to register a Kryo Serializer for them.
+
 #### From java.lang
 * String
 * Integer
@@ -355,5 +369,5 @@ short[]
 
 
 > [!WARNING]  
-> Arrays are inherently mutable. If you use them as values ​​in entities, you must be careful not to change them without using transactions! 
+> All but the arrays are immutable classes. If you use arrays as property values, you must be careful not to modify them without using transactions! 
 
