@@ -14,36 +14,81 @@ The way data is maintained and stored means that every state of the data from th
 Beanstore has a plugin API that allows third parties to offer additional data-related add-ons, e.g. for data validation, search engines, etc. Beanstore comes with a Lucene-based in-memory search engine and a validation plugin based on Java Bean Validation.
 
 
-Table of contents
+## Table of contents
 
+- [Versioning](#versioning)
+- [Recent Releases](#recent-releases)
+- [Maven Dependency](#maven-dependency)
+- [Building from source](#building-from-source)
+- [Quickstart](#quickstart)
+- [Entities, Instances, Values](##entities-instances-values)
+- [Build a store](#build-a-store)
+  * [Kryo Configuration](#kryo-configuration)
+  * [Persistence Configuration](#persistence-configuration)
+  * [Register entities](#register-entities)
+  * [New Store Initialization](#new-store-initialization)
+- [Transactions](#transactions)
+  * [Optimistic Locking](#optmistic-locking)
+  * [Locked Store](#locked-store)
+  * [Transaction Listener](#transaction-listener)
+- [Query Store](#query-store)
+- [Migration](#migration)
+- [Plugins](#plugins)
+  * [Bean Validation Plugin](#bean-validation-plugin)
+  * [Fulltext Search Plugin](#fulltext-search-plugin)
+  * [Transaction History Plugin](#transaction-history-plugin)
+  * [Transaction Log Plugin](#transaction-log-plugin)
+- [Advanced Topics](#advanced-topics)
+  * [Plugin API](#plugin-api)
+  * [PropertyBeanSerializer](#propertybeanserializer)
+  * [Kryo Configuration Framework Support](#kryo-configuration-framework-support)
+  * [Close Store](#close-store)
+- [Appendix](#appendix)
+  * [Standard Data Types](#standard-data-types)
+  
 
-# Versioning
-	0.8.x For Testing and short time projects. No Rules, undocumented breaking changes anytime, any version, no migration provided
-	0.9.x For hobby projects, breaking changes should be rare and well documented, migration will be provided
-	from 1.0.0 Semantic Versioning, migration will be provided, all kind of projects
+## Versioning
+
+| Version   | Description |
+| ------------- | ------------- |
+| 0.8.x  | To be used for testing the library and possibly for small, time-limited personal projects. Undocumented breaking changes can occur in any release, no migration will be provided  |
+| 0.9.x  | The library is considered mature enough to be used for small private projects. Breaking changes should be rare and well documented. Migrations, e.g. for changes of the persistence file format, will be provided.  |
+| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with external dependencies like the Fulltext Search Plugin will be moved to a separate project |
 
 # Recent releases
-	
+
+* [0.8.5](https://github.com/protubero/beanstore/releases/tag/beanstore-0.8.5) - warming up release actions after extensive refactoring.
 
 
-# Installation
-	With Maven
+## Maven Dependency
+
+To use the latest Beanstore release in your application, use this dependency entry in your `pom.xml`:
+
 ```xml
 <dependency>
-    <groupId>de.protubero</groupId>
-    <artifactId>beanstore</artifactId>
-    <version>0.8.5</version>
+   <groupId>de.protubero</groupId>
+   <artifactId>beanstore</artifactId>
+   <version>0.8.5</version>
 </dependency>
 ```
-	
-	
-	Building from source
 
-# Quickstart
+## Building from source
+
+Building Beanstore from source requires JDK11+ and Maven. To build all artifacts, run:
+
+```
+mvn clean && mvn install
+```
+
+
+## Quickstart
+
+jumping ahead to show how the library can be used:
+
+First create a Data Bean Class
 
 ```java
 
-// 1. Create a Java Bean Class, inherit from AbstractEntity
 @Entity(alias = "todo")
 public class ToDo extends AbstractEntity {
 
@@ -57,42 +102,85 @@ public class ToDo extends AbstractEntity {
 		this.text = text;
 	}
 }
+```
 
-// 2. Create and configure the BeanStore factory, register the bean class
-BeanStoreFactory factory = BeanStoreFactory.of(new File("c:/your/path/app.kryo"));
-factory.registerEntity(ToDo.class);
+Then create and configure the Beanstore builder, register the data bean class, build the BeanStore
 
-// 3. Create the BeanStore
-var store = factory.create();
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+KryoPersistence persistence = KryoPersistence.of(new File("/path/to/file.bst"), kryoConfig);
+BeanStoreBuilder builder = BeanStoreBuilder.init(persistence);
+builder.registerEntity(ToDo.class);
 
-// 4. Create a new JavaBeans instance using a transaction
+BeanStore store = builder.build();
+```
+
+Add some data using a transaction
+```java
 var tx = store.transaction();		
 ToDo newToDo = tx.create(ToDo.class);
 newToDo.setText("Hello World");
 tx.execute();
-
-// 5. read a list of all ToDos
-var allToDos = store.read().entity(ToDo.class).stream().collect(Collectors.toList());
 ```
 
+Query data - read list of todos
+```java
+var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.toList());
+allToDos.forEach(System.out::println);
+```
 
-	(Sample App)
+## Entities, Instances, Values
 
-# Build a store
+In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
+The mechanics of the store and its instances are very special and it does not behave like an ordinary list of instances of a Java class or maps:
 
-The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized and how data in an outdated schema is migrated.
-
-Commented Example
- 
-
-## Builder Configuration: Persistency
-## Builder Configuration: Entities
-## Builder Configuration: New Store Initialization
-## Builder Configuration: Migrations
-## register plugins
+* All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
+* Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
+* At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
+* A BeanStore entity class must extend the _AbstractEntity_ class. It must have a no-argument constructor and expose its properties through setters and getters - as required by the Java Beans specification. Deviating from the specification, it does not have to be serializable in the sense of the _Java Object Serialization_. But it has to be kryo-serializable.
+* Each entity has a unique alias. For the data beans, this is determined using the _Entity_ annotation on the Java class.
+* The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
+* The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
 
 
-# Transactions
+> [!WARNING]  
+> Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
+
+
+## Build a store
+
+The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized.
+
+
+Some of the advanced features have their own section in the documentation:
+- [Migrations](#migrations)
+- [Plugins](#plugins)
+
+### Kryo Configuration
+
+For persistent storage, all data is serialized using the [Kryo](https://github.com/EsotericSoftware/kryo) library. Many data types work out-of-the-box. These are listed in the appendix on [standard data types](#standard-data-types).
+
+All non-standard data types must be explicitly registered. You can write your own serializer or use one of the ones Kryo provides.
+
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+
+// register an implementation of the Kryo Serializer interface. id must be > 100
+kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
+
+
+```
+
+### Persistence Configuration
+
+### Register entities
+
+### New Store Initialization
+
+When a store is created, _KryoPersistence_ checks if the _transaction log file_ is empty or not (i.e. if the file exists). If there are no transactions, the new empty store is initialized by the listener which is passed as an argument of the `initNewStore` method.
+
+
+## Transactions
 
 The transactions are processed strictly sequentially.
 
@@ -110,30 +198,74 @@ The BeanStore always applies the transactions to the store data *ony by one*. Th
 
 Beside synchronous transactions listeners for transaction verification (see below), this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
 
+### Optimistic locking
 
-## Optimistic locking
-## locked Store
+Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
+
+With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
 
 
-# Query store
+### Locked Store
+If multiple concurrend threads write transactions, the data may look different when a transaction is executed than it did when it transaction was created. To handle this there is the option of optimistic locking. But there might be situations where that isn't enough. It is therefore possible to lock the store and then define transactions that are immediately executed based on the current state of the store at that time. 
 
-The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+```java
+	store.locked(ctx -> {
+		var tx = ctx.transaction();
+		ctx.snapshot().entity(Task.class).stream().forEach( task ->
+			if (task.getDeadlineDate().isAfter(now())) {
+				var task = tx.update(task);
+				task.setDeadlineReached(true);
+			}
+		);
+		tx.execute();
+	});
+```
 
-Callbacks
+### Transaction Listener
 
 The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The verifyX methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
 
-# Migration
+Transactions can be verified by callback code to enforce constraints. The beans can also define constraints by using the Java Bean Validation annotations (provided by a plugin).
 
-# Advanced Values / Kryo
+Other callback options allow listeners to be informed on any change to the store, synchronously or asynchronously to the transaction execution. These callbacks can be used to create CQRS style *Read Models*.
 
-# Querying Historic States
+All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
 
 
-# Plugin
+## Query store
 
-## Plugin API
-## Default Plugins
+The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+
+
+
+## Migration
+
+At the startup process, when the transactions are loaded initially from the file, the BeanStore factory does not use the Java Bean Classes to store the data. Instead it stores all data in maps. Only at the end of the startup process the maps are replaced by Java Bean instances. But just before that happens, the loaded data can be transformed through migration transactions. 
+
+Use the `addMigration` method to register migrations. Each migration need to have a unique name. Make sure to always add migration transactions in the same order and with the same name. 
+
+The BeanStore stores information about the every migration applied in the persistent file. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
+
+You can think of the migration name as a kind of database version.
+
+```java
+
+// renaming 'color' property into 'backgroundColor' property
+builder.addMigration("rename-color-property", mtx -> {
+	mtx.snapshot().mapEntity("picture").stream()
+		.forEach(p -> {
+			var update = mtx.update(p);
+			update.put("backgroundColor", e.getString("color"));
+		});	
+});
+```
+
+
+## Plugins
+
+
+
+### Bean Validation Plugin
 
 [Jakarta Bean Validation](https://beanvalidation.org/) is a Java specification which lets you express constraints on object models via annotations. Register plugin `BeanValidationPlugin` to use this feature.
 
@@ -154,112 +286,7 @@ tx.execute(); // throws ValidationException
 ```
 
 
-
-### build on
-
-We use [Kryo](https://github.com/EsotericSoftware/kryo) to serialize and deserialize transactions, [ByteBuddy](https://bytebuddy.net) to enhance bean classes at runtime and [PCollections](https://github.com/hrldcpr/pcollections) to facilitate concurrent reading and writing.
-
-PCollections
-
-ByteBuddy
-
-lucene 
-
-rxjava
-
-
-# Entities
-
-BeanStore data is stored as instances of [Java Beans](https://blog.joda.org/2014/11/the-javabeans-specification.html). 
-
-A BeanStore entity class has to extend class `AbstractEntity`. It must have a no-arg constructor and expose its properties by setters and getters - as required by the Java Beans Spec. Deviating from the specification, it does not have to be serializable. 
-
-Only the following property types are permitted:
-* Integer
-* Long
-* Float
-* Double
-* Byte
-* Short
-* Character
-* Boolean
-* String
-* Instant
-
-The list only contains the wrapper classes of the Java primitive types. Of course all Java primitive types can be used as well.
-
-Each entity is associated with a unique *alias*. Annotate each entity class with an *Entity* annotation to assign an unique alias. The *key* of a bean is always a long value, stored in the *id* field of *AbstractEntity*. IDs are automatically generated by BeanStore for newly created beans. The id is unique per entity. The *full* key of a BeanStore instance is a combination of alias and id.
-
-Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
-
-The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
-
-The BeanStore is designed as a store of immutable objects! Stored beans will throw an exception if you call a setter method. You can easily shoot yourself in the foot by changing field values of stored beans. BeanStore only restricts access per setter method.
-
-
-
-
-#### Register Entity Classes
-
-All entity classes have to be registered with the BeanStore factory, using the `registerEntity` method.
-
-#### Initialization of a new Store
-
-When a store is created, the factory checks if the transaction log file is empty or not (i.e. if the file exists). If there are no transactions, the new empty store is initialized by the listener which is passed as an argument of the `initNewStore` method.
-
-#### Migration Transactions
-
-At the startup process, when the transactions are loaded initially from the file, the BeanStore factory does not use the Java Bean Classes to store the data. Instead it stores all data in maps. Only at the end of the startup process the maps are replaced by Java Bean instances. But just before that happens, the loaded data can be transformed through migration transactions. 
-
-Use the `addMigration` method to register migrations. Each migration need to have a unique name. Make sure to always add migration transactions in the same order and with the same name. 
-
-The BeanStore stores information about the last migration applied in the persistent file. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
-
-You can think of the migration name as a kind of database version.
-
-
-### Write Data
-
-#### Transactions
-
-
-
-#### Optimistic Locking
-
-Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
-
-With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
-
-
-#### Transaction Listeners
-
-Transactions can be verified by callback code to enforce constraints. The beans can also define constraints by using the Java Bean Validation annotations (provided by a plugin).
-
-Other callback options allow listeners to be informed on any change to the store, synchronously or asynchronously to the transaction execution. These callbacks can be used to create CQRS style *Read Models*.
-
-All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
-
-
-### Read Data
-
-`BeanStore.read()` returns a `BeanStoreReadAccess` implementation that provides read access methods. 
-
-The `BeanStoreReadAccess` interface has methods to
-
-* get type information about the stored entities
-* find single instances by type alias and id
-* "query" entities with java streams
-* return a snapshot version of the store (i.e. subsequent transactions will have no effect on the snapshot store.)
-
-Calling `BeanStore.close` first closes the transaction queue for new entries and then closes the transaction writer. 
-
-
-### Plugins
-
-The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
-
-
-#### Fulltext search
+#### Fulltext Search Plugin
 
 The class `BeanStoreSearchPlugin` adds full text search capability to the BeanStore lib.
 
@@ -278,13 +305,102 @@ var searchResult = searchPlugin.search("World");
 ```
 
 
-
-#### Transaction History
+#### Transaction History Plugin
 
 Use `BeanStoreHistoryPlugin` if you need to access a full change history of each instance. The simplistic implementation might consume too many resources in case of larger stores. Use it as a starting point of your refined and optimized solution.
 
 
-#### Transaction Log
+#### Transaction Log Plugin
 
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
+
+## Advanced topics
+
+### Plugin API
+
+The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
+
+
+### PropertyBeanSerializer
+Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
+
+
+
+### Kryo Configuration Framework Support
+
+The annotation `KryoConfig` 
+
+### Close store
+
+Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. `BeanStore.close` is a blocking operation, a call will only return when everything is done.
+
+
+
+> [!NOTE]  
+> The callback code is enqeued in the normal transaction queue.
+
+## Appendix
+
+### Standard Data Types
+
+All types listed in this section are already _kryo-serializable_, i.e. they can be used without the need to register a Kryo Serializer for them.
+
+#### _java.lang.__
+* String
+* Integer
+* Long
+* Short
+* Float
+* Double
+* Boolean
+* Byte
+* Character
+
+
+#### _java.math.__
+* BigInteger
+* BigDecimal
+* RoundingMode
+		
+#### _java.util.__
+* Currency
+* Locale
+* Date
+
+#### _java.net.__
+* URL
+* URI
+		
+#### _java.time.__
+* Instant
+* Duration
+* LocalDateTime
+* LocalDate
+* LocalTime
+* ZoneOffset
+* ZoneId
+* OffsetTime
+* OffsetDateTime
+* ZonedDateTime
+* Year
+* YearMonth
+* MonthDay
+* Period
+* DayOfWeek
+* Month
+
+#### Arrays  
+* byte[]
+* char[]
+* short[]
+* int[]
+* long[]
+* float[]
+* double[]
+* boolean[]
+* String[]
+
+
+> [!CAUTION]  
+> All but the arrays are immutable classes. If you use arrays as property values, you must be careful not to modify them once they are values of stored instances.
 
