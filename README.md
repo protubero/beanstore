@@ -331,7 +331,7 @@ Beanstore comes with one implementation of the Kryo Serializer interface to simp
 
 ### Close store
 
-Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. This is a blocking operation, The call will only return when everything is done.
+Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. `BeanStore.close` is a blocking operation, a call will only return when everything is done.
 
 
 
