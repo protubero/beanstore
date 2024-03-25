@@ -180,7 +180,7 @@ kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
 When a store is created, _KryoPersistence_ checks if the _transaction log file_ is empty or not (i.e. if the file exists). If there are no transactions, the new empty store is initialized by the listener which is passed as an argument of the `initNewStore` method.
 
 
-# Transactions
+## Transactions
 
 The transactions are processed strictly sequentially.
 
@@ -198,13 +198,30 @@ The BeanStore always applies the transactions to the store data *ony by one*. Th
 
 Beside synchronous transactions listeners for transaction verification (see below), this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
 
+### Optimistic locking
+
+Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
+
+With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
 
 
-# Query store
+### Locked Store
+If multiple concurrend threads write transactions, the data may look different when a transaction is executed than it did when it transaction was created. To handle this there is the option of optimistic locking. But there might be situations where that isn't enough. It is therefore possible to lock the store and then define transactions that are immediately executed based on the current state of the store at that time. 
 
-The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+```java
+	store.locked(ctx -> {
+		var tx = ctx.transaction();
+		ctx.snapshot().entity(Task.class).stream().forEach( task ->
+			if (task.getDeadlineDate().isAfter(now())) {
+				var task = tx.update(task);
+				task.setDeadlineReached(true);
+			}
+		);
+		tx.execute();
+	});
+```
 
-Callbacks
+### Transaction Listener
 
 The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The verifyX methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
 
@@ -213,6 +230,12 @@ Transactions can be verified by callback code to enforce constraints. The beans 
 Other callback options allow listeners to be informed on any change to the store, synchronously or asynchronously to the transaction execution. These callbacks can be used to create CQRS style *Read Models*.
 
 All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
+
+
+## Query store
+
+The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+
 
 
 ## Migration
@@ -240,7 +263,7 @@ builder.addMigration("rename-color-property", mtx -> {
 
 ## Plugins
 
-### Plugin API
+
 
 ### Bean Validation Plugin
 
@@ -261,11 +284,6 @@ employee.setAge(20);
 tx.execute(); // throws ValidationException
 	
 ```
-
-
-### Plugins
-
-The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
 
 
 #### Fulltext Search Plugin
@@ -298,6 +316,11 @@ The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transact
 
 ## Advanced topics
 
+### Plugin API
+
+The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
+
+
 ### PropertyBeanSerializer
 Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
 
@@ -310,28 +333,7 @@ Beanstore comes with one implementation of the Kryo Serializer interface to simp
 
 Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. This is a blocking operation, The call will only return when everything is done.
 
-### Optimistic locking
 
-Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
-
-With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
-
-
-### Locked Store
-If multiple concurrend threads write transactions, the data may look different when a transaction is executed than it did when it transaction was created. To handle this there is the option of optimistic locking. But there might be situations where that isn't enough. It is therefore possible to lock the store and then define transactions that are immediately executed based on the current state of the store at that time. 
-
-```java
-	store.locked(ctx -> {
-		var tx = ctx.transaction();
-		ctx.snapshot().entity(Task.class).stream().forEach( task ->
-			if (task.getDeadlineDate().isAfter(now())) {
-				var task = tx.update(task);
-				task.setDeadlineReached(true);
-			}
-		);
-		tx.execute();
-	});
-```
 
 > [!NOTE]  
 > The callback code is enqeued in the normal transaction queue.
