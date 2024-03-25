@@ -21,11 +21,28 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Maven Dependency](#maven-dependency)
 - [Building from source](#building-from-source)
 - [Quickstart](#quickstart)
+- [Entities, Instances, Values](##entities-instances-values)
 - [Build a store](#build-a-store)
   * [Kryo Configuration](#kryo-configuration)
   * [Persistence Configuration](#persistence-configuration)
   * [Register entities](#register-entities)
   * [New Store Initialization](#new-store-initialization)
+- [Transactions](#transactions)
+  * [Optimistic Locking](#optmistic-locking)
+  * [Locked Store](#locked-store)
+  * [Transaction Listener](#transaction-listener)
+- [Query Store](#query-store)
+- [Migration](#migration)
+- [Plugins](#plugins)
+  * [Bean Validation Plugin](#bean-validation-plugin)
+  * [Fulltext Search Plugin](#fulltext-search-plugin)
+  * [Transaction History Plugin](#transaction-history-plugin)
+  * [Transaction Log Plugin](#transaction-log-plugin)
+- [Advanced Topics](#advanced-topics)
+  * [Plugin API](#plugin-api)
+  * [PropertyBeanSerializer](#propertybeanserializer)
+  * [Kryo Configuration Framework Support](#kryo-configuration-framework-support)
+  * [Close Store](#close-store)
 - [Appendix](#appendix)
   * [Standard Data Types](#standard-data-types)
   
@@ -154,13 +171,6 @@ kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
 
 ```
 
-#### PropertyBeanSerializer
-Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
-
-
-
-#### Framework Support
-
 ### Persistence Configuration
 
 ### Register entities
@@ -228,11 +238,6 @@ builder.addMigration("rename-color-property", mtx -> {
 ```
 
 
-# Advanced Values / Kryo
-
-# Querying Historic States
-
-
 ## Plugins
 
 ### Plugin API
@@ -292,6 +297,14 @@ Use `BeanStoreHistoryPlugin` if you need to access a full change history of each
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
 
 ## Advanced topics
+
+### PropertyBeanSerializer
+Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
+
+
+
+### Kryo Configuration Framework Support
+
 
 ### Close store
 
