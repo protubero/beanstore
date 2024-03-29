@@ -198,9 +198,11 @@ At this point, various situations can arise that the library must take action on
 
 In the first case, Beanstore will raise an error. However, you can instruct the library to automatically create the missing entities in these cases by setting the builder flag _autoCreateEntities_ to true. This will automatically create map based entities.
 
+The second case cannot be handled. Registered beans must have a complete set of properties. Otherwise an exception will be thrown.
+
 
 > [!NOTE]  
-> A challenge of the persistence approach is making data accessible. E.g. if you find a file on your system that you know contains Beanstore data. How can you check the data without using the application that wrote the data? The _autoCreateEntities_ flag allows data to be loaded without knowing the entities beforehand. Note that you will still need access to any custom Kryo serializers that may have been used to write the data!
+> A challenge of the persistence approach is making data accessible. E.g. if you find a file on your system that you know contains Beanstore data. How can you check the data without havin access to the application that wrote the data? The _autoCreateEntities_ flag allows data to be loaded without knowing the entities beforehand. Note that you will still need access to any custom Kryo serializers that may have been used to write the data!
 
 ### Advanced Kryo Configuration
 
