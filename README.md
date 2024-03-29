@@ -184,12 +184,23 @@ builder.initNewStore(tx -> {
 BeanStore store = builder.build();
 ```
 
-The building of a store is a process with the following steps:
-* Read the file from the beginning to the end
-* Creating a map-only interim store by applying all 
+Building a store is a process consisting of the following steps:
 
-What happens, if you try to load data from a file with objects of entity X stored in it without registering entity X? When data is loaded, a so called interim store is created where all data is stored as maps.  If, after all migrations were applied, there are still an objects  store When the builder detects entities loads the data from the file 
-autoCreateEntities
+* Read the file from the beginning to the end, extracting all change events
+* Build up a interim store with map based entities only by applying the change events one after the other
+* Applying migrations or, if the store is new, apply the store init code
+* the interim store is transformed into the actual store. For bean based entities the respective maps are replaced by bean instances.
+
+At this point, various situations can arise that the library must take action on
+
+* The loaded data contains instances of entities which were not registered with the builder
+* The loaded data contains properties which are not available in the registered bean class
+
+In the first case, Beanstore will raise an error. However, you can instruct the library to automatically create the missing entities in these cases by setting the builder flag _autoCreateEntities_ to true. This will automatically create map based entities.
+
+
+> [!NOTE]  
+> A challenge of the persistence approach is making data accessible. E.g. if you find a file on your system that you know contains Beanstore data. How can you check the data without using the application that wrote the data? The _autoCreateEntities_ flag allows data to be loaded without knowing the entities beforehand. Note that you will still need access to any custom Kryo serializers that may have been used to write the data!
 
 ### Advanced Kryo Configuration
 
