@@ -149,12 +149,41 @@ The mechanics of the store and its instances are very special and it does not be
 
 ## Build a store
 
-The creation of a store follows the builder pattern. The configuration of the store builder determines how the data is persisted, which entities are in the store and what type they are. You also determine how a new store is initialized.
+The creation of a store follows the builder pattern. The configuration of the store builder determines 
 
+ * how the data is __persisted__. Currently the only way to do so is to let Kryo serialize the data and append it to a file.
+ * which __entities__ are in the store and what __type__ they are. It´s an entity a map or is it represented by a java class?
+ * how a new store is __initialized__, i.e. which data is automatically created when a store is started for the first time.
 
 Some of the advanced features have their own section in the documentation:
 - [Migrations](#migrations)
 - [Plugins](#plugins)
+
+The typical builder setup code looks like this:
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+KryoPersistence persistence = KryoPersistence.of(new File(someDir, "file.bst"), kryoConfig);
+BeanStoreBuilder builder = BeanStoreBuilder.init(persistence);
+
+// register a class based entity
+builder.registerEntity(ToDo.class);
+
+// register a map based entity
+builder.registerMapEntity("note");
+
+// create initial data. This code is only called when the store is newly created
+builder.initNewStore(tx -> {
+	var todo = tx.create(ToDo.class);
+	todo.setText("Write more tests");
+
+	Note note = tx.create("note");
+	note.put("text", "My Text");
+});
+		
+
+// Create the BeanStore
+BeanStore store = builder.build();
+```
 
 ### Kryo Configuration
 
@@ -163,13 +192,15 @@ For persistent storage, all data is serialized using the [Kryo](https://github.c
 All non-standard data types must be explicitly registered. You can write your own serializer or use one of the ones Kryo provides.
 
 ```java
+// this line is sufficient if no other than the standard types are used
 KryoConfiguration kryoConfig = KryoConfiguration.create();
 
-// register an implementation of the Kryo Serializer interface. id must be > 100
+// In case you have a custom value class 'Coordinates' you have
+// to implement and register a custom Kryo Serializer for it:
 kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
 
-
 ```
+Beanstore offers support for using your own value classes without having to write a serializer by the [PropertyBeanSerializer](#PropertyBeanSerializer).
 
 ### Persistence Configuration
 
