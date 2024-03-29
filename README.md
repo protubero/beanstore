@@ -23,10 +23,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Quickstart](#quickstart)
 - [Entities, Instances, Values](##entities-instances-values)
 - [Build a store](#build-a-store)
-  * [Kryo Configuration](#kryo-configuration)
-  * [Persistence Configuration](#persistence-configuration)
-  * [Register entities](#register-entities)
-  * [New Store Initialization](#new-store-initialization)
+- [Kryo Configuration](#kryo-configuration)
 - [Transactions](#transactions)
   * [Optimistic Locking](#optmistic-locking)
   * [Locked Store](#locked-store)
@@ -189,7 +186,7 @@ Building a store is a process consisting of the following steps:
 * Read the file from the beginning to the end, extracting all change events
 * Build up a interim store with map based entities only by applying the change events one after the other
 * Applying migrations or, if the store is new, apply the store init code
-* the interim store is transformed into the actual store. For bean based entities the respective maps are replaced by bean instances.
+* The interim store is transformed into the actual store. For bean based entities the respective maps are replaced by bean instances.
 
 At this point, various situations can arise that the library must take action on
 
@@ -204,7 +201,7 @@ The second case cannot be handled. Registered beans must have a complete set of 
 > [!NOTE]  
 > A challenge of the persistence approach is making data accessible. E.g. if you find a file on your system that you know contains Beanstore data. How can you check the data without havin access to the application that wrote the data? The _autoCreateEntities_ flag allows data to be loaded without knowing the entities beforehand. Note that you will still need access to any custom Kryo serializers that may have been used to write the data!
 
-### Advanced Kryo Configuration
+## Kryo Configuration
 
 For persistent storage, all data is serialized using the [Kryo](https://github.com/EsotericSoftware/kryo) library. Many data types work out-of-the-box. These are listed in the appendix on [standard data types](#standard-data-types).
 
@@ -219,10 +216,15 @@ KryoConfiguration kryoConfig = KryoConfiguration.create();
 kryoConfig.register(Coordinates.class, new MyValueClassSerializer(), 356);
 
 // Beanstore offers support for using your own value classes without having to write a serializer by the PropertyBeanSerializer class.
-// Read more about this in the PropertyBeanSerializer section of the documentation
 kryoConfig.register(Car.class, PropertyBeanSerializer.class, 357);
 
 ```
+
+Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. The PropertyBeanSerializer class 
+
+
+> [!NOTE]  
+> Kryo IDs have to be greater than 100!
 
 
 ## Transactions
@@ -359,19 +361,14 @@ Use `BeanStoreHistoryPlugin` if you need to access a full change history of each
 
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
 
-## Advanced topics
 
-### Plugin API
+## Plugin API
 
 The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
 
 
-### PropertyBeanSerializer
-Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. 
 
-
-
-### Kryo Configuration Framework Support
+## Kryo Configuration Framework Support
 
 The annotation `KryoConfig` 
 
