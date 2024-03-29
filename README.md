@@ -128,8 +128,13 @@ allToDos.forEach(System.out::println);
 
 ## Entities, Instances, Values
 
+Other libraries try to apply persistence to ordinary Java objects. Bean Store takes a different approach. The instances in the bean store are completely under the control of the library. Instances in the store cannot be changed by setting properties. Changes must be described as transactions and left to the store to apply. Instances are immutable. Any changes made by a transaction result in a copy being created. Each execution of a transaction creates a new, immutable state of the data (snapshot).
+
+
+
+
+
 In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
-The mechanics of the store and its instances are very special and it does not behave like an ordinary list of instances of a Java class or maps:
 
 * All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
 * Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
