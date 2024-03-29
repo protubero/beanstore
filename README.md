@@ -152,7 +152,7 @@ The mechanics of the store and its instances are very special and it does not be
 The creation of a store follows the builder pattern. The configuration of the store builder determines 
 
  * how the data is __persisted__. Currently the only way to do so is to let Kryo serialize the data and append it to a file.
- * which __entities__ are in the store and what __type__ they are. It´s an entity a map or is it represented by a java class?
+ * which __entities__ are in the store and what __type__ they are. Is the entity a map type or is it represented by a java class?
  * how a new store is __initialized__, i.e. which data is automatically created when a store is started for the first time.
 
 Some of the advanced features have their own section in the documentation:
@@ -180,12 +180,18 @@ builder.initNewStore(tx -> {
 	note.put("text", "My Text");
 });
 		
-
-// Create the BeanStore
+// Create the BeanStore,
 BeanStore store = builder.build();
 ```
 
-### Kryo Configuration
+The building of a store is a process with the following steps:
+* Read the file from the beginning to the end
+* Creating a map-only interim store by applying all 
+
+What happens, if you try to load data from a file with objects of entity X stored in it without registering entity X? When data is loaded, a so called interim store is created where all data is stored as maps.  If, after all migrations were applied, there are still an objects  store When the builder detects entities loads the data from the file 
+autoCreateEntities
+
+### Advanced Kryo Configuration
 
 For persistent storage, all data is serialized using the [Kryo](https://github.com/EsotericSoftware/kryo) library. Many data types work out-of-the-box. These are listed in the appendix on [standard data types](#standard-data-types).
 
@@ -197,18 +203,13 @@ KryoConfiguration kryoConfig = KryoConfiguration.create();
 
 // In case you have a custom value class 'Coordinates' you have
 // to implement and register a custom Kryo Serializer for it:
-kryoConfig.register(MyValueClass.class, new MyValueClassSerializer(), 356);
+kryoConfig.register(Coordinates.class, new MyValueClassSerializer(), 356);
+
+// Beanstore offers support for using your own value classes without having to write a serializer by the PropertyBeanSerializer class.
+// Read more about this in the PropertyBeanSerializer section of the documentation
+kryoConfig.register(Car.class, PropertyBeanSerializer.class, 357);
 
 ```
-Beanstore offers support for using your own value classes without having to write a serializer by the [PropertyBeanSerializer](#PropertyBeanSerializer).
-
-### Persistence Configuration
-
-### Register entities
-
-### New Store Initialization
-
-When a store is created, _KryoPersistence_ checks if the _transaction log file_ is empty or not (i.e. if the file exists). If there are no transactions, the new empty store is initialized by the listener which is passed as an argument of the `initNewStore` method.
 
 
 ## Transactions
