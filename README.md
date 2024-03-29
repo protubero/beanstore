@@ -1,11 +1,6 @@
 
 
-Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation, and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. With very frequent changes, startup time could possibly become a factor.
-
-Beanstore transactions describe changes to a set of “Java Beans”. These changes are simultaneously applied to the beans and stored in a log-structured file. The next time the application is started, all changes will be replayed to restore the last store state. If you've ever heard of event sourcing, you're already familiar with the concept. The Java Beans specification requires that beans be serializable through Java Object Serialization. Instead, we use Kryo as a serialization framework. And we require that the beans have no default values, which effectively prevents the use of native types like int and boolean. We will refer to them as “data beans” throughout this documentation. We won't use the POJO term because the classes still have to follow the remaining Java Bean Rules (getters/setters and no-arg constructor).
-
-Each store is a set of entities that resemble tables in a relational database. You can choose whether such an entity is represented by a data bean, i.e. whether there is an associated Java class. If not, beanstore uses a generic map-like representation.
-You can switch between the two representations at any time.
+Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
 
 Beanstore has a rich callback API, e.g. you can reject a transaction in callback code. This allows implementing custom validation logic. And the API makes it easy to create projections and aggregations of the data and keep them up to date.
 
@@ -21,7 +16,8 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Maven Dependency](#maven-dependency)
 - [Building from source](#building-from-source)
 - [Quickstart](#quickstart)
-- [Entities, Instances, Values](##entities-instances-values)
+- [Entities](#entities)
+- [Values](#values)
 - [Build a store](#build-a-store)
 - [Kryo Configuration](#kryo-configuration)
 - [Transactions](#transactions)
@@ -126,28 +122,54 @@ var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.t
 allToDos.forEach(System.out::println);
 ```
 
-## Entities, Instances, Values
+## Beanstore characteristics
 
 Other libraries try to apply persistence to ordinary Java objects. Bean Store takes a different approach. The instances in the bean store are completely under the control of the library. Instances in the store cannot be changed by setting properties. Changes must be described as transactions and left to the store to apply. Instances are immutable. Any changes made by a transaction result in a copy being created. Each execution of a transaction creates a new, immutable state of the data (snapshot).
 
+Beanstore transactions describe changes to a set of “Java Beans”. These changes are simultaneously applied to the beans and stored in a log-structured file. The next time the application is started, all changes will be replayed to restore the last store state. If you've ever heard of event sourcing, you're already familiar with the concept. The Java Beans specification requires that beans be serializable through Java Object Serialization. Instead, we use Kryo as a serialization framework. And we require that the beans have no default values, which effectively prevents the use of native types like int and boolean. We will refer to them as “data beans” throughout this documentation. We won't use the POJO term because the classes still have to follow the remaining Java Bean Rules (getters/setters and no-arg constructor).
 
+## Entities
 
+Each store is a set of entities that resemble tables in a relational database. You can choose whether such an entity is represented by a data bean, i.e. whether there is an associated Java class. If not, beanstore uses a generic map-like representation. You can switch between the two representations at any time. At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
 
+Each entity has a unique alias. For the data beans, this is determined using the _Entity_ annotation on the Java class.
+
+A BeanStore entity class must extend the _AbstractEntity_ class. It must have a no-argument constructor and expose its properties through setters and getters - as required by the Java Beans specification. Deviating from the specification, it does not have to be serializable in the sense of the _Java Object Serialization_. But it has to be kryo-serializable.
 
 In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
 
-* All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
-* Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
-* At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
-* A BeanStore entity class must extend the _AbstractEntity_ class. It must have a no-argument constructor and expose its properties through setters and getters - as required by the Java Beans specification. Deviating from the specification, it does not have to be serializable in the sense of the _Java Object Serialization_. But it has to be kryo-serializable.
-* Each entity has a unique alias. For the data beans, this is determined using the _Entity_ annotation on the Java class.
-* The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
-* The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
+The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
 
+Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
+  
+The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
+
+
+```java
+@Entity(alias = "todo")
+public class ToDo extends AbstractEntity {
+
+	private String text;
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+}
+```
 
 > [!WARNING]  
 > Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
 
+
+## Values
+
+All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
+
+Beanstore must know how to serialize a value. To be more specific: as we use Kryo for serialization, Kryo must know how to handle all values. You'll find more information on that topic in the sections below.
 
 ## Build a store
 
@@ -385,6 +407,15 @@ Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions
 
 > [!NOTE]  
 > The callback code is enqeued in the normal transaction queue.
+
+## Ways to shoot in your foot
+
+Beanstore can not hinder you to shoot yourself in your foot if you want to. These are the things you want to avoid:
+
+* changeing serialization logic in a way which is not backward compatible
+* setting values directy on stored instances
+* messing up migrations
+  
 
 ## Appendix
 
