@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.releaseversion }}
+          tag_name: beanstore-${{ github.event.inputs.releaseversion }}
           release_name: ${{ github.event.inputs.releaseversion }}
           body: |
             Grab the new version from Maven central https://repo1.maven.org/maven2/de/protubero/beanstore/${{ github.event.inputs.releaseversion }}/ by using it in your deps 
