@@ -141,7 +141,7 @@ The Beanstore bean spec:
 
 - Must have a no-arg constructor
 - Must inherit from `AbstractEntity`
-- Must be serializable with Kryo
+- All values must be serializable with Kryo
 - Must not have default values (i.e. no native types allowed)
 - Must have Getters and Setters as required by the Java Bean Spec
 - Must have a unique alias determined by the  _Entity_ annotation
@@ -156,10 +156,6 @@ All entities share the following properties:
 - Each instance has a _versionId_ (int) that is incremented with every change
 
   
-> [!WARNING]  
->The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
-
-
 ```java
 @Entity(alias = "todo")
 public class ToDo extends AbstractEntity {
@@ -176,15 +172,14 @@ public class ToDo extends AbstractEntity {
 }
 ```
 
-> [!WARNING]  
-> Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
+Rules and Warnings
+
+- The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
+- Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
+- All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
 
 
-## Values
 
-All values ​​should be instances of immutable classes. If the value's class does not guarantee immutability, you must still use it as if it were immutable. To be more specific: Never do `instanceX.getValueY().setPropertyZ(...)`, instead always set newly constructed values `instanceX.setValueY(newValueObj)`
-
-Beanstore must know how to serialize a value. To be more specific: as we use Kryo for serialization, Kryo must know how to handle all values. You'll find more information on that topic in the sections below.
 
 ## Build a store
 
