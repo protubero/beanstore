@@ -150,14 +150,14 @@ We will refer to the 'Beanstore beans' as _Data Beans_ throughout this documenta
 
 The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
 
+All entities share the following properties:
 
+- Each instance has a unique _id_ (long), which is assigned by the store itself
+- Each instance has a _versionId_ (int) that is incremented with every change
 
-In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
-
-
-Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
   
-The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
+> [!WARNING]  
+>The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
 
 
 ```java
