@@ -122,23 +122,38 @@ var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.t
 allToDos.forEach(System.out::println);
 ```
 
-## Beanstore characteristics
+## Basic mechanism
 
 Other libraries try to apply persistence to ordinary Java objects. Bean Store takes a different approach. The instances in the bean store are completely under the control of the library. Instances in the store cannot be changed by setting properties. Changes must be described as transactions and left to the store to apply. Instances are immutable. Any changes made by a transaction result in a copy being created. Each execution of a transaction creates a new, immutable state of the data (snapshot).
 
-Beanstore transactions describe changes to a set of “Java Beans”. These changes are simultaneously applied to the beans and stored in a log-structured file. The next time the application is started, all changes will be replayed to restore the last store state. If you've ever heard of event sourcing, you're already familiar with the concept. The Java Beans specification requires that beans be serializable through Java Object Serialization. Instead, we use Kryo as a serialization framework. And we require that the beans have no default values, which effectively prevents the use of native types like int and boolean. We will refer to them as “data beans” throughout this documentation. We won't use the POJO term because the classes still have to follow the remaining Java Bean Rules (getters/setters and no-arg constructor).
+Beanstore transactions describe changes to a set of “Java Beans”. These changes are simultaneously applied to the beans and stored in a log-structured file. The next time the application is started, all changes will be replayed to restore the last store state. If you've ever heard of event sourcing, you're already familiar with the concept. 
 
 ## Entities
 
-Each store is a set of entities that resemble tables in a relational database. You can choose whether such an entity is represented by a data bean, i.e. whether there is an associated Java class. If not, beanstore uses a generic map-like representation. You can switch between the two representations at any time. At the persistence level, instances are nothing more than sets of key/value pairs. It is therefore possible to decide at the time of loading the data for each type whether it will be mapped as maps or as 'data beans'. In the latter case, the bean classes define some kind of schema for the data.
+Each store is a set of entities that resemble tables in a relational database. There are two different types of entities: 
 
-Each entity has a unique alias. For the data beans, this is determined using the _Entity_ annotation on the Java class.
+- Entities which are represented by a Java Bean class
+- Entities which are represented as Maps
 
-A BeanStore entity class must extend the _AbstractEntity_ class. It must have a no-argument constructor and expose its properties through setters and getters - as required by the Java Beans specification. Deviating from the specification, it does not have to be serializable in the sense of the _Java Object Serialization_. But it has to be kryo-serializable.
+At the persistence level, instances are nothing more than sets of key/value pairs. Thus it is possible to decide at the time of loading the data for each type whether it will be represented as maps or as 'Java Beans'. In the latter case, the bean classes define some kind of schema for the data.
+
+The Beanstore bean spec:
+
+- Must have a no-arg constructor
+- Must inherit from `AbstractEntity`
+- Must be serializable with Kryo
+- Must not have default values (i.e. no native types allowed)
+- Must have Getters and Setters as required by the Java Bean Spec
+- Must have a unique alias determined by the  _Entity_ annotation
+
+We will refer to the 'Beanstore beans' as _Data Beans_ throughout this documentation. 
+
+The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
+
+
 
 In general, a store is simply a list of instances of different types. A single instance consists of a set of key/value pairs. Each instance has a unique _id_ (long), which is assigned by the store itself. And it has a _versionId_ (int) that is incremented with every change.
 
-The `AbstractEntity` class implements a *Map* interface to make the bean properties accessible in a *map-ish* way. The methods of the map interface are only partly supported, unsupported operations are: *containsValue*, *remove*, *clean*, *values*.
 
 Many instances of the same type can exist with the same identity (id). The instances themselves are immutable. Each change results in the creation of a new copy with an incremented _versionId_.
   
