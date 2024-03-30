@@ -172,7 +172,7 @@ public class ToDo extends AbstractEntity {
 }
 ```
 
-Rules and Warnings
+
 
 - The BeanStore is designed as a store of immutable objects! _Stored beans_ will throw an exception if you call a setter method. 
 - Do not declare your bean classes *final*. BeanStores uses ByteBuddy to dynamically creates subclasses of your beans. Which will not work with final classes.
