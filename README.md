@@ -438,14 +438,13 @@ At the startup process, when the transactions are loaded initially from the file
 
 Use the `addMigration` method to register migrations. Each migration need to have a unique name. Make sure to always add migration transactions in the same order and with the same name. 
 
-The BeanStore stores information about the every migration applied in the persistent file. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
-
-You can think of the migration name as a kind of database version.
+Every migration code creates one migration transaction. The name of the migration is persisted together with that transaction. Thus the BeanSTore knows at load time which tranasctions have already been applied to the data. Next time the data is loaded, only the migrations which were not yet applied are executed. New empty stores also save information about the last specified migration at the time of store creation. Subsequent startups will use this information to determine the migration to start from.
 
 ```java
 
 // renaming 'color' property into 'backgroundColor' property
 builder.addMigration("rename-color-property", mtx -> {
+	// Unlike normal transactions, the migration transaction also allows access to the data
 	mtx.snapshot().mapEntity("picture").stream()
 		.forEach(p -> {
 			var update = mtx.update(p);
@@ -453,6 +452,9 @@ builder.addMigration("rename-color-property", mtx -> {
 		});	
 });
 ```
+
+> [!NOTE]
+> You can think of the migration name as a kind of database version.
 
 
 ## Plugins
