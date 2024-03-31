@@ -338,14 +338,41 @@ When multiple concurrent threads write transactions, the data may look different
 
 ### Transaction Listener
 
-The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The `verifyX` methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
+The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: 
 
-Transactions can be verified by callback code to enforce constraints. The beans can also define constraints by using the Java Bean Validation annotations (provided by a plugin).
+- The `verifyX` methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged.
+- The `onChangeX` methods allow listeners to be informed on any change to the store, right after the changes were applied to the store objects. These callbacks can be used to create CQRS style *Read Models* that are always up to date.
+- Callback code registered with the `onChangeXAsync` methods is called asynchronously, but also always in the order of their execution. This type is best suited when you do not want the execution of the callback code to slow down the execution time of the transaction.
 
-Other callback options allow listeners to be informed on any change to the store, synchronously or asynchronously to the transaction execution. These callbacks can be used to create CQRS style *Read Models*.
+Example code might look like this:
 
-All transactions are applied sequentially to the store. Synchronous listeners will receive the change events when an transaction is applied and before the execution code returns. Only verification listeners can abort a transaction by throwing an exception. Exceptions from other listener types will only be logged. Asynchronous listeners will receive the change events afterwards but also always in the order of their execution.
+```java
 
+store.callbacks().verifyInstance(Employee.class, evt -> {
+	if (evt.newInstance().getAge() < 18) {
+		throw new RuntimeException("Age must be greater than 18");
+	}
+});
+
+// keep track of todo count by priority
+store.callbacks().onChangeInstance("ToDo", evt -> {
+	switch(evt.type()) {
+	case Create:
+		incPrio(evt.newInstance().getPriority());
+		break;
+	case Update:
+		if (evt.replacedInstance().getPriority() != evt.newInstance().getPriority()) {
+			decPrio(evt.replacedInstance().getPriority());
+			incPrio(evt.newInstance().getPriority());
+		}
+		break;
+	case Delete:
+		decPrio(evt.replacedInstance().getPriority());
+		break;
+	}
+});
+
+```
 
 ## Query store
 
