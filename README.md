@@ -271,9 +271,38 @@ Beanstore comes with one implementation of the Kryo Serializer interface to simp
 > Kryo IDs have to be greater than 100!
 
 
+
 ## Transactions
 
-The transactions are processed strictly sequentially.
+All changes to the store are executed as transactions. A transaction can be thought of as a list of instructions:
+
+- Create a new 'ToDo' instance with properties [('text', 'buy stuff')]
+- Update properties of an existung 'Employee' instance with id 35 [('age', 34), ('firstName', 'Kurt')]
+- Delete 'ToDo' instance with id 44
+- ...
+
+Transactions are created in code like this:
+
+```java
+// create new transaction
+ExecutableBeanStoreTransaction tx = store.transaction();
+
+var newTodo = tx.create("ToDo");
+newTodo.put("text"), "buy stuff";
+
+var updEmployee = tx.update(Employee.class, 35);
+updEmployee.setAge(35);
+updEmployee.setFirstName("Kurt");
+
+tx.delete("ToDo", 44);
+
+// execute transaction
+tx.execute();
+
+```
+
+What happens when the `execute()` method is invoked? The store has a transaction queue (FIFO) into which every new transaction is queued. The storage accepts and processes one transaction at a time, creating a new state of the data with each one. Every transaction increments the __version__ id of the state by one. Each transaction ultimately receives an ID that is identical to the __version__ of the store it created.
+
 
 BeanStore has four options to execute transactions. Some of them blocking, some of them non-blocking.
 
