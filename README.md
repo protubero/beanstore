@@ -303,20 +303,18 @@ tx.execute();
 
 What happens when the `execute()` method is invoked? The store has a transaction queue (FIFO) into which every new transaction is queued. The storage accepts and processes one transaction at a time, creating a new state of the data with each one. Every transaction increments the __version__ id of the state by one. Each transaction ultimately receives an ID that is identical to the __version__ of the store it created.
 
+Transaction execution is inherently asynchronous, but often you prefer to wait for the transaction to complete. The Bean Store API provides methods for blocking and non-blocking execution as well:
 
-BeanStore has four options to execute transactions. Some of them blocking, some of them non-blocking.
 
-Blocking
-* BeanStore.locked(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
-* BeanStore.transaction().execute()
+```java
+	// Need to inspect the result to see if the transaction was successful
+	CompletableFuture<BeanStoreTransactionResult> executeAsync();
 
-Non-Blocking
-* BeanStore.lockedAsync(Consumer&lt;BeanStoreTransactionFactory&gt; consumer)
-* BeanStore.transaction().executeAsync()
+	// Will throw an exception if the transaction fails
+	BeanStoreTransactionResult execute() throws TransactionFailure {...}
+```
 
-The BeanStore always applies the transactions to the store data *ony by one*. This is achieved by using a transaction queue. All new transactions are enqueued, the store takes the transactions one after another from the queue. The *locked* variants call the callback code just when the store pulls this 'transaction factory' from the queue. The factory is then given the possibility to create the transactions. This is, how *pessimistic locking* is implemented. E.g. if you want to update all instances of an entity at once, like you would do with a SQL update statement, you need to make sure that you don't miss any instance. 
-
-Beside synchronous transactions listeners for transaction verification (see below), this is a second way to ensure data integrity. It shares the same risk of slowing down store operations due to costly computations. 
+The transaction will be persisted immediatly, just before the store data is changed in memory. 
 
 ### Optimistic locking
 
