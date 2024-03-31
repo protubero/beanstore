@@ -25,19 +25,18 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
   * [Locked Store](#locked-store)
   * [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
+- [Meta data](#meta-data)
 - [Migration](#migration)
 - [Plugins](#plugins)
   * [Bean Validation Plugin](#bean-validation-plugin)
   * [Fulltext Search Plugin](#fulltext-search-plugin)
   * [Transaction History Plugin](#transaction-history-plugin)
   * [Transaction Log Plugin](#transaction-log-plugin)
-- [Advanced Topics](#advanced-topics)
-  * [Plugin API](#plugin-api)
-  * [PropertyBeanSerializer](#propertybeanserializer)
-  * [Kryo Configuration Framework Support](#kryo-configuration-framework-support)
-  * [Close Store](#close-store)
-- [Appendix](#appendix)
-  * [Standard Data Types](#standard-data-types)
+- [Plugin API](#plugin-api)
+- [PropertyBeanSerializer](#propertybeanserializer)
+- [Kryo Configuration Framework Support](#kryo-configuration-framework-support)
+- [Close Store](#close-store)
+- [Standard Data Types](#standard-data-types)
   
 
 ## Versioning
@@ -377,6 +376,10 @@ The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the 
 > [!NOTE]
 > Use the `mapEntity` method to get an entity store if you know that an entity alias refers to a map-based entity store. 
 
+## Meta data
+
+
+
 ## Migration
 
 At the startup process, when the transactions are loaded initially from the file, the BeanStore factory does not use the Java Bean Classes to store the data. Instead it stores all data in maps. Only at the end of the startup process the maps are replaced by Java Bean instances. But just before that happens, the loaded data can be transformed through migration transactions. 
@@ -470,7 +473,7 @@ Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions
 > [!NOTE]  
 > The callback code is enqeued in the normal transaction queue.
 
-## Howto shoot yourself in the foot
+## HOWTO shoot yourself in the foot
 
 Beanstore can not hinder you to shoot yourself in the foot. These are the things you want to avoid:
 
