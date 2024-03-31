@@ -21,8 +21,6 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Build a store](#build-a-store)
 - [Kryo Configuration](#kryo-configuration)
 - [Transactions](#transactions)
-- [Optimistic Locking](#optmistic-locking)
-- [Locked Store](#locked-store)
 - [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
 - [Meta data](#meta-data)
@@ -318,11 +316,12 @@ The transaction will be written to the file immediatly, just before the store da
 
 __Optimistic locking__
 
-You can choose for every single delete and update operation of the transaction if it should fail should fail if the target instance has changed in the meantime. Simply use `Keys.versionKey()` instead of `Keys.key()` to target a specific version of the instance.
+You can choose for every single delete and update operation of the transaction if it should fail if the target instance has changed in the meantime. Simply use `Keys.versionKey()` instead of `Keys.key()` to target a specific version of the instance.
 
 
-### Locked Store
-If multiple concurrend threads write transactions, the data may look different when a transaction is executed than it did when it transaction was created. To handle this there is the option of optimistic locking. But there might be situations where that isn't enough. It is therefore possible to lock the store and then define transactions that are immediately executed based on the current state of the store at that time. 
+__Pessimistic locking__
+
+When multiple concurrent threads write transactions, the data may look different when a transaction is executed than when the transaction was created. To deal with this, there is the option of optimistic locking described above. But there may be situations where that is not enough. It is therefore possible to lock the memory and then define transactions that will be executed immediately based on the current state of the memory at that time.
 
 ```java
 	store.locked(ctx -> {
@@ -339,7 +338,7 @@ If multiple concurrend threads write transactions, the data may look different w
 
 ### Transaction Listener
 
-The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The verifyX methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
+The bean store is pretty talkative. You can track all transactions. Depending on the purpose, there are different methods: The `verifyX` methods are used to register callbacks that check the validity of the transactions - and reject them if necessary. 
 
 Transactions can be verified by callback code to enforce constraints. The beans can also define constraints by using the Java Bean Validation annotations (provided by a plugin).
 
