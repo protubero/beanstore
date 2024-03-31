@@ -76,6 +76,7 @@ mvn clean && mvn install
 
 ## Quickstart
 
+
 jumping ahead to show how the library can be used:
 
 First create a Data Bean Class
@@ -121,6 +122,9 @@ Query data - read list of todos
 var allToDos = store.snapshot().entity(ToDo.class).stream().collect(Collectors.toList());
 allToDos.forEach(System.out::println);
 ```
+
+> [!NOTE]
+> see also https://github.com/protubero/beanstore-demo on how the lib can be used with a Spring Boot app.
 
 ## Basic mechanism
 
@@ -257,7 +261,11 @@ kryoConfig.register(Car.class, PropertyBeanSerializer.class, 357);
 
 ```
 
-Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. The PropertyBeanSerializer class 
+Beanstore comes with one implementation of the Kryo Serializer interface to simplify the serialization of your own value classes. The __PropertyBeanSerializer__ class serializes all _declared fields_ of a class. It treats the field of an instance as key/value pairs. It offers two mechanism to support the evolution of the class:
+
+- Use the _KryoAlias_ Annotation to rename fields, i.e. set the old name as an alias so that the deserialization process can map persisted values with the olfd name to the field with the new name
+- If the class implements _SetPropertyValue_ it can handle the setting of the values all by itself
+- Implementing _AfterDeserialization_ the class will receive an event when all field values were set. This could be used to shift or convert values. 
 
 
 > [!NOTE]  
