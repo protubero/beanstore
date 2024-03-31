@@ -21,9 +21,9 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Build a store](#build-a-store)
 - [Kryo Configuration](#kryo-configuration)
 - [Transactions](#transactions)
-  * [Optimistic Locking](#optmistic-locking)
-  * [Locked Store](#locked-store)
-  * [Transaction Listener](#transaction-listener)
+- [Optimistic Locking](#optmistic-locking)
+- [Locked Store](#locked-store)
+- [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
 - [Meta data](#meta-data)
 - [Migration](#migration)
@@ -290,11 +290,11 @@ ExecutableBeanStoreTransaction tx = store.transaction();
 var newTodo = tx.create("ToDo");
 newTodo.put("text"), "buy stuff";
 
-var updEmployee = tx.update(Employee.class, 35);
+var updEmployee = tx.update(Keys.key(Employee.class, 35));
 updEmployee.setAge(35);
 updEmployee.setFirstName("Kurt");
 
-tx.delete("ToDo", 44);
+tx.delete(Keys.key("ToDo", 44));
 
 // execute transaction
 tx.execute();
@@ -314,13 +314,11 @@ Transaction execution is inherently asynchronous, but often you prefer to wait f
 	BeanStoreTransactionResult execute() throws TransactionFailure {...}
 ```
 
-The transaction will be persisted immediatly, just before the store data is changed in memory. 
+The transaction will be written to the file immediatly, just before the store data is changed in memory. 
 
-### Optimistic locking
+__Optimistic locking__
 
-Optimistic locking is the built-in mechanism for update operations. You have to refer to an existing instance `tx.update(anInstance)` to specify property updates. When the transaction is executed it is checked, if the referenced instance is still the current one or if it has been replaced in the meantime by another transaction.
-
-With delete operations you have the choice between optimistic locking `delete(anInstance)` and no locking at all `delete("todo", 4)`.
+You can choose for every single delete and update operation of the transaction if it should fail should fail if the target instance has changed in the meantime. Simply use `Keys.versionKey()` instead of `Keys.key()` to target a specific version of the instance.
 
 
 ### Locked Store
