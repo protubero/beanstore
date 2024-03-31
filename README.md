@@ -385,13 +385,13 @@ The advantages of the concept come into play when querying the data: By using Ja
 	int version = snapshot.version();
 
 	// meta data is also accessible on a snaphsot
-	BeanStoreMetaInfo meta();
+	BeanStoreMetaInfo metaInfo = snapshot.meta();
 
 	// map-based entity store
-	EntityStoreSnapshot<MapObject> todoStore = mapEntity("todo");
+	EntityStoreSnapshot<MapObject> todoStore = snapshot.mapEntity("todo");
 
 	// bean based entity store
-	EntityStoreSnapshot<Employee> employeeStore = entity(Employee.class):
+	EntityStoreSnapshot<Employee> employeeStore = snapshot.entity(Employee.class):
 		
 	// find an instance by alias/class and id
 	Employee employee23 = snapshot.find(PersistentObjectKey.of(Employee.class, 23));
