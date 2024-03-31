@@ -24,15 +24,14 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
 - [Migration](#migration)
+- [Plugin API](#plugin-api)
 - [Plugins](#plugins)
   * [Bean Validation Plugin](#bean-validation-plugin)
   * [Fulltext Search Plugin](#fulltext-search-plugin)
   * [Transaction History Plugin](#transaction-history-plugin)
   * [Transaction Log Plugin](#transaction-log-plugin)
-- [Plugin API](#plugin-api)
-- [PropertyBeanSerializer](#propertybeanserializer)
-- [Kryo Configuration Framework Support](#kryo-configuration-framework-support)
 - [Close Store](#close-store)
+- [HOWTO shoot yourself in the foot](#howto-shott-yourself-in-the-foot)
 - [Standard Data Types](#standard-data-types)
   
 
@@ -433,8 +432,6 @@ The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the 
 > Use the `mapEntity` method to get an entity store if you know that an entity alias refers to a map-based entity store. 
 
 
-
-
 ## Migration
 
 At the startup process, when the transactions are loaded initially from the file, the BeanStore factory does not use the Java Bean Classes to store the data. Instead it stores all data in maps. Only at the end of the startup process the maps are replaced by Java Bean instances. But just before that happens, the loaded data can be transformed through migration transactions. 
@@ -458,6 +455,11 @@ builder.addMigration("rename-color-property", mtx -> {
 
 > [!NOTE]
 > You can think of the migration name as a kind of database version.
+
+## Plugin API
+
+The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
+
 
 
 ## Plugins
@@ -484,7 +486,7 @@ tx.execute(); // throws ValidationException
 ```
 
 
-#### Fulltext Search Plugin
+### Fulltext Search Plugin
 
 The class `BeanStoreSearchPlugin` adds full text search capability to the BeanStore lib.
 
@@ -503,21 +505,14 @@ var searchResult = searchPlugin.search("World");
 ```
 
 
-#### Transaction History Plugin
+### Transaction History Plugin
 
 Use `BeanStoreHistoryPlugin` if you need to access a full change history of each instance. The simplistic implementation might consume too many resources in case of larger stores. Use it as a starting point of your refined and optimized solution.
 
 
-#### Transaction Log Plugin
+### Transaction Log Plugin
 
 The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transactions initially read as well as all transactions written to the file. `BeanStoreTransactionLogPlugin` listens to the *read* and *write* operations and logs them to a SLF4J Logger.
-
-
-## Plugin API
-
-The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
-
-
 
 ## Close store
 
