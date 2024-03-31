@@ -326,9 +326,56 @@ All transactions are applied sequentially to the store. Synchronous listeners wi
 
 ## Query store
 
-The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. 
+The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. All queries are executed on a snapshot. The latest snapshot from a store can be retrieved by calling the `snapshot()` method of the bean store. A snapshot offers multiple ways to get an entity store, e.g. by the entity alias or by the bean class. A snapshot has a unique __version__ number that corresponds to the ID of the transaction that resulted in that state.
+
+```java
+	// retrieving a snapshot
+	BeanStoreSnapshot snapshot = store.snapshot();
+	int version = snapshot.version();
+
+	// meta data is also accessible on a snaphsot
+	BeanStoreMetaInfo meta();
+
+	// map-based entity store
+	EntityStoreSnapshot<MapObject> todoStore = mapEntity("todo");
+
+	// bean based entity store
+	EntityStoreSnapshot<Employee> employeeStore = entity(Employee.class):
+		
+	// find an instance by alias/class and id
+	Employee employee23 = snapshot.find(PersistentObjectKey.of(Employee.class, 23));
+
+```
+
+The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the instances and to find them:
+
+```java
+	// Meta information about the entity.
+	BeanStoreEntity<T> meta();
+
+	// Find an instance by id. Returns null if no object with that id exists.
+	T find(long id);
+	
+	// Find an instance by key (alias & id).
+	T find(PersistentObjectKey<?> key) {...}
+	
+	// Stream all instances
+	Stream<T> stream();
+
+	 // Iterate over all entity instances
+	Iterator<T> iterator() {...}
+
+	// Returns the number of stored instances.
+	int count();
+
+	 // Returns an unmodifieable list of all stored instances
+	List<T> asList() {...}
+```
 
 
+
+> [!NOTE]
+> Use the `mapEntity` method to get an entity store if you know that an entity alias refers to a map-based entity store. 
 
 ## Migration
 
@@ -354,7 +401,6 @@ builder.addMigration("rename-color-property", mtx -> {
 
 
 ## Plugins
-
 
 
 ### Bean Validation Plugin
@@ -412,36 +458,32 @@ The `BeanStoreTransactionLogPlugin` lets you view all transactions, the transact
 The BeanStore plugin interface `BeanStorePlugin` contains a set of various callback methods. Implement this interface to provide re-usable components. The lib itself has some sample implementations that should give you an idea.
 
 
-
 ## Kryo Configuration Framework Support
 
 The annotation `KryoConfig` 
 
-### Close store
+## Close store
 
 Calling `BeanStore.close` closes the transaction queue, i.e. no new transactions are accepted. Then all transactions currently in the queue are processed. Finally, the transaction writer is closed. `BeanStore.close` is a blocking operation, a call will only return when everything is done.
-
 
 
 > [!NOTE]  
 > The callback code is enqeued in the normal transaction queue.
 
-## Ways to shoot in your foot
+## Howto shoot yourself in the foot
 
-Beanstore can not hinder you to shoot yourself in your foot if you want to. These are the things you want to avoid:
+Beanstore can not hinder you to shoot yourself in the foot. These are the things you want to avoid:
 
-* changeing serialization logic in a way which is not backward compatible
-* setting values directy on stored instances
-* messing up migrations
+* Changing serialization logic in a way which is not backward compatible
+* Ignoring the immutability of stored instances and setting values directly on stored instances
+* Messing up migrations
   
 
-## Appendix
-
-### Standard Data Types
+## Standard Data Types
 
 All types listed in this section are already _kryo-serializable_, i.e. they can be used without the need to register a Kryo Serializer for them.
 
-#### _java.lang.__
+__java.lang.___
 * String
 * Integer
 * Long
@@ -453,21 +495,21 @@ All types listed in this section are already _kryo-serializable_, i.e. they can 
 * Character
 
 
-#### _java.math.__
+__java.math.___
 * BigInteger
 * BigDecimal
 * RoundingMode
 		
-#### _java.util.__
+__java.util.___
 * Currency
 * Locale
 * Date
 
-#### _java.net.__
+__java.net.___
 * URL
 * URI
 		
-#### _java.time.__
+__java.time.___
 * Instant
 * Duration
 * LocalDateTime
@@ -485,7 +527,7 @@ All types listed in this section are already _kryo-serializable_, i.e. they can 
 * DayOfWeek
 * Month
 
-#### Arrays  
+__Arrays__
 * byte[]
 * char[]
 * short[]
