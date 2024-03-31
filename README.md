@@ -288,6 +288,7 @@ ExecutableBeanStoreTransaction tx = store.transaction();
 var newTodo = tx.create("ToDo");
 newTodo.put("text"), "buy stuff";
 
+// the updEmployee object's purpose is to record the values being set!
 var updEmployee = tx.update(Keys.key(Employee.class, 35));
 updEmployee.setAge(35);
 updEmployee.setFirstName("Kurt");
