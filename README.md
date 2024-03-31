@@ -359,16 +359,16 @@ store.callbacks().verifyInstance(Employee.class, evt -> {
 store.callbacks().onChangeInstance("ToDo", evt -> {
 	switch(evt.type()) {
 	case Create:
-		incPrio(evt.newInstance().getPriority());
+		incPrio((Priority) evt.newInstance().get("priority"));
 		break;
 	case Update:
 		if (evt.replacedInstance().getPriority() != evt.newInstance().getPriority()) {
-			decPrio(evt.replacedInstance().getPriority());
-			incPrio(evt.newInstance().getPriority());
+			decPrio((Priority) evt.replacedInstance().get("priority"));
+			incPrio((Priority) evt.newInstance().get("priority"));
 		}
 		break;
 	case Delete:
-		decPrio(evt.replacedInstance().getPriority());
+		decPrio((Priority) evt.replacedInstance().get("priority"));
 		break;
 	}
 });
