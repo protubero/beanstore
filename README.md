@@ -503,7 +503,7 @@ tx.execute(); // throws ValidationException
 
 ### Fulltext Search Plugin
 
-The `BeanStoreSearchPlugin` provides customizable full text search capability. You can determine for each entity whether it should be indexed and which text should be indexed. For each entiuty, an individual mapping of an instance onto a text to be indexed is determined.
+The `BeanStoreSearchPlugin` provides customizable full text search capability. You can determine for each entity whether it should be indexed and which text should be indexed. For each entity, an individual mapping of an instance onto a text to be indexed is determined.
 
 The index is build at load time and is kept in memory. That's why you can easily change the logic to quickly find the best settings. 
 
