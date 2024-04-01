@@ -1,6 +1,4 @@
-
-
-Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
+![](beanstore.svg)  Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
 
 Beanstore has a rich callback API, e.g. you can reject a transaction in callback code. This allows implementing custom validation logic. And the API makes it easy to create projections and aggregations of the data and keep them up to date.
 
@@ -31,7 +29,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
   * [Transaction History Plugin](#transaction-history-plugin)
   * [Transaction Log Plugin](#transaction-log-plugin)
 - [Close Store](#close-store)
-- [HOWTO shoot yourself in the foot](#howto-shott-yourself-in-the-foot)
+- [HOWTO shoot yourself in the foot](#howto-shoot-yourself-in-the-foot)
 - [Standard Data Types](#standard-data-types)
   
 
@@ -189,7 +187,7 @@ The creation of a store follows the builder pattern. The configuration of the st
  * how a new store is __initialized__, i.e. which data is automatically created when a store is started for the first time.
 
 Some of the advanced features have their own section in the documentation:
-- [Migrations](#migrations)
+- [Migration](#migration)
 - [Plugins](#plugins)
 
 The typical builder setup code looks like this:
