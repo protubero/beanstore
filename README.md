@@ -27,7 +27,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Plugins](#plugins)
   * [Bean Validation Plugin](#bean-validation-plugin)
   * [Fulltext Search Plugin](#fulltext-search-plugin)
-  * [Transaction History Plugin](#transaction-history-plugin)
+  * [Instance History Plugin](#instance-history-plugin)
   * [Transaction Log Plugin](#transaction-log-plugin)
 - [Close Store](#close-store)
 - [HOWTO shoot yourself in the foot](#howto-shoot-yourself-in-the-foot)
@@ -521,7 +521,7 @@ List<AbstractPersistentObject> searchResult = searchPlugin.search("World");
 ```
 
 
-### Transaction History Plugin
+### Instance History Plugin
 
 Use `BeanStoreHistoryPlugin` if you need to access a full change history of instances. First you have to register all entities for which you want to have the instance history. Then you can class `changes(PersistentObjectKey key)` at any time to get a full and up-to-date history of the instance.
 
