@@ -44,7 +44,7 @@ public class BeanStoreBasicTest {
 		
 		builder = createBuilder(tempDir);
 		builder.addMigration("eins", mTx -> {
-			mTx.state()
+			mTx.snapshot()
 			.mapEntity("employee")
 			.stream()
 			.filter(emp -> emp.get("firstName").equals("Paul"))

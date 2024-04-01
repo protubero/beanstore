@@ -43,6 +43,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 | 0.9.x  | The library is considered mature enough to be used for small private projects. Breaking changes should be rare and well documented. Migrations, e.g. for changes of the persistence file format, will be provided.  |
 | 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with optional external dependencies like the Fulltext Search Plugin will be moved to a separate project |
 
+
 # Recent releases
 
 * [0.8.5](https://github.com/protubero/beanstore/releases/tag/beanstore-0.8.5) - warming up release actions after extensive refactoring.

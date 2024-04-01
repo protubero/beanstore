@@ -18,7 +18,7 @@ public class MigrationTransactionImpl implements MigrationTransaction {
 	}
 
 	@Override
-	public BeanStoreSnapshot state() {
+	public BeanStoreSnapshot snapshot() {
 		return state;
 	}
 

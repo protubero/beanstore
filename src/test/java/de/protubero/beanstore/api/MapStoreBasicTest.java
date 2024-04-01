@@ -44,7 +44,7 @@ public class MapStoreBasicTest {
 		
 		builder = createBuilder(tempDir);
 		builder.addMigration("eins", mTx -> {
-			mTx.state()
+			mTx.snapshot()
 			.mapEntity("employee")
 			.stream()
 			.filter(emp -> {

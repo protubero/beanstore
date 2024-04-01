@@ -36,6 +36,6 @@ public interface MigrationTransaction {
 	void delete(MapObject instance);
 	
 	
-	BeanStoreSnapshot state();
+	BeanStoreSnapshot snapshot();
 	
 }
