@@ -506,7 +506,7 @@ BeanValidationPlugin validationPlugin = new BeanValidationPlugin();
 factory.addPlugin(validationPlugin);
 
 var employee = tx.create(Employee.class);
-employee.setAge(20);
+employee.setAge(16);
 tx.execute(); // throws ValidationException
 	
 ```
