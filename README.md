@@ -383,6 +383,19 @@ store.callbacks().onChangeInstance("ToDo", evt -> {
 The advantages of the concept come into play when querying the data: By using Java streams, even complex queries can be implemented very easily. All queries are executed on a snapshot. The latest snapshot from a store can be retrieved by calling the `snapshot()` method of the bean store. A snapshot offers multiple ways to get an entity store, e.g. by the entity alias or by the bean class. A snapshot has a unique __version__ number that corresponds to the ID of the transaction that resulted in that state.
 
 ```java
+	// iterating all instances of an entity is simple
+	var allEmployees = store.snapshot().entity(Employee.class).stream().collect(Collectors.toList());
+	allEmployees.forEach(System.out::println);
+
+	// find an instance by alias/class and id
+	Employee employee23 = snapshot.find(PersistentObjectKey.of(Employee.class, 23));
+
+```
+
+
+What else can you do with a snapshot?
+
+```java
 	// retrieving a snapshot
 	BeanStoreSnapshot snapshot = store.snapshot();
 	int version = snapshot.version();
@@ -396,9 +409,6 @@ The advantages of the concept come into play when querying the data: By using Ja
 	// bean based entity store
 	EntityStoreSnapshot<Employee> employeeStore = snapshot.entity(Employee.class):
 		
-	// find an instance by alias/class and id
-	Employee employee23 = snapshot.find(PersistentObjectKey.of(Employee.class, 23));
-
 ```
 
 The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the instances and to find them:
