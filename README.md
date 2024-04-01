@@ -40,7 +40,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 | ------------- | ------------- |
 | 0.8.x  | To be used for testing the library and possibly for small, time-limited personal projects. Undocumented breaking changes can occur in any release, no migration will be provided  |
 | 0.9.x  | The library is considered mature enough to be used for small private projects. Breaking changes should be rare and well documented. Migrations, e.g. for changes of the persistence file format, will be provided.  |
-| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with external dependencies like the Fulltext Search Plugin will be moved to a separate project |
+| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with optional external dependencies like the Fulltext Search Plugin will be moved to a separate project |
 
 # Recent releases
 
