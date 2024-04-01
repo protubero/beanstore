@@ -507,7 +507,7 @@ List<AbstractPersistentObject> searchResult = searchPlugin.search("World");
 
 ### Transaction History Plugin
 
-Use `BeanStoreHistoryPlugin` if you need to access a full change history of each instance. The simplistic implementation might consume too many resources in case of larger stores. Use it as a starting point of your refined and optimized solution.
+Use `BeanStoreHistoryPlugin` if you need to access a full change history of instances. First you have to register all entities for which you want to have the instance history. Then you can class `changes(PersistentObjectKey key)` at any time to get a full and up-to-date history of the instance.
 
 
 ### Transaction Log Plugin
