@@ -1,4 +1,4 @@
-![](beanstore.svg)  Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
+![](beanstore.svg)  __Beanstore__ is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
 
 Beanstore has a rich callback API, e.g. you can reject a transaction in callback code. This allows implementing custom validation logic. And the API makes it easy to create projections and aggregations of the data and keep them up to date.
 
@@ -486,7 +486,9 @@ tx.execute(); // throws ValidationException
 
 ### Fulltext Search Plugin
 
-The class `BeanStoreSearchPlugin` adds full text search capability to the BeanStore lib.
+The `BeanStoreSearchPlugin` provides customizable full text search capability. You can determine for each entity whether it should be indexed and which text should be indexed. For each entiuty, an individual mapping of an instance onto a text to be indexed is determined.
+
+The index is build at load time and is kept in memory. That's why you can easily change the logic to quickly find the best settings. 
 
 ```java
 // configure full text search
@@ -498,7 +500,7 @@ searchPlugin.register(todoEntity, todo -> {
 	return todo.getText();
 });
 
-var searchResult = searchPlugin.search("World");	
+List<AbstractPersistentObject> searchResult = searchPlugin.search("World");
 	
 ```
 
