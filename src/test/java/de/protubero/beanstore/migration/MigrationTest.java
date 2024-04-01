@@ -61,7 +61,7 @@ public class MigrationTest {
 			obj.put("age", 1);
 		});
 		builder.addMigration("b", mtx -> {
-			var employee = mtx.state().mapEntity("employee").find(0);
+			var employee = mtx.snapshot().mapEntity("employee").find(0);
 			var obj = mtx.update("employee", 0);
 			obj.put("age", ((Integer) employee.get("age")) * 2);
 		});

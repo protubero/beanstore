@@ -18,6 +18,7 @@ Table of contents
 
 
 # Versioning
+
 	0.8.x For Testing and short time projects. No Rules, undocumented breaking changes anytime, any version, no migration provided
 	0.9.x For hobby projects, breaking changes should be rare and well documented, migration will be provided
 	from 1.0.0 Semantic Versioning, migration will be provided, all kind of projects
