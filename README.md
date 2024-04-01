@@ -7,6 +7,7 @@ The way data is maintained and stored means that every state of the data from th
 Beanstore has a plugin API that allows third parties to offer additional data-related add-ons, e.g. for data validation, search engines, etc. Beanstore comes with a Lucene-based in-memory search engine and a validation plugin based on Java Bean Validation.
 
 
+
 ## Table of contents
 
 - [Versioning](#versioning)
