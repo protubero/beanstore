@@ -1,4 +1,4 @@
-![](beanstore.svg)  Beanstore is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
+![](beanstore.svg)  __Beanstore__ is a fast and versatile data store for Java with a low barrier to entry and an easy-to-use API. The goal of the project is to offer a serious alternative to conventional database systems for certain usage scenarios. Therefore it offers features such as transactions, data validation and migration. The project is always useful when data needs to be stored permanently and a database seems too heavy and inflexible. The natural limitations are that all data must fit into memory. Also, with very frequent changes, startup time could possibly become a factor.
 
 Beanstore has a rich callback API, e.g. you can reject a transaction in callback code. This allows implementing custom validation logic. And the API makes it easy to create projections and aggregations of the data and keep them up to date.
 
@@ -23,11 +23,12 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
 - [Migration](#migration)
+- [Historical States](#historical-states)
 - [Plugin API](#plugin-api)
 - [Plugins](#plugins)
   * [Bean Validation Plugin](#bean-validation-plugin)
   * [Fulltext Search Plugin](#fulltext-search-plugin)
-  * [Transaction History Plugin](#transaction-history-plugin)
+  * [Instance History Plugin](#instance-history-plugin)
   * [Transaction Log Plugin](#transaction-log-plugin)
 - [Close Store](#close-store)
 - [HOWTO shoot yourself in the foot](#howto-shoot-yourself-in-the-foot)
@@ -40,7 +41,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 | ------------- | ------------- |
 | 0.8.x  | To be used for testing the library and possibly for small, time-limited personal projects. Undocumented breaking changes can occur in any release, no migration will be provided  |
 | 0.9.x  | The library is considered mature enough to be used for small private projects. Breaking changes should be rare and well documented. Migrations, e.g. for changes of the persistence file format, will be provided.  |
-| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with external dependencies like the Fulltext Search Plugin will be moved to a separate project |
+| 1.x.x  | For all kind of projects. Semantic Versioning will be used. Migrations, e.g. for changes of the persistence file format, will be provided. Plugins with optional external dependencies like the Fulltext Search Plugin will be moved to a separate project |
 
 # Recent releases
 
@@ -430,6 +431,21 @@ The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the 
 > [!NOTE]
 > Use the `mapEntity` method to get an entity store if you know that an entity alias refers to a map-based entity store. 
 
+## Historical States
+
+With another builder you can reproduce any historical states of the existing store. `MapStoreSnapshotBuilder` is initialized in the same way as the normal builder. The `states` method provides information about all historical states of the store. Use the `build(int state)` method to create a `BeanStoreSnapshot` of one state. Unlike the normal build process, the snapshot only consists of map-like entities. This has to be the case because it cannot be guaranteed that any intermediate state can be mapped to the current beans.
+
+Since the file is only opened for reading, you can use the builder even if the normal store is writing new transactions at the same time.
+
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+KryoPersistence persistence = KryoPersistence.of(new File(someDir, "file.bst"), kryoConfig);
+MapStoreSnapshotBuilder builder = MapStoreSnapshotBuilder.init(persistence);
+
+BeanStoreSnapshot snaposhot = builder.build(5);
+
+```
+
 
 ## Migration
 
@@ -487,7 +503,9 @@ tx.execute(); // throws ValidationException
 
 ### Fulltext Search Plugin
 
-The class `BeanStoreSearchPlugin` adds full text search capability to the BeanStore lib.
+The `BeanStoreSearchPlugin` provides customizable full text search capability. You can determine for each entity whether it should be indexed and which text should be indexed. For each entiuty, an individual mapping of an instance onto a text to be indexed is determined.
+
+The index is build at load time and is kept in memory. That's why you can easily change the logic to quickly find the best settings. 
 
 ```java
 // configure full text search
@@ -499,14 +517,14 @@ searchPlugin.register(todoEntity, todo -> {
 	return todo.getText();
 });
 
-var searchResult = searchPlugin.search("World");	
+List<AbstractPersistentObject> searchResult = searchPlugin.search("World");
 	
 ```
 
 
-### Transaction History Plugin
+### Instance History Plugin
 
-Use `BeanStoreHistoryPlugin` if you need to access a full change history of each instance. The simplistic implementation might consume too many resources in case of larger stores. Use it as a starting point of your refined and optimized solution.
+Use `BeanStoreHistoryPlugin` if you need to access a full change history of instances. First you have to register all entities for which you want to have the instance history. Then you can class `changes(PersistentObjectKey key)` at any time to get a full and up-to-date history of the instance.
 
 
 ### Transaction Log Plugin
