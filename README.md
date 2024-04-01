@@ -22,6 +22,7 @@ Beanstore has a plugin API that allows third parties to offer additional data-re
 - [Transaction Listener](#transaction-listener)
 - [Query Store](#query-store)
 - [Migration](#migration)
+- [Historical States](#historical-states)
 - [Plugin API](#plugin-api)
 - [Plugins](#plugins)
   * [Bean Validation Plugin](#bean-validation-plugin)
@@ -428,6 +429,21 @@ The `EntityStoreSnapshot` class has a lot of useful methods to iterate over the 
 
 > [!NOTE]
 > Use the `mapEntity` method to get an entity store if you know that an entity alias refers to a map-based entity store. 
+
+## Historical States
+
+With another builder you can reproduce any historical states of the existing store. `MapStoreSnapshotBuilder` is initialized in the same way as the normal builder. The `states` method provides information about all historical states of the store. Use the `build(int state)` method to create a `BeanStoreSnapshot` of one state. Unlike the normal build process, the snapshot only consists of map-like entities. This has to be the case because it cannot be guaranteed that any intermediate state can be mapped to the current beans.
+
+Since the file is only opened for reading, you can use the builder even if the normal store is writing new transactions at the same time.
+
+```java
+KryoConfiguration kryoConfig = KryoConfiguration.create();
+KryoPersistence persistence = KryoPersistence.of(new File(someDir, "file.bst"), kryoConfig);
+MapStoreSnapshotBuilder builder = MapStoreSnapshotBuilder.init(persistence);
+
+BeanStoreSnapshot snaposhot = builder.build(5);
+
+```
 
 
 ## Migration
