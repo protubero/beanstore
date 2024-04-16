@@ -37,10 +37,11 @@ public interface BeanStoreBase {
 	
 	ExecutableBeanStoreTransaction transaction(String description);
 	
-    default BeanStoreTransactionResult create(AbstractEntity entity) {
+    @SuppressWarnings("unchecked")
+	default <T extends AbstractEntity> T create(AbstractEntity entity) {
     	var tx = transaction();
     	tx.create(entity);
-    	return tx.execute();
+    	return (T) tx.execute().getInstanceEvents().get(0).newInstance();
     }
 
     default <T extends AbstractEntity> BeanStoreTransactionResult update(Class<T> beanClass, long id, Consumer<T> consumer) {
