@@ -12,7 +12,9 @@ import de.protubero.beanstore.persistence.api.PersistentProperty;
 public final class MapObject extends AbstractPersistentObject {
 
 	private Map<String, Object> properties = new HashMap<>();
-
+	
+	// free to use property for client code 
+	private Object tag;
 	
 	public MapObject() {
 		this(State.UNMANAGED);
@@ -131,6 +133,14 @@ public final class MapObject extends AbstractPersistentObject {
 	@Override
 	public KeyValuePair[] changes() {
 		return recordedValues;
+	}
+
+	public Object getTag() {
+		return tag;
+	}
+
+	public void setTag(Object tag) {
+		this.tag = tag;
 	}
 
 

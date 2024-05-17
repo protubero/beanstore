@@ -36,7 +36,7 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 		});
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	default EntityStoreSnapshot<MapObject> mapEntity(String alias) {
 		EntityStoreSnapshot<? extends AbstractPersistentObject> e = entity(alias);
 		if (e.meta().isBean()) {
