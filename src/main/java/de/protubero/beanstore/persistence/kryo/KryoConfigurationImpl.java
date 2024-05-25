@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.pcollections.MapPSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneIdSeriali
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneOffsetSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZonedDateTimeSerializer;
 
+import de.protubero.beanstore.collections.MapPSetKryoSerializer;
 import de.protubero.beanstore.persistence.api.KryoConfig;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -130,6 +132,9 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(double[].class, new DoubleArraySerializer(), 76);
 		kryo.register(boolean[].class, new BooleanArraySerializer(), 77);
 		kryo.register(String[].class, new StringArraySerializer(), 78);
+
+		kryo.register(MapPSet.class, new MapPSetKryoSerializer(), 80);
+		
 		
 		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);
 	}
@@ -141,8 +146,8 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 			throw new RuntimeException("Kryo configuration is already locked");
 		}
 
-		if (id < 100) {
-			throw new PersistenceException("Invalid kryo id, should be >= 100: " + id);
+		if (id < 200) {
+			throw new PersistenceException("Invalid kryo id, should be >= 200: " + id);
 		}
 		
 		if (serializer instanceof DictionaryUsing) {
@@ -223,20 +228,6 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		return register(type, (Serializer) serializer, annotation.id());
 	}
 
-
-//	@Override
-//	public void register(Class<?> propertyBeanClass, int serializationId) {
-//		log.info("Registering property bean class " + propertyBeanClass + "[" + serializationId + "]");
-//		if (serializationId < 100) {
-//			throw new PersistenceException("Invalid kryo id, should be >= 100: " + serializationId);
-//		}
-//		
-//		if (KryoSerializable.class.isAssignableFrom(propertyBeanClass)) {
-//			kryo.register(propertyBeanClass, new KryoSerializableSerializer(), serializationId);
-//		} else {
-//			kryo.register(propertyBeanClass, new PropertyBeanSerializer(propertyBeanClass), serializationId);
-//		}	
-//	}
 
 	
 }

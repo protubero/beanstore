@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import de.protubero.beanstore.links.LinkPSet;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 @JsonSerialize(using = CustomSerializer.class)
@@ -231,6 +232,16 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 			throw new BeanStoreException("Missing entity annotation at class " + apoClass);
 		}
 		return entityAnnotation.alias();
+	}
+	
+	private LinkPSet links = LinkPSet.empty();
+
+	public LinkPSet getLinks() {
+		return links;
+	}
+
+	public void setLinks(LinkPSet links) {
+		this.links = links;
 	}
 
 }

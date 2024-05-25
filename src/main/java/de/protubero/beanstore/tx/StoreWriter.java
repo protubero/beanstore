@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.protubero.beanstore.collections.ValueUpdateFunction;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
@@ -210,6 +211,11 @@ public class StoreWriter  {
 					// overwrite updated properties
 					elt.getRecordInstance().state(State.RECORDED);
 					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
+						if (kvp.getValue() instanceof ValueUpdateFunction) {
+							Object origValue = newInstance.get(kvp.getProperty());
+							Object newValue = ((ValueUpdateFunction) kvp.getValue()).apply(origValue);
+							newInstance.put(kvp.getProperty(), newValue);
+						}
 						newInstance.put(kvp.getProperty(), kvp.getValue());						
 					}
 					

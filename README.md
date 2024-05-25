@@ -270,7 +270,7 @@ Beanstore comes with one implementation of the Kryo Serializer interface to simp
 
 
 > [!NOTE]  
-> Kryo IDs have to be greater than 100!
+> Kryo IDs have to be greater than 200!
 
 
 
