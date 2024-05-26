@@ -7,6 +7,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import de.protubero.beanstore.links.LinkPSet;
+import de.protubero.beanstore.links.Links;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 @JsonSerialize(using = CustomSerializer.class)
@@ -234,14 +235,22 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return entityAnnotation.alias();
 	}
 	
-	private LinkPSet links = LinkPSet.empty();
-
-	public LinkPSet getLinks() {
+	private Links links;
+	
+	public Links links() {
+		if (this.links == null) {
+			return Links.EMPTY;
+		}
 		return links;
 	}
 
-	public void setLinks(LinkPSet links) {
-		this.links = links;
+	public void links(Links aLinks) {
+		Objects.requireNonNull(aLinks).checkRelationTo(alias(), id);
+		this.links = Objects.requireNonNull(aLinks);
+	}
+	
+	public boolean isOutdated() {
+		return state == State.OUTDATED;
 	}
 
 }

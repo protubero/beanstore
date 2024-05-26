@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import de.protubero.beanstore.links.LinkObj;
+
 public class CompanionRegistry {
 
 	private static Map<Class<?>, EntityCompanion<?>> entityCompanionByClassMap = new HashMap<>();
@@ -13,6 +15,10 @@ public class CompanionRegistry {
 	private static Map<String, MapObjectCompanion> mapCompanionByAliasMap = new HashMap<>();
 	
 	public static synchronized MapObjectCompanion getOrCreateMapCompanion(String alias) {
+		if ("link".equals(alias)) {
+			throw new RuntimeException("'link' is a reserved entity alias");
+		}
+		
 		MapObjectCompanion result = mapCompanionByAliasMap.get(Objects.requireNonNull(alias));
 		if (result != null) {
 			return (MapObjectCompanion) result;
@@ -31,7 +37,11 @@ public class CompanionRegistry {
 			result = new EntityCompanion<T>(originalBeanClass);
 			
 			if (entityCompanionByAliasMap.containsKey(result.alias())) {
-				throw new RuntimeException("Duplicat data bean alias " + result.alias());
+				throw new RuntimeException("Duplicate data bean alias " + result.alias());
+			}
+			
+			if ("link".equals(result.alias()) && originalBeanClass != LinkObj.class) {
+				throw new RuntimeException("'link' is a reserved entity alias");
 			}
 			
 			entityCompanionByClassMap.put(originalBeanClass, result);

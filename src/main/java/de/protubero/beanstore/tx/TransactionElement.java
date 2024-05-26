@@ -18,6 +18,7 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 	private T replacedInstance;
 	private boolean optimisticLocking;
 	private Transaction transaction;
+	private boolean ignoreNonExistence;
 	
 	public TransactionElement(
 			Transaction aTransaction,
@@ -110,5 +111,33 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 		return transaction;
 	}
 	
+	@Override
+	public int hashCode() {
+		return (int) id.longValue();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(Object obj) {
+		return ((TransactionElement) obj).id.equals(id) &&
+				((TransactionElement) obj).type == type;
+	}
+	
+	@Override
+	public String toString() {
+		return type.toString() + "[" + id + "]";
+	}
+
+	public boolean isLinkElement() {
+		return getAlias().equals("link");
+	}
+
+	public boolean isIgnoreNonExistence() {
+		return ignoreNonExistence;
+	}
+
+	public void setIgnoreNonExistence(boolean ignoreNonExistence) {
+		this.ignoreNonExistence = ignoreNonExistence;
+	}
 	
 }

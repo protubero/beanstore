@@ -2,7 +2,9 @@ package de.protubero.beanstore.tx;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -11,8 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.collections.ValueUpdateFunction;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
-import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.links.Link;
+import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
@@ -145,10 +150,10 @@ public class StoreWriter  {
 		S workStoreSet = (S) Objects.requireNonNull(aStoreSet).internalCloneStoreSet();
 		S result = aStoreSet;
 		
-		
+		Map<PersistentObjectKey<?>, Long> newObjKeyToFinalIdMap = new HashMap<>();
 		
 		if (!aTransaction.isEmpty()) {		
-					
+			
 			// 1. Create instance clones and check optimistic locking (Wrap with StoreInstanceTransaction)
 			for (TransactionElement<?> elt : aTransaction.elements()) {
 				EntityStore<?> entityStore = workStoreSet.store(elt.getAlias());
@@ -172,21 +177,31 @@ public class StoreWriter  {
 					origInstance = entityStore.get(elt.getId());
 					
 					// fail if referenced instance doesn't exist or has already been deleted
-					if (origInstance == null) {
+					if (origInstance == null && !elt.isIgnoreNonExistence()) {
 						throw new TransactionFailure(TransactionFailureType.INSTANCE_NOT_FOUND, elt);
-					} 
-					
-					// check optimistic locking
-					if (elt.isOptimisticLocking() && elt.getVersion().intValue() != origInstance.version()) {
-						throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
-					}
-					
-					((TransactionElement) elt).setReplacedInstance(origInstance);
-					
+					} else {
+						// check optimistic locking
+						if (elt.isOptimisticLocking() && elt.getVersion().intValue() != origInstance.version()) {
+							throw new TransactionFailure(TransactionFailureType.OPTIMISTIC_LOCKING_FAILED, elt);
+						}
+						
+						((TransactionElement) elt).setReplacedInstance(origInstance);
+						
+						// delete all incoming and outgoing links
+						// this adds 'delete' TX elements dynamically while iterating through them!
+						// ignoreNonExistence == true, so it doesn't matter if any of the linkObjs
+						// have been deleted otherwise
+						for (Link link : origInstance.links()) {
+							link.delete(aTransaction);
+						}
+					}	
 					break;
 				case Update:
 					if (elt.getId() == null) {
 						throw new AssertionError();
+					}
+					if (elt.getAlias().equals("link")) {
+						throw new AssertionError("update of links not allowed");
 					}
 					
 					origInstance = entityStore.get(elt.getId());
@@ -216,7 +231,7 @@ public class StoreWriter  {
 							Object newValue = ((ValueUpdateFunction) kvp.getValue()).apply(origValue);
 							newInstance.put(kvp.getProperty(), newValue);
 						}
-						newInstance.put(kvp.getProperty(), kvp.getValue());						
+						newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));						
 					}
 					
 					((TransactionElement) elt).setReplacedInstance(origInstance);
@@ -226,10 +241,15 @@ public class StoreWriter  {
 					
 					break;
 				case Create:
-					if (elt.getId() != null || elt.getVersion() != null) {
+					if (elt.getVersion() != null) {
 						throw new AssertionError();
 					}
-					long newInstanceId =  entityStore.getAndIncreaseInstanceId();	
+					if (Objects.requireNonNull(elt.getId()).longValue() >= 0) {
+						throw new AssertionError();
+					}
+					
+					long newInstanceId = entityStore.getAndIncreaseInstanceId();	
+					newObjKeyToFinalIdMap.put(PersistentObjectKey.of(elt.getAlias(), elt.getId()), newInstanceId);
 					
 					newInstance = companion.createInstance(newInstanceId);
 					// set properties
@@ -237,9 +257,17 @@ public class StoreWriter  {
 					
 					elt.getRecordInstance().state(State.RECORDED);					
 					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
-						newInstance.put(kvp.getProperty(), kvp.getValue());						
+						newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));						
 					}
 
+					// no self-referential links allowed
+					if (newInstance instanceof LinkObj) {
+						LinkObj lnk = (LinkObj) newInstance;
+						if (Objects.requireNonNull(lnk.getSourceKey()).equals(Objects.requireNonNull(lnk.getTargetKey()))) {
+							throw new RuntimeException("Creating self-referential link");
+						}
+					}
+					
 					((TransactionElement) elt).setNewInstance(newInstance);
 					elt.getRecordInstance().id(newInstanceId);
 					elt.getRecordInstance().version(newInstance.version());
@@ -273,11 +301,10 @@ public class StoreWriter  {
 				switch (elt.type()) {
 				case Delete:
 					AbstractPersistentObject removedInstance = entityStore.internalRemoveInplace(elt.replacedInstance().id());
-					if (removedInstance == null) {
-						// this should have lead to an Transaction Failure already
-						throw new AssertionError();
-					}
-					removedInstance.state(State.OUTDATED);
+					// multiple deletions are possible, do not check on non-null values here!
+					if (removedInstance != null) {
+						removedInstance.state(State.OUTDATED);
+					}	
 					break;
 				case Update:
 					elt.newInstance().state(State.STORED);
@@ -299,6 +326,37 @@ public class StoreWriter  {
 				}
 			}
 			
+			// fix links
+			for (TransactionElement<?> elt2 : aTransaction.elements()) {
+				if (elt2.isLinkElement()) {
+					switch (elt2.type()) {
+					case Create:
+						
+						break;
+					case Update:
+						// Links are not updateable
+						throw new AssertionError();
+					case Delete:
+						LinkObj linkObj = (LinkObj) elt2.replacedInstance();
+
+						EntityStore<?> sourceEntityStore = workStoreSet.store(linkObj.getSourceKey().alias());
+						AbstractPersistentObject sourceObj = sourceEntityStore.get(linkObj.getSourceKey().id());
+						if (sourceObj != null)
+							sourceObj.links(sourceObj.links().remove(linkObj));
+						}
+
+						EntityStore<?> targetEntityStore = workStoreSet.store(linkObj.getTargetKey().alias());
+						AbstractPersistentObject targetObj = targetEntityStore.get(linkObj.getTargetKey().id());
+						if (targetObj != null)
+							targetObj.links(targetObj.links().remove(linkObj));
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			
 			// 5. inform read models sync (for models which need to be in sync)
 			aTransaction.setTransactionPhase(TransactionPhase.COMMITTED_SYNC);
 			notifyTransactionListener(aTransaction, (e) -> {log.error("exection in COMMITTED_SYNC listener", e);});
@@ -307,10 +365,26 @@ public class StoreWriter  {
 			aTransaction.setTransactionPhase(TransactionPhase.COMMITTED_ASYNC);
 			transactionSubject.onNext(aTransaction);
 		}	
-
-		
 		
 		return result;
+	}
+
+	private Object autoCorrectRef(Object value, Map<PersistentObjectKey<?>, Long> newObjKeyToFinalIdMap) {
+		if (value instanceof PersistentObjectKey) {
+			PersistentObjectKey<?> poc = (PersistentObjectKey<?>) value;
+			if (poc.isKeyOfNewObject()) {
+				Long idOfStoreObj = newObjKeyToFinalIdMap.get(poc);
+				if (idOfStoreObj == null) {
+					throw new AssertionError();
+				}
+				
+				return PersistentObjectKey.of(poc.alias(), idOfStoreObj);
+			} else {
+				return poc;
+			}
+		} else {
+			return value;
+		}
 	}	
 
 	

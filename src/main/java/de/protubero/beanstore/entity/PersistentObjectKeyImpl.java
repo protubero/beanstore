@@ -42,5 +42,15 @@ public final class PersistentObjectKeyImpl<T extends AbstractPersistentObject> i
 		return alias() + "#" + id();
 	}
 	
-
+	@Override
+	public int hashCode() {
+		return (int) id();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return ((PersistentObjectKey<?>) obj).id() == id()
+				&& ((PersistentObjectKey<?>) obj).alias().equals(alias());
+	}
+	
 }

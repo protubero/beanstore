@@ -42,5 +42,10 @@ public interface PersistentObjectKey<T extends AbstractPersistentObject> {
 		
 		return new PersistentObjectKeyImpl<>(null, alias, id);
 	}
+
+	default boolean isKeyOfNewObject() {
+		return id() < 0;
+	}
+	
 	
 }

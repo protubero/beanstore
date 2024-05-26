@@ -44,6 +44,9 @@ public interface BeanStoreBuilder {
 	 */
 	void addPlugin(BeanStorePlugin plugin);
 	
+	
+	void enableLinks();
+	
 	/**
 	 * Create the bean store, i.e.
 	 * <p>

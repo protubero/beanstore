@@ -3,9 +3,12 @@ package de.protubero.beanstore.tx;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,8 @@ import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.PersistentObjectVersionKey;
+import de.protubero.beanstore.links.Link;
+import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.store.CompanionSet;
 
@@ -23,6 +28,8 @@ public final class Transaction implements TransactionEvent {
 	
 	public static final Logger log = LoggerFactory.getLogger(Transaction.class);
 
+	private static AtomicLong newObjectId = new AtomicLong(-1);
+	
 	private String description;	
 	private CompanionSet companionSet;
 	private String migrationId;
@@ -34,6 +41,9 @@ public final class Transaction implements TransactionEvent {
 	private TransactionPhase transactionPhase = TransactionPhase.INITIAL;
 	
 	private List<TransactionElement<?>> elements = new ArrayList<>();
+	
+	// required to check duplicate update elements
+	private Set<TransactionElement<?>> updElementSet = new HashSet<>();
 	
 	private TransactionFailure failure;
 		
@@ -64,14 +74,15 @@ public final class Transaction implements TransactionEvent {
 	private <T extends AbstractPersistentObject> T create(Companion<T> companion) {
 		T result = companion.createInstance();
 		result.state(State.RECORD);
+		result.id(newObjectId.addAndGet(-1));
 		
 		TransactionElement<T> elt = new TransactionElement<>(
 				this,
 				InstanceEventType.Create,
 				companion, 
-				null, 
+				result.id(), 
 				result);
-		elements.add(elt);
+		addElement(elt);
 		
 		return result;
 	}
@@ -109,7 +120,12 @@ public final class Transaction implements TransactionEvent {
 		return result;
 	}
 
+	
 	public void delete(PersistentObjectKey<?> key) {
+		delete(key, false);
+	}
+	
+	public void delete(PersistentObjectKey<?> key, boolean ignoreNonExistence) {
 		Objects.requireNonNull(key);
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<Companion<?>> companion = (Optional) companionSet.companionByKey(key);
@@ -124,10 +140,22 @@ public final class Transaction implements TransactionEvent {
 				(Companion) companion.get(), 
 				key.id(), 
 				null);
-		elements.add(elt);
+		elt.setIgnoreNonExistence(ignoreNonExistence);
+		
+		addElement(elt);
 	}
 	
 
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void delete(Link<S, T> link) {
+		link.delete(this);
+	}
+	
+	
+	/**
+	 * Deletion of a specific version implies ignoreNonExistence == false
+	 * 
+	 * @param key
+	 */
 	public void delete(PersistentObjectVersionKey<?> key) {
 		Objects.requireNonNull(key);
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -144,7 +172,7 @@ public final class Transaction implements TransactionEvent {
 				key.id(), 
 				null);
 		elt.setVersion(key.version());
-		elements.add(elt);
+		addElement(elt);
 	}
 
 	public <T extends AbstractPersistentObject> T update(PersistentObjectKey<T> key) {
@@ -187,9 +215,36 @@ public final class Transaction implements TransactionEvent {
 				recordInstance);
 		elt.setOptimisticLocking(true);
 		elt.setVersion(key.version());
-		elements.add(elt);
+		addElement(elt);
 
 		return recordInstance;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
+			PersistentObjectKey<S> sourceKey, 
+			PersistentObjectKey<T> targetKey,
+			String type) {
+		if (Objects.requireNonNull(sourceKey).equals(Objects.requireNonNull(targetKey))) {
+			throw new RuntimeException("Creating self-referential link");
+		}
+		LinkObj<S, T> lnk = create(LinkObj.class);
+		lnk.setType(type);
+		lnk.setSourceKey(sourceKey);
+		lnk.setTargetKey(targetKey);
+	}
+	
+	
+	
+	
+	private <T extends AbstractPersistentObject> void addElement(TransactionElement<T> elt) {
+		if (elt.type() == InstanceEventType.Update) {
+			if (updElementSet.contains(elt)) {
+				throw new RuntimeException("Duplicate update transaction element " + elt);
+			}
+			updElementSet.add(elt);
+		}
+		elements.add(elt);
 	}
 	
 	@Override
