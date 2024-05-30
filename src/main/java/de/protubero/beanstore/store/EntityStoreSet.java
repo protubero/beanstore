@@ -7,6 +7,7 @@ import java.util.stream.StreamSupport;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
 public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 		
@@ -26,6 +27,19 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 
 	<T extends AbstractPersistentObject> Optional<EntityStore<T>> storeOptional(Class<T> aClass);
 
+	default <T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key) {
+		EntityStore<T> store = null;
+		if (key.entityClass() != null) {
+			store = store(key.entityClass()); 
+		} else {
+			store = store(key.alias());
+		}
+		if (store == null) {
+			throw new RuntimeException("Invalid store " + key);
+		}
+		return store.get(key.id());
+	}
+	
 
 	EntityStoreSet<E> internalCloneStoreSet();
 

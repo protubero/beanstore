@@ -6,7 +6,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import de.protubero.beanstore.links.LinkPSet;
+import de.protubero.beanstore.links.Link;
+import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.links.Links;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
@@ -239,14 +240,37 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	
 	public Links links() {
 		if (this.links == null) {
-			return Links.EMPTY;
+			links = Links.empty(PersistentObjectKey.of(this));
 		}
+		
 		return links;
 	}
 
-	public void links(Links aLinks) {
-		Objects.requireNonNull(aLinks).checkRelationTo(alias(), id);
-		this.links = Objects.requireNonNull(aLinks);
+	public Links nullableLinks() {
+		return links;
+	}
+	
+	
+	public void links(Links links) {
+		this.links = links;
+	}
+	
+	
+	public Links plusLink(Link<?, ?> aLink) {
+		links = links().plus(aLink);
+		return links;
+	}
+	
+	public Links minusLink(LinkObj<?, ?> linkObj) {
+		if (links == null) {
+			throw new AssertionError();
+		}
+		Link<?, ?> link = links().findByLinkObj(linkObj);
+		if (link == null) {
+			throw new AssertionError();
+		}
+		links = links().minus(link);
+		return links;
 	}
 	
 	public boolean isOutdated() {

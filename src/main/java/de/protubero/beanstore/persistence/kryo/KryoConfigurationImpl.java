@@ -68,6 +68,8 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneOffsetSer
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZonedDateTimeSerializer;
 
 import de.protubero.beanstore.collections.MapPSetKryoSerializer;
+import de.protubero.beanstore.entity.PersistentObjectKeyImpl;
+import de.protubero.beanstore.links.PersistentObjectKeyKryoSerializer;
 import de.protubero.beanstore.persistence.api.KryoConfig;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -134,6 +136,7 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		kryo.register(String[].class, new StringArraySerializer(), 78);
 
 		kryo.register(MapPSet.class, new MapPSetKryoSerializer(), 80);
+		kryo.register(PersistentObjectKeyImpl.class, new PersistentObjectKeyKryoSerializer(dictionary), 81);
 		
 		
 		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);

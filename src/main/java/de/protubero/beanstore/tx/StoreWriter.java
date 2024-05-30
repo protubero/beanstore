@@ -328,31 +328,55 @@ public class StoreWriter  {
 			
 			// fix links
 			for (TransactionElement<?> elt2 : aTransaction.elements()) {
+				
+				// copy links to updated instance
+				// might be null
+				if (elt2.type() == InstanceEventType.Update) {
+					elt2.newInstance().links(elt2.replacedInstance().nullableLinks());
+				}
+				
 				if (elt2.isLinkElement()) {
+					LinkObj linkObj;
+					AbstractPersistentObject sourceObj;
+					AbstractPersistentObject targetObj;
 					switch (elt2.type()) {
 					case Create:
+						linkObj = (LinkObj) elt2.newInstance();
+
+						sourceObj = workStoreSet.get(linkObj.getSourceKey());
+						if (sourceObj == null) {
+							throw new AssertionError();
+						}
+						targetObj = workStoreSet.get(linkObj.getTargetKey());
+						if (targetObj == null) {
+							throw new AssertionError();
+						}
+						
+						Link newLink = new Link(sourceObj, targetObj, linkObj);
+						
+						sourceObj.plusLink(newLink);
+						targetObj.plusLink(newLink);
 						
 						break;
 					case Update:
 						// Links are not updateable
 						throw new AssertionError();
 					case Delete:
-						LinkObj linkObj = (LinkObj) elt2.replacedInstance();
+						linkObj = (LinkObj) elt2.replacedInstance();
 
-						EntityStore<?> sourceEntityStore = workStoreSet.store(linkObj.getSourceKey().alias());
-						AbstractPersistentObject sourceObj = sourceEntityStore.get(linkObj.getSourceKey().id());
-						if (sourceObj != null)
-							sourceObj.links(sourceObj.links().remove(linkObj));
+						sourceObj = workStoreSet.get(linkObj.getSourceKey());
+						if (sourceObj != null) {
+							sourceObj.minusLink(linkObj);
+						}
+						targetObj = workStoreSet.get(linkObj.getTargetKey());
+						if (targetObj != null) {
+							targetObj.minusLink(linkObj);
 						}
 
-						EntityStore<?> targetEntityStore = workStoreSet.store(linkObj.getTargetKey().alias());
-						AbstractPersistentObject targetObj = targetEntityStore.get(linkObj.getTargetKey().id());
-						if (targetObj != null)
-							targetObj.links(targetObj.links().remove(linkObj));
-						}
 						
 						break;
-					}
+					}	
+					
 				}
 			}
 			

@@ -10,9 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.api.BeanStore;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.links.Link;
+import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.store.CompanionSet;
+import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.store.MutableEntityStoreSet;
@@ -137,6 +141,29 @@ public class InterimStore {
 	public BeanStore build() {
 		if (phase != Phase.ImmutableBeans) {
 			throw new AssertionError();
+		}
+		
+		// set links
+		EntityStore<LinkObj> linkStore = store.store(LinkObj.class);
+		if (linkStore != null) {
+			linkStore.objects().forEach(linkObj -> {
+				@SuppressWarnings("unchecked")
+				AbstractPersistentObject sourceObj = store.get(linkObj.getSourceKey());
+				if (sourceObj == null) {
+					throw new RuntimeException("No source obj for link " + linkObj);
+				}
+				@SuppressWarnings("unchecked")
+				AbstractPersistentObject targetObj = store.get(linkObj.getTargetKey());
+				if (targetObj == null) {
+					throw new RuntimeException("No target obj for link " + linkObj);
+				}
+				
+				@SuppressWarnings("unchecked")
+				Link<?, ?> newLink = new Link<>(sourceObj, targetObj, linkObj);
+				
+				sourceObj.plusLink(newLink);
+				targetObj.plusLink(newLink);
+			});
 		}
 		
 		// persist migration transactions

@@ -1,46 +1,24 @@
 package de.protubero.beanstore.links;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-public interface Links extends Iterable<Link<?, ?>>, Consumer<Consumer<Link<?, ?>>> {
+import de.protubero.beanstore.entity.PersistentObjectKey;
 
-	public static Links EMPTY = new Links() {
+public interface Links extends Iterable<Link<?, ?>> {
+
+	public static Links empty(PersistentObjectKey<?> ownerKey) { 
+		return new LinksImpl(ownerKey);	
+	}
+	
+
+	PersistentObjectKey<?> ownerKey();
+	
+	Links plus(Link<?, ?> aLink);
 		
+	Links minus(Link<?, ?> aLink);
 		
-		@Override
-		public Iterator<Link<?, ?>> iterator() {
-			return Collections.emptyIterator();
-		}
+	Stream<Link<?, ?>> stream();
 
-		@Override
-		public Link<?, ?> oneOf(String type) {
-			return null;
-		}
 
-		@Override
-		public Link<?, ?> oneInboundOf(String type) {
-			return null;
-		}
-
-		@Override
-		public Link<?, ?> oneOutboundOf(String type) {
-			return null;
-		}
-
-		@Override
-		public void accept(Consumer<Link<?, ?>> t) {}
-		
-	};
-	
-	
-	Link<?, ?> oneOf(String type);
-	Link<?, ?> oneInboundOf(String type);
-	Link<?, ?> oneOutboundOf(String type);
-	
-	Links remove(LinkObj<?, ?> linkObj);
-	
-	void checkRelationTo(String alias, Long id);
-	
+	Link<?, ?> findByLinkObj(LinkObj<?, ?> linkObj);
 }
