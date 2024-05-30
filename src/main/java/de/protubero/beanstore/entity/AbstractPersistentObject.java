@@ -52,7 +52,7 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 	
 	public void id(long aId) {
-		if (id != null || (state != State.INSTANTIATED && state != State.RECORD && state != State.RECORDED)) {
+		if (id != null && id >= 0 && (state != State.INSTANTIATED && state != State.RECORD && state != State.RECORDED)) {
 			throw new AssertionError();
 		}
 		id = aId;

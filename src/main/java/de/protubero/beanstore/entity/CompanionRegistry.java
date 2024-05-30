@@ -15,10 +15,6 @@ public class CompanionRegistry {
 	private static Map<String, MapObjectCompanion> mapCompanionByAliasMap = new HashMap<>();
 	
 	public static synchronized MapObjectCompanion getOrCreateMapCompanion(String alias) {
-		if ("link".equals(alias)) {
-			throw new RuntimeException("'link' is a reserved entity alias");
-		}
-		
 		MapObjectCompanion result = mapCompanionByAliasMap.get(Objects.requireNonNull(alias));
 		if (result != null) {
 			return (MapObjectCompanion) result;

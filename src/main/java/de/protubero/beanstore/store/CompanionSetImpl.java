@@ -46,7 +46,7 @@ public class CompanionSetImpl implements CompanionSet {
 	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> Optional<Companion<T>> companionByClass(Class<T> entityClazz) {
 		for (Companion<?> companion : companionList) {
-			if (companion.entityClass() == entityClazz) {
+			if (companion.isBean() && companion.entityClass() == entityClazz) {
 				return Optional.of((Companion<T>) companion);
 			}
 		}

@@ -17,6 +17,8 @@ import de.protubero.beanstore.api.BeanStoreMetaInfo;
 import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.store.ImmutableEntityStoreSet;
 import de.protubero.beanstore.tx.StoreWriter;
 import de.protubero.beanstore.tx.Transaction;
@@ -216,9 +218,10 @@ public class BeanStoreImpl implements BeanStore {
 		return new BeanStoreMetaInfoImpl(store);
 	}
 
-
-
-
+	@Override
+	public <T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key) {
+		return store.get(key);
+	}
 
 
 }

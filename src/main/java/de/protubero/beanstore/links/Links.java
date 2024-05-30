@@ -1,5 +1,6 @@
 package de.protubero.beanstore.links;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 import de.protubero.beanstore.entity.PersistentObjectKey;
@@ -21,4 +22,7 @@ public interface Links extends Iterable<Link<?, ?>> {
 
 
 	Link<?, ?> findByLinkObj(LinkObj<?, ?> linkObj);
+
+
+	Set<Link<?, ?>> asSet();
 }

@@ -147,7 +147,7 @@ public final class Transaction implements TransactionEvent {
 	
 
 	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void delete(Link<S, T> link) {
-		link.delete(this);
+		delete(PersistentObjectKey.of(link.getLinkObj()));
 	}
 	
 	
@@ -220,6 +220,13 @@ public final class Transaction implements TransactionEvent {
 		return recordInstance;
 	}
 
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
+			S sourceObj, 
+			T targetObj,
+			String type) {
+		link(PersistentObjectKey.of(sourceObj), PersistentObjectKey.of(targetObj), type);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
 			PersistentObjectKey<S> sourceKey, 

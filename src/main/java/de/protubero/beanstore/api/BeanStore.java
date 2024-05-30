@@ -1,9 +1,12 @@
 package de.protubero.beanstore.api;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.tx.TransactionFailure;
 
 /**
@@ -32,6 +35,13 @@ public interface BeanStore extends BeanStoreBase {
 		}
 	}
 
+	<T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key);
+
+	default <T extends AbstractPersistentObject> T get(T obj) {
+		return get(PersistentObjectKey.of(Objects.requireNonNull(obj)));
+	}
+	
+	
 	/**
 	 * Access Store and execute transactions on a locked store.
 	 * The method does NOT block the calling thread.   

@@ -7,6 +7,7 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.PersistentObjectVersionKey;
+import de.protubero.beanstore.links.Link;
 import de.protubero.beanstore.tx.Transaction;
 
 public class BeanStoreTransactionImpl implements BeanStoreTransaction {
@@ -56,6 +57,28 @@ public class BeanStoreTransactionImpl implements BeanStoreTransaction {
 	@Override
 	public <T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key) {
 		return transaction.update(key);
+	}
+
+	@Override
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void delete(Link<S, T> link) {
+		transaction.delete(link);
+	}
+
+	@Override
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link(
+			PersistentObjectKey<S> sourceKey, PersistentObjectKey<T> targetKey, String type) {
+		transaction.link(sourceKey, targetKey, type);
+	}
+
+	@Override
+	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link(S sourceObj, T targetObj,
+			String type) {
+		transaction.link(sourceObj, targetObj, type);
+	}
+
+	@Override
+	public void delete(PersistentObjectKey<?> key, boolean ignoreNonExistence) {
+		transaction.delete(key, ignoreNonExistence);
 	}
 
 	

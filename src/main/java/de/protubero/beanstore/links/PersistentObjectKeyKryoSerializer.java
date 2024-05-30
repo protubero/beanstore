@@ -28,7 +28,7 @@ public class PersistentObjectKeyKryoSerializer extends Serializer<PersistentObje
 	@Override
 	public PersistentObjectKeyImpl<?> read(Kryo kryo, Input input, Class<? extends PersistentObjectKeyImpl<?>> type) {
 		String alias = dictionary.textByCode(input.readInt(true));
-		long id = input.readLong();
+		long id = input.readLong(true);
 		return (PersistentObjectKeyImpl<?>) PersistentObjectKey.of(alias, id);
 	}
 

@@ -192,7 +192,7 @@ public class StoreWriter  {
 						// ignoreNonExistence == true, so it doesn't matter if any of the linkObjs
 						// have been deleted otherwise
 						for (Link link : origInstance.links()) {
-							link.delete(aTransaction);
+							aTransaction.delete(link);
 						}
 					}	
 					break;
@@ -249,7 +249,7 @@ public class StoreWriter  {
 					}
 					
 					long newInstanceId = entityStore.getAndIncreaseInstanceId();	
-					newObjKeyToFinalIdMap.put(PersistentObjectKey.of(elt.getAlias(), elt.getId()), newInstanceId);
+					newObjKeyToFinalIdMap.put(PersistentObjectKey.of(elt.getAlias(), elt.getRecordInstance().id()), newInstanceId);
 					
 					newInstance = companion.createInstance(newInstanceId);
 					// set properties
@@ -269,8 +269,8 @@ public class StoreWriter  {
 					}
 					
 					((TransactionElement) elt).setNewInstance(newInstance);
-					elt.getRecordInstance().id(newInstanceId);
 					elt.getRecordInstance().version(newInstance.version());
+					elt.getRecordInstance().id(newInstanceId);
 					break;
 				}
 				

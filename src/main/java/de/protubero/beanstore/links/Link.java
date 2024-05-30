@@ -2,6 +2,7 @@ package de.protubero.beanstore.links;
 
 import java.util.Objects;
 
+import de.protubero.beanstore.api.BeanStoreTransaction;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.tx.Transaction;
@@ -31,7 +32,7 @@ public final class Link<S extends AbstractPersistentObject, T extends AbstractPe
 		return linkObj.getType();
 	}
 	
-	public void delete(Transaction aTransaction) {
+	public void delete(BeanStoreTransaction aTransaction) {
 		aTransaction.delete(PersistentObjectKey.of(linkObj), true);
 	}
 	

@@ -144,7 +144,7 @@ public class InterimStore {
 		}
 		
 		// set links
-		EntityStore<LinkObj> linkStore = store.store(LinkObj.class);
+		EntityStore<LinkObj> linkStore = store.storeOptional(LinkObj.class).orElse(null);
 		if (linkStore != null) {
 			linkStore.objects().forEach(linkObj -> {
 				@SuppressWarnings("unchecked")

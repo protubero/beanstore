@@ -4,6 +4,8 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.PersistentObjectVersionKey;
+import de.protubero.beanstore.links.Link;
+import de.protubero.beanstore.links.LinkObj;
 
 
 /**
@@ -33,5 +35,20 @@ public interface BeanStoreTransaction  {
 	<T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key);
 		
 	void describe(String text);
+	
+	<S extends AbstractPersistentObject, T extends AbstractPersistentObject> void delete(Link<S, T> link);
+	
+	<S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link(
+			PersistentObjectKey<S> sourceKey, 
+			PersistentObjectKey<T> targetKey,
+			String type);
+	
+	<S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
+			S sourceObj, 
+			T targetObj,
+			String type);
+
+	void delete(PersistentObjectKey<?> key, boolean ignoreNonExistence);
+	
 	
 }

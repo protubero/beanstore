@@ -3,6 +3,7 @@ package de.protubero.beanstore.links;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.pcollections.HashTreePSet;
@@ -72,6 +73,11 @@ public class LinksImpl implements Links {
 	@Override
 	public Link<?, ?> findByLinkObj(final LinkObj<?, ?> linkObj) {
 		return stream().filter(l -> l.getLinkObj().equals(linkObj)).findAny().orElse(null);
+	}
+
+	@Override
+	public Set<Link<?, ?>> asSet() {
+		return linkSet;
 	}
 
 }
