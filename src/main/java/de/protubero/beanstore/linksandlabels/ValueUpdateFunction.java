@@ -1,4 +1,4 @@
-package de.protubero.beanstore.collections;
+package de.protubero.beanstore.linksandlabels;
 
 import java.util.function.Function;
 

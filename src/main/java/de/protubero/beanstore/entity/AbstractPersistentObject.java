@@ -4,11 +4,12 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
+import org.pcollections.PSet;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import de.protubero.beanstore.links.Link;
-import de.protubero.beanstore.links.LinkObj;
-import de.protubero.beanstore.links.Links;
+import de.protubero.beanstore.linksandlabels.LabelUpdateSet;
+import de.protubero.beanstore.linksandlabels.LinkValue;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 @JsonSerialize(using = CustomSerializer.class)
@@ -236,45 +237,42 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 		return entityAnnotation.alias();
 	}
 	
-	private Links links;
-	
-	public Links links() {
-		if (this.links == null) {
-			links = Links.empty(PersistentObjectKey.of(this));
-		}
-		
-		return links;
-	}
-
-	public Links nullableLinks() {
-		return links;
-	}
-	
-	
-	public void links(Links links) {
-		this.links = links;
-	}
-	
-	
-	public Links plusLink(Link<?, ?> aLink) {
-		links = links().plus(aLink);
-		return links;
-	}
-	
-	public Links minusLink(LinkObj<?, ?> linkObj) {
-		if (links == null) {
-			throw new AssertionError();
-		}
-		Link<?, ?> link = links().findByLinkObj(linkObj);
-		if (link == null) {
-			throw new AssertionError();
-		}
-		links = links().minus(link);
-		return links;
-	}
-	
 	public boolean isOutdated() {
 		return state == State.OUTDATED;
 	}
+	
+
+	public abstract PSet<LinkValue> getLinks();
+	
+	public abstract void setLinks(PSet<LinkValue> links);
+
+	public abstract PSet<String> getLabels();
+	
+	public abstract void setLabels(PSet<String> labels);
+	
+	public void addLabels(String ... aLabels) {
+		if (state != State.RECORD) {
+			throw new RuntimeException("Calling 'addLabels' is only allowed when updating an instance");
+		}
+		if (getLabels() == null) {
+			setLabels(LabelUpdateSet.empty());
+		}	
+		for (String aLabel : aLabels) {
+			setLabels(getLabels().plus(aLabel));
+		}
+	}
+	
+	public void removeLabels(String ... aLabels) {
+		if (state != State.RECORD) {
+			throw new RuntimeException("Calling 'removeLabels' is only allowed when updating an instance");
+		}
+		if (getLabels() == null) {
+			setLabels(LabelUpdateSet.empty());
+		}	
+		for (String aLabel : aLabels) {
+			setLabels(getLabels().minus(aLabel));
+		}
+	}
+	
 
 }

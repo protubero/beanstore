@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.linksandlabels.Links;
 
-public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<?>> {
+public class MutableEntityStoreSet extends AbstractEntityStoreSet<MutableEntityStore<?>> {
 
 	public static final Logger log = LoggerFactory.getLogger(MutableEntityStoreSet.class);
 		
@@ -27,7 +28,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		this.version = version;
 	}
 	
-	
 	public MutableEntityStoreSet() {
 	}
 
@@ -35,7 +35,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 	public Iterator<MutableEntityStore<?>> iterator() {
 		return storeList.iterator();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -91,7 +90,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		return true;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> EntityStore<T> register(Companion<?> companion) {
 		MutableEntityStore<?> store = new MutableEntityStore<>(companion, acceptNonGeneratedIds);
@@ -117,7 +115,6 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		this.acceptNonGeneratedIds = acceptNonGeneratedIds;
 	}
 
-
 	@Override
 	public boolean hasNoEntityStores() {
 		return storeList.isEmpty();
@@ -128,10 +125,9 @@ public class MutableEntityStoreSet implements EntityStoreSet<MutableEntityStore<
 		return version;
 	}
 
-
 	public void version(int aVersion) {
 		this.version = aVersion;
 	}
-	
+
 	
 }

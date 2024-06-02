@@ -18,7 +18,6 @@ import de.protubero.beanstore.builder.blocks.StoreInitializer;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.MapObjectCompanion;
-import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.TransactionPersistence;
 import de.protubero.beanstore.pluginapi.BeanStorePlugin;
 import de.protubero.beanstore.pluginapi.PersistenceReadListener;
@@ -142,10 +141,6 @@ public class BeanStoreBuilderImpl implements BeanStoreBuilder {
 		this.initialization.setAutoCreateEntities(autoCreateEntities);
 	}
 
-	@Override
-	public void enableLinks() {
-		registerEntity(LinkObj.class);
-	}
 
 
 }

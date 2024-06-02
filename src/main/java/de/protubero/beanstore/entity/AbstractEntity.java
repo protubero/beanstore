@@ -6,8 +6,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.pcollections.PSet;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import de.protubero.beanstore.linksandlabels.LinkValue;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 
@@ -147,5 +150,29 @@ public abstract class AbstractEntity extends AbstractPersistentObject {
 				| NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException("Error creating unmanaged copy", e);
 		}
+	}
+	
+	
+	private PSet<String> labels;
+	private PSet<LinkValue> links;
+	
+	@Override
+	public PSet<String> getLabels() {
+		return labels;
+	}
+	
+	@Override
+	public void setLabels(PSet<String> labels) {
+		this.labels = labels;
+	}
+	
+	@Override
+	public PSet<LinkValue> getLinks() {
+		return links;
+	}
+	
+	@Override
+	public void setLinks(PSet<LinkValue> links) {
+		this.links = links;
 	}
 }

@@ -11,13 +11,11 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.protubero.beanstore.collections.ValueUpdateFunction;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.linksandlabels.ValueUpdateFunction;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.PersistentObjectKey;
-import de.protubero.beanstore.links.Link;
-import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.store.EntityStore;
@@ -187,13 +185,6 @@ public class StoreWriter  {
 						
 						((TransactionElement) elt).setReplacedInstance(origInstance);
 						
-						// delete all incoming and outgoing links
-						// this adds 'delete' TX elements dynamically while iterating through them!
-						// ignoreNonExistence == true, so it doesn't matter if any of the linkObjs
-						// have been deleted otherwise
-						for (Link link : origInstance.links()) {
-							aTransaction.delete(link);
-						}
 					}	
 					break;
 				case Update:
@@ -230,8 +221,9 @@ public class StoreWriter  {
 							Object origValue = newInstance.get(kvp.getProperty());
 							Object newValue = ((ValueUpdateFunction) kvp.getValue()).apply(origValue);
 							newInstance.put(kvp.getProperty(), newValue);
-						}
-						newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));						
+						} else {
+							newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));
+						}	
 					}
 					
 					((TransactionElement) elt).setReplacedInstance(origInstance);
@@ -257,15 +249,13 @@ public class StoreWriter  {
 					
 					elt.getRecordInstance().state(State.RECORDED);					
 					for (KeyValuePair kvp : elt.getRecordInstance().changes()) {
-						newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));						
-					}
-
-					// no self-referential links allowed
-					if (newInstance instanceof LinkObj) {
-						LinkObj lnk = (LinkObj) newInstance;
-						if (Objects.requireNonNull(lnk.getSourceKey()).equals(Objects.requireNonNull(lnk.getTargetKey()))) {
-							throw new RuntimeException("Creating self-referential link");
-						}
+						if (kvp.getValue() instanceof ValueUpdateFunction) {
+							Object newValue = ((ValueUpdateFunction) kvp.getValue()).apply(null);
+							newInstance.put(kvp.getProperty(), newValue);
+						} else {
+							newInstance.put(kvp.getProperty(), autoCorrectRef(kvp.getValue(), newObjKeyToFinalIdMap));						
+						}	
+						
 					}
 					
 					((TransactionElement) elt).setNewInstance(newInstance);
@@ -325,59 +315,11 @@ public class StoreWriter  {
 					break;
 				}
 			}
-			
-			// fix links
-			for (TransactionElement<?> elt2 : aTransaction.elements()) {
-				
-				// copy links to updated instance
-				// might be null
-				if (elt2.type() == InstanceEventType.Update) {
-					elt2.newInstance().links(elt2.replacedInstance().nullableLinks());
-				}
-				
-				if (elt2.isLinkElement()) {
-					LinkObj linkObj;
-					AbstractPersistentObject sourceObj;
-					AbstractPersistentObject targetObj;
-					switch (elt2.type()) {
-					case Create:
-						linkObj = (LinkObj) elt2.newInstance();
-
-						sourceObj = workStoreSet.get(linkObj.getSourceKey());
-						if (sourceObj == null) {
-							throw new AssertionError();
-						}
-						targetObj = workStoreSet.get(linkObj.getTargetKey());
-						if (targetObj == null) {
-							throw new AssertionError();
-						}
-						
-						Link newLink = new Link(sourceObj, targetObj, linkObj);
-						
-						sourceObj.plusLink(newLink);
-						targetObj.plusLink(newLink);
-						
-						break;
-					case Update:
-						// Links are not updateable
-						throw new AssertionError();
-					case Delete:
-						linkObj = (LinkObj) elt2.replacedInstance();
-
-						sourceObj = workStoreSet.get(linkObj.getSourceKey());
-						if (sourceObj != null) {
-							sourceObj.minusLink(linkObj);
-						}
-						targetObj = workStoreSet.get(linkObj.getTargetKey());
-						if (targetObj != null) {
-							targetObj.minusLink(linkObj);
-						}
-
-						
-						break;
-					}	
-					
-				}
+			// TODO: This is the brute force solution which has to be replaced by a more sophisticated solution in the future
+			try {
+				workStoreSet.reloadLinks();
+			} catch (RuntimeException e) {
+				throw new TransactionFailure(TransactionFailureType.INVALID_LINK, e);
 			}
 			
 			

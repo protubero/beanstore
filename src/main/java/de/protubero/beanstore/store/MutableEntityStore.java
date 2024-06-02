@@ -2,6 +2,7 @@ package de.protubero.beanstore.store;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -153,6 +154,13 @@ public class MutableEntityStore<T extends AbstractPersistentObject> implements E
 		}
 		return result;
 	}
-	
+
+
+	@Override
+	public Iterator<T> iterator() {
+		return objectMap.values().iterator();
+	}
+
+
 	
 }

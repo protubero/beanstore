@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
 
-public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntityStore<?>> {
+public class ImmutableEntityStoreSet extends AbstractEntityStoreSet<ImmutableEntityStore<?>> {
 
 	public static final Logger log = LoggerFactory.getLogger(ImmutableEntityStoreSet.class);
 	
@@ -30,7 +30,6 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	
 	public ImmutableEntityStoreSet(Iterable<Companion<?>> companionList, int version) {
 		List<ImmutableEntityStore<?>> tempStoreList = new ArrayList<>();
-		int idx = 0;
 		for (Companion<?> companion : companionList) {
 			ImmutableEntityStore<?> store = new ImmutableEntityStore<>(companion);
 			tempStoreList.add(store);
@@ -164,6 +163,7 @@ public class ImmutableEntityStoreSet implements EntityStoreSet<ImmutableEntitySt
 	public int version() {
 		return version;
 	}
+
 
 
 	

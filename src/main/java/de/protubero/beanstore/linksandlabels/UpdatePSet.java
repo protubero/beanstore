@@ -1,4 +1,4 @@
-package de.protubero.beanstore.collections;
+package de.protubero.beanstore.linksandlabels;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,41 +8,16 @@ import java.util.function.Function;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 
-public class UpdatePSet<E> implements PSet<E>, ValueUpdateFunction<PSet<E>>{
+public abstract class UpdatePSet<E> implements PSet<E>, ValueUpdateFunction<PSet<E>>{
 
 	private PSet<E> positiveSet; 
 	private PSet<E> negativeSet; 
 
-	private UpdatePSet(PSet<E> positiveSet, PSet<E> negativeSet) {
+	UpdatePSet(PSet<E> positiveSet, PSet<E> negativeSet) {
 		this.positiveSet = Objects.requireNonNull(positiveSet);
 		this.negativeSet = Objects.requireNonNull(negativeSet);
 	}
-	
-	public static <E> PSet<E> empty() {
-		return new UpdatePSet<>(HashTreePSet.empty(), HashTreePSet.empty());
-	}
-	
-	@Override
-	public PSet<E> plus(E e) {
-		return new UpdatePSet<>(positiveSet.plus(e), negativeSet);
-	}
-
-	@Override
-	public PSet<E> plusAll(Collection<? extends E> list) {
-		return new UpdatePSet<>(positiveSet.plusAll(list), negativeSet);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public PSet<E> minus(Object e) {
-		return new UpdatePSet<>(positiveSet, negativeSet.plus((E) e));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public PSet<E> minusAll(Collection<?> list) {
-		return new UpdatePSet<>(positiveSet, negativeSet.plusAll((Collection<? extends E>) list));
-	}
+		
 
 	@Override
 	@Deprecated
@@ -124,17 +99,29 @@ public class UpdatePSet<E> implements PSet<E>, ValueUpdateFunction<PSet<E>>{
 	}
 
 	@Override
-	public PSet<E> apply(PSet<E> source) {
+	public PSet<E> apply(PSet<E> target) {
+		if (target == null) {
+			target = HashTreePSet.empty();
+		}
+		
 		for (E e : negativeSet) {
 			if (positiveSet.contains(e)) {
 				throw new RuntimeException("Same element in pos. and neg. set: " + e);
 			}
-			source = source.minus(e);
+			target = target.minus(e);
 		}
 		for (E e : positiveSet) {
-			source = source.plus(e);
+			target = target.plus(e);
 		}
-		return source;
+		return target;
+	}
+
+	public PSet<E> getPositiveSet() {
+		return positiveSet;
+	}
+
+	public PSet<E> getNegativeSet() {
+		return negativeSet;
 	}
 
 

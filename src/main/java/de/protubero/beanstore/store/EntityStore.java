@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
 
-public interface EntityStore<T extends AbstractPersistentObject> {
+public interface EntityStore<T extends AbstractPersistentObject> extends Iterable<T> {
 
 	boolean isImmutable();
 	
@@ -60,5 +60,6 @@ public interface EntityStore<T extends AbstractPersistentObject> {
 
 	boolean isEmpty();
 
+	
 	
 }

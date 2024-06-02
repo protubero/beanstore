@@ -19,8 +19,6 @@ import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.PersistentObjectVersionKey;
-import de.protubero.beanstore.links.Link;
-import de.protubero.beanstore.links.LinkObj;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
 import de.protubero.beanstore.store.CompanionSet;
 
@@ -146,10 +144,6 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 
-	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void delete(Link<S, T> link) {
-		delete(PersistentObjectKey.of(link.getLinkObj()));
-	}
-	
 	
 	/**
 	 * Deletion of a specific version implies ignoreNonExistence == false
@@ -219,30 +213,6 @@ public final class Transaction implements TransactionEvent {
 
 		return recordInstance;
 	}
-
-	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
-			S sourceObj, 
-			T targetObj,
-			String type) {
-		link(PersistentObjectKey.of(sourceObj), PersistentObjectKey.of(targetObj), type);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <S extends AbstractPersistentObject, T extends AbstractPersistentObject> void link (
-			PersistentObjectKey<S> sourceKey, 
-			PersistentObjectKey<T> targetKey,
-			String type) {
-		if (Objects.requireNonNull(sourceKey).equals(Objects.requireNonNull(targetKey))) {
-			throw new RuntimeException("Creating self-referential link");
-		}
-		LinkObj<S, T> lnk = create(LinkObj.class);
-		lnk.setType(type);
-		lnk.setSourceKey(sourceKey);
-		lnk.setTargetKey(targetKey);
-	}
-	
-	
-	
 	
 	private <T extends AbstractPersistentObject> void addElement(TransactionElement<T> elt) {
 		if (elt.type() == InstanceEventType.Update) {

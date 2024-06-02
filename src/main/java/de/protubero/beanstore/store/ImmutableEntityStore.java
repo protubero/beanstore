@@ -1,6 +1,7 @@
 package de.protubero.beanstore.store;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -137,6 +138,11 @@ public final class ImmutableEntityStore<T extends AbstractPersistentObject> impl
 	@Override
 	public boolean isEmpty() {
 		return objectMap.size() == 0;
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return objectMap.values().iterator();
 	}
 	
 }

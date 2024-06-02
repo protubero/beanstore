@@ -67,9 +67,13 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneIdSeriali
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZoneOffsetSerializer;
 import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZonedDateTimeSerializer;
 
-import de.protubero.beanstore.collections.MapPSetKryoSerializer;
 import de.protubero.beanstore.entity.PersistentObjectKeyImpl;
-import de.protubero.beanstore.links.PersistentObjectKeyKryoSerializer;
+import de.protubero.beanstore.linksandlabels.LabelUpdateSet;
+import de.protubero.beanstore.linksandlabels.LabelUpdateSetKryoSerializer;
+import de.protubero.beanstore.linksandlabels.LinkValue;
+import de.protubero.beanstore.linksandlabels.LinkValueKryoSerializer;
+import de.protubero.beanstore.linksandlabels.MapPSetKryoSerializer;
+import de.protubero.beanstore.linksandlabels.PersistentObjectKeyKryoSerializer;
 import de.protubero.beanstore.persistence.api.KryoConfig;
 import de.protubero.beanstore.persistence.api.PersistenceException;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -137,6 +141,8 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 		kryo.register(MapPSet.class, new MapPSetKryoSerializer(), 80);
 		kryo.register(PersistentObjectKeyImpl.class, new PersistentObjectKeyKryoSerializer(dictionary), 81);
+		kryo.register(LinkValue.class, new LinkValueKryoSerializer(dictionary), 82);
+		kryo.register(LabelUpdateSet.class, new LabelUpdateSetKryoSerializer(dictionary), 83);
 		
 		
 		kryo.register(PersistentTransaction.class, new PersistentTransactionSerializer(dictionary),  99);

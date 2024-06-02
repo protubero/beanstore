@@ -9,6 +9,7 @@ import de.protubero.beanstore.api.BeanStoreSnapshot;
 import de.protubero.beanstore.api.EntityStoreSnapshot;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
+import de.protubero.beanstore.linksandlabels.Links;
 import de.protubero.beanstore.store.EntityStore;
 import de.protubero.beanstore.store.EntityStoreSet;
 
@@ -61,6 +62,12 @@ public class BeanStoreSnapshotImpl implements BeanStoreSnapshot {
 	@Override
 	public int version() {
 		return store.version();
+	}
+
+
+	@Override
+	public Links links() {
+		return store.links();
 	}
 
 }

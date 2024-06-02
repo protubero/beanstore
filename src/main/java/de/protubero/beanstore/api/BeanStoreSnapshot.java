@@ -11,6 +11,7 @@ import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
 import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.linksandlabels.Links;
 
 /**
  * BeanStore read operations. 
@@ -158,5 +159,5 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 	}
 
 	
-	
+	Links links();
 }

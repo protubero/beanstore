@@ -8,11 +8,11 @@ import java.util.stream.StreamSupport;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
 import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.linksandlabels.Links;
 
 public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 		
 	boolean isImmutable();
-	
 	
 	<T extends AbstractPersistentObject> EntityStore<T> store(String alias);
 	
@@ -89,11 +89,15 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 
 	boolean hasNoData();
 
-
 	boolean hasNoEntityStores();
 
-
 	int version();
+	
+	Links links();
+	
+	void reloadLinks();
+	
+	
 	
 	
 }

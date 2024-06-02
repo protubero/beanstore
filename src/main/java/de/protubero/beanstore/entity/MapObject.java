@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.pcollections.PSet;
+
+import de.protubero.beanstore.linksandlabels.LinkValue;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 
@@ -143,6 +146,27 @@ public final class MapObject extends AbstractPersistentObject {
 		this.tag = tag;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public PSet<String> getLabels() {
+		return (PSet<String>) get("labels");
+	}
+	
+	@Override
+	public void setLabels(PSet<String> labels) {
+		set("labels", labels);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public PSet<LinkValue> getLinks() {
+		return (PSet<LinkValue>) get("links");
+	}
+	
+	@Override
+	public void setLinks(PSet<LinkValue> links) {
+		set("links", links);
+	}
 
 
 }

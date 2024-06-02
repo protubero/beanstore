@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.pcollections.PSet;
+
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.CompanionRegistry;
+import de.protubero.beanstore.linksandlabels.UpdatePSet;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -148,7 +151,12 @@ public final class StoreDataLoader {
 						instance.version(pit.getVersion());
 						if (pit.getPropertyUpdates() != null) {
 							for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
-								instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
+								if (propertyUpdate.getValue() instanceof UpdatePSet<?>) {
+									PSet<?> newValue = ((UpdatePSet<?>) propertyUpdate.getValue()).apply((PSet) instance.get(propertyUpdate.getProperty()));
+									instance.put(propertyUpdate.getProperty(), newValue);
+								} else {
+									instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
+								}	
 							}
 						}
 					}

@@ -1,4 +1,4 @@
-package de.protubero.beanstore.links;
+package de.protubero.beanstore.linksandlabels;
 
 import java.util.Objects;
 

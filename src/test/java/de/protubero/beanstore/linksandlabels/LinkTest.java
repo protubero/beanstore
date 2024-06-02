@@ -1,18 +1,12 @@
 package de.protubero.beanstore.linksandlabels;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 import java.io.File;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.protubero.beanstore.api.BeanStore;
-import de.protubero.beanstore.api.ExecutableBeanStoreTransaction;
 import de.protubero.beanstore.builder.BeanStoreBuilder;
-import de.protubero.beanstore.links.Link;
 import de.protubero.beanstore.persistence.kryo.KryoConfiguration;
 import de.protubero.beanstore.persistence.kryo.KryoPersistence;
 
@@ -22,9 +16,9 @@ public class LinkTest {
 	public void linkTest(@TempDir File tempDir) {
 		BeanStoreBuilder builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
 		builder.registerMapEntity("note");
-		builder.enableLinks();
 		BeanStore store = builder.build();
-		
+
+		/*
 		ExecutableBeanStoreTransaction tx = store.transaction();
 		var newNote1 = tx.create("note");
 		var newNote2 = tx.create("note");
@@ -79,7 +73,7 @@ public class LinkTest {
 		tx = store.transaction();
 		firstLink.delete(tx);
 		tx.execute();
-		
+		*/
 				
 	}
 	
