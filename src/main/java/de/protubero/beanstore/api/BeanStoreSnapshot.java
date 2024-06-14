@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreException;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.MapObject;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.linksandlabels.Links;
@@ -157,6 +158,13 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 	default List<AbstractPersistentObject> resolve(Iterable<? extends PersistentObjectKey<?>> keyList) {
 		return resolve(keyList, key -> {throw new BeanStoreException("invalid key " + key.toString());});
 	}
+	
+	default <T extends AbstractPersistentObject> T get(T obj) {
+		return get(Keys.key(Objects.requireNonNull(obj)));
+	}
+	
+	<T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key);
+	
 
 	
 	Links links();

@@ -70,8 +70,8 @@ import com.esotericsoftware.kryo.kryo5.serializers.TimeSerializers.ZonedDateTime
 import de.protubero.beanstore.entity.PersistentObjectKeyImpl;
 import de.protubero.beanstore.linksandlabels.LabelUpdateSet;
 import de.protubero.beanstore.linksandlabels.LabelUpdateSetKryoSerializer;
-import de.protubero.beanstore.linksandlabels.LinkValue;
-import de.protubero.beanstore.linksandlabels.LinkValueKryoSerializer;
+import de.protubero.beanstore.linksandlabels.LinkValueUpdateSet;
+import de.protubero.beanstore.linksandlabels.LinkValueUpdateSetKryoSerializer;
 import de.protubero.beanstore.linksandlabels.MapPSetKryoSerializer;
 import de.protubero.beanstore.linksandlabels.PersistentObjectKeyKryoSerializer;
 import de.protubero.beanstore.persistence.api.KryoConfig;
@@ -141,7 +141,7 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 
 		kryo.register(MapPSet.class, new MapPSetKryoSerializer(), 80);
 		kryo.register(PersistentObjectKeyImpl.class, new PersistentObjectKeyKryoSerializer(dictionary), 81);
-		kryo.register(LinkValue.class, new LinkValueKryoSerializer(dictionary), 82);
+		kryo.register(LinkValueUpdateSet.class, new LinkValueUpdateSetKryoSerializer(dictionary), 82);
 		kryo.register(LabelUpdateSet.class, new LabelUpdateSetKryoSerializer(dictionary), 83);
 		
 		
@@ -166,7 +166,7 @@ public class KryoConfigurationImpl implements KryoConfiguration {
 		return kryo.register(type, serializer, id);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T> Registration register(Class<T> type, Class<? extends Serializer> serializerClass, int id) {
 		Objects.requireNonNull(serializerClass);

@@ -40,4 +40,17 @@ public final class Link<S extends AbstractPersistentObject, T extends AbstractPe
 				Objects.equals(((Link<?, ?>) obj).type, type) ;
 	}
 	
+	@Override
+	public String toString() {
+		String result = sourceObj.toString();
+		if (type != null) {
+			result += "-" + type + "->";
+		} else {
+			result += "->";
+		}
+		
+		result += targetObj.toString();
+		return result;
+	}
+	
 }

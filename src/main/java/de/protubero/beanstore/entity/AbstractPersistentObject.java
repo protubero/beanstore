@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import de.protubero.beanstore.linksandlabels.LabelUpdateSet;
 import de.protubero.beanstore.linksandlabels.LinkValue;
+import de.protubero.beanstore.linksandlabels.LinkValueUpdateSet;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 @JsonSerialize(using = CustomSerializer.class)
@@ -275,4 +276,27 @@ public abstract class AbstractPersistentObject implements Map<String, Object>, C
 	}
 	
 
+	public void addLinks(LinkValue ... aLinks) {
+		if (state != State.RECORD) {
+			throw new RuntimeException("Calling 'addLinks' is only allowed when updating an instance");
+		}
+		if (getLinks() == null) {
+			setLinks(LinkValueUpdateSet.empty());
+		}	
+		for (LinkValue aLink : aLinks) {
+			setLinks(getLinks().plus(aLink));
+		}
+	}
+	
+	public void removeLinks(LinkValue ... aLinks) {
+		if (state != State.RECORD) {
+			throw new RuntimeException("Calling 'removeLinks' is only allowed when updating an instance");
+		}
+		if (getLinks() == null) {
+			setLinks(LinkValueUpdateSet.empty());
+		}	
+		for (LinkValue aLink : aLinks) {
+			setLinks(getLinks().minus(aLink));
+		}
+	}
 }

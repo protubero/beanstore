@@ -21,13 +21,13 @@ public interface PersistentObjectKey<T extends AbstractPersistentObject> {
 	Class<T> entityClass();
 	
 	
-	public static PersistentObjectKey<AbstractPersistentObject> of(String alias, long id) {
+	static PersistentObjectKey<AbstractPersistentObject> of(String alias, long id) {
 		Objects.requireNonNull(alias);
 		
 		return new PersistentObjectKeyImpl<>(null, alias, id);
 	}
 
-	public static <T extends AbstractEntity> PersistentObjectKey<T> of(Class<T> entityClass, long id) {
+	static <T extends AbstractEntity> PersistentObjectKey<T> of(Class<T> entityClass, long id) {
 		return new PersistentObjectKeyImpl<>(entityClass, null, id);
 	}
 

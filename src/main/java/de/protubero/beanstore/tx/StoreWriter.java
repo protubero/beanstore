@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
+import de.protubero.beanstore.linksandlabels.LinkValue;
 import de.protubero.beanstore.linksandlabels.ValueUpdateFunction;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -150,6 +152,21 @@ public class StoreWriter  {
 		
 		Map<PersistentObjectKey<?>, Long> newObjKeyToFinalIdMap = new HashMap<>();
 		
+		
+		// Enhance transaction with deletions of links to targets deleted by the transaction
+		for (TransactionElement<?> elt : aTransaction.elements()) {
+			if (elt.type() == InstanceEventType.Delete) {
+				aStoreSet.links().to(elt.getAlias(), elt.getId(), link -> {
+					PersistentObjectKey<?> sourceKey = Keys.key(link.source());
+					LinkValue lv = LinkValue.of(link.source(), link.type());
+					
+					if (!aTransaction.containsDeletionOf(sourceKey)) {
+						aTransaction.update(sourceKey).removeLinks(lv);
+					}
+				});
+			}
+		}
+		
 		if (!aTransaction.isEmpty()) {		
 			
 			// 1. Create instance clones and check optimistic locking (Wrap with StoreInstanceTransaction)
@@ -190,9 +207,6 @@ public class StoreWriter  {
 				case Update:
 					if (elt.getId() == null) {
 						throw new AssertionError();
-					}
-					if (elt.getAlias().equals("link")) {
-						throw new AssertionError("update of links not allowed");
 					}
 					
 					origInstance = entityStore.get(elt.getId());

@@ -171,6 +171,8 @@ public class StoreInitializer implements Consumer<InterimStore> {
 			ImmutableEntityStoreSet finalStoreSet = new ImmutableEntityStoreSet(
 					entityStoreBaseList.toArray(new ImmutableEntityStoreBase[entityStoreBaseList.size()]), mapStore.version());
 			
+			finalStoreSet.reloadLinks();
+			
 			interimStore.setStore(finalStoreSet);
 		}
 		

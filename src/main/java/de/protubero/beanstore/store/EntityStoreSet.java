@@ -1,12 +1,14 @@
 package de.protubero.beanstore.store;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.linksandlabels.Links;
 
@@ -27,6 +29,11 @@ public interface EntityStoreSet<E extends EntityStore<?>> extends Iterable<E> {
 
 	<T extends AbstractPersistentObject> Optional<EntityStore<T>> storeOptional(Class<T> aClass);
 
+
+	default <T extends AbstractPersistentObject> T get(T obj) {
+		return get(Keys.key(Objects.requireNonNull(obj)));
+	}
+	
 	default <T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key) {
 		EntityStore<T> store = null;
 		if (key.entityClass() != null) {

@@ -11,6 +11,7 @@ public interface KryoConfiguration {
 	
 	<T> Registration register(Class<T> type, Serializer<T> serializer, int id);
 
+	@SuppressWarnings("rawtypes")
 	<T> Registration register(Class<T> type, Class<? extends Serializer> serializerClass, int id);
 
 	<T> Registration register(Class<T> type);

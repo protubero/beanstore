@@ -3,7 +3,6 @@ package de.protubero.beanstore.builder.blocks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import de.protubero.beanstore.api.BeanStoreTransaction;

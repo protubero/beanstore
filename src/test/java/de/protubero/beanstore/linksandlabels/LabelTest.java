@@ -52,6 +52,18 @@ public class LabelTest {
 		String lbl2 = n2.getLabels().iterator().next();
 		assertEquals("hot", lbl2);
 		
+		tx = store.transaction();
+		var upd2 = tx.update(n2);
+		upd2.removeLabels("hot");
+		tx.execute();
+		store.close();
+		
+		builder = BeanStoreBuilder.init(KryoPersistence.of(new File(tempDir, getClass().getSimpleName() + ".kryo"), KryoConfiguration.create()));
+		builder.registerMapEntity("note");
+		store = builder.build();
+		
+		n2 = store.get(newNote2);
+		assertEquals(0, n2.getLabels().size());
 	}
 	
 	

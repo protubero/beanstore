@@ -120,7 +120,7 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 	@Override
 	public boolean equals(Object obj) {
 		return ((TransactionElement) obj).id.equals(id) &&
-				((TransactionElement) obj).type == type;
+				((TransactionElement) obj).getAlias().equals(getAlias());
 	}
 	
 	@Override

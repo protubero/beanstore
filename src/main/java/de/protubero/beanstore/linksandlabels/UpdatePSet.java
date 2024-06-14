@@ -3,7 +3,6 @@ package de.protubero.beanstore.linksandlabels;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;

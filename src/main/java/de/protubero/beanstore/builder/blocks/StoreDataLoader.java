@@ -12,6 +12,7 @@ import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.CompanionRegistry;
 import de.protubero.beanstore.linksandlabels.UpdatePSet;
+import de.protubero.beanstore.linksandlabels.ValueUpdateFunction;
 import de.protubero.beanstore.persistence.api.PersistentInstanceTransaction;
 import de.protubero.beanstore.persistence.api.PersistentProperty;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -151,8 +152,11 @@ public final class StoreDataLoader {
 						instance.version(pit.getVersion());
 						if (pit.getPropertyUpdates() != null) {
 							for (PersistentProperty propertyUpdate : pit.getPropertyUpdates()) {
-								if (propertyUpdate.getValue() instanceof UpdatePSet<?>) {
-									PSet<?> newValue = ((UpdatePSet<?>) propertyUpdate.getValue()).apply((PSet) instance.get(propertyUpdate.getProperty()));
+								if (propertyUpdate.getValue() instanceof ValueUpdateFunction<?>) {
+									@SuppressWarnings("rawtypes")
+									ValueUpdateFunction valueUpdateFunction = (ValueUpdateFunction) propertyUpdate.getValue();
+									Object propValue = instance.get(propertyUpdate.getProperty());
+									Object newValue = valueUpdateFunction.apply(propValue);
 									instance.put(propertyUpdate.getProperty(), newValue);
 								} else {
 									instance.put(propertyUpdate.getProperty(), propertyUpdate.getValue());
@@ -184,6 +188,8 @@ public final class StoreDataLoader {
 		});
 		
 		store.version(lastReadTransactionId);
+		
+		store.reloadLinks();
 		
 		return new LoadedStoreData(persistence, store, states);
 	}

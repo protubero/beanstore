@@ -2,7 +2,6 @@ package de.protubero.beanstore.persistence.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public interface TransactionReader {
 

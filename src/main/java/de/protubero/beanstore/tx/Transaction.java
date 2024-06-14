@@ -185,7 +185,7 @@ public final class Transaction implements TransactionEvent {
 				companion.get(), 
 				key.id(), 
 				recordInstance);
-		elements.add(elt);
+		addElement(elt);
 
 		return recordInstance;
 	}
@@ -291,6 +291,12 @@ public final class Transaction implements TransactionEvent {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean containsDeletionOf(PersistentObjectKey<?> key) {
+		return elements.stream().filter(elt -> elt.type() == InstanceEventType.Delete && 
+				elt.getAlias().equals(key.alias()) && 
+				elt.getId().longValue() == key.id()).findFirst().isPresent();
 	}
 
 
