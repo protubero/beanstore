@@ -27,6 +27,11 @@ public final class Keys {
 	public static <T extends AbstractPersistentObject> PersistentObjectVersionKey<T> versionKey(T instance) {
 		return PersistentObjectVersionKey.of(instance);
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends AbstractPersistentObject> PersistentObjectKey<T> key(PersistentObjectVersionKey<T> key) {
+		return (PersistentObjectKey<T>) PersistentObjectKey.of(key.alias(), key.id());
+	}
 	
 	
 }

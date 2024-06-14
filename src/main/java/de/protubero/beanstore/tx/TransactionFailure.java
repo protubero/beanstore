@@ -19,10 +19,7 @@ public final class TransactionFailure extends BeanStoreException {
 
 	public TransactionFailure(TransactionFailureType type, Exception e) {
 		super(e);
-		
-		if (type != TransactionFailureType.VERIFICATION_FAILED && type != TransactionFailureType.PERSISTENCE_FAILED) {
-			throw new AssertionError();
-		}
+	
 		
 		this.type = type;
 	}

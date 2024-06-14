@@ -152,19 +152,22 @@ public class StoreWriter  {
 		
 		Map<PersistentObjectKey<?>, Long> newObjKeyToFinalIdMap = new HashMap<>();
 		
-		
 		// Enhance transaction with deletions of links to targets deleted by the transaction
+		List<TransactionElement<?>> deletedEltList = new ArrayList<>();
 		for (TransactionElement<?> elt : aTransaction.elements()) {
 			if (elt.type() == InstanceEventType.Delete) {
-				aStoreSet.links().to(elt.getAlias(), elt.getId(), link -> {
-					PersistentObjectKey<?> sourceKey = Keys.key(link.source());
-					LinkValue lv = LinkValue.of(link.source(), link.type());
-					
-					if (!aTransaction.containsDeletionOf(sourceKey)) {
-						aTransaction.update(sourceKey).removeLinks(lv);
-					}
-				});
-			}
+				deletedEltList.add(elt);
+			}	
+		}
+		for (TransactionElement<?> elt : deletedEltList) {
+			aStoreSet.links().to(elt.getAlias(), elt.getId(), link -> {
+				PersistentObjectKey<?> sourceKey = Keys.key(link.source());
+				LinkValue lv = LinkValue.of(link.target(), link.type());
+				
+				if (!aTransaction.containsDeletionOf(sourceKey)) {
+					aTransaction.update(sourceKey).removeLinks(lv);
+				}
+			});
 		}
 		
 		if (!aTransaction.isEmpty()) {		

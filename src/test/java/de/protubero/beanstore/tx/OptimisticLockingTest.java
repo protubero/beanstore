@@ -26,7 +26,7 @@ public class OptimisticLockingTest extends AbstractBeanStoreTest {
 		var readStore = store.snapshot();
 
 		// data has been correctly stored
-		Employee emp1 =  readStore.find(PersistentObjectKey.of(Employee.class, 1));
+		Employee emp1 = readStore.find(PersistentObjectKey.of(Employee.class, 1));
 		
 		var tx1 = store.transaction();
 		var tx2 = store.transaction();

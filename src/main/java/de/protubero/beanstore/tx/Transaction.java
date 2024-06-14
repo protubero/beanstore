@@ -17,6 +17,7 @@ import de.protubero.beanstore.entity.AbstractEntity;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.AbstractPersistentObject.State;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.entity.PersistentObjectKey;
 import de.protubero.beanstore.entity.PersistentObjectVersionKey;
 import de.protubero.beanstore.persistence.api.PersistentTransaction;
@@ -125,6 +126,12 @@ public final class Transaction implements TransactionEvent {
 	
 	public void delete(PersistentObjectKey<?> key, boolean ignoreNonExistence) {
 		Objects.requireNonNull(key);
+		
+		if (key.isKeyOfNewObject()) {
+			throw new RuntimeException("Attempt to delete a newly created instance: " + key);
+		}
+		duplicateInstanceKeyCheck(key);
+		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<Companion<?>> companion = (Optional) companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
@@ -142,6 +149,16 @@ public final class Transaction implements TransactionEvent {
 		
 		addElement(elt);
 	}
+
+	private void duplicateInstanceKeyCheck(PersistentObjectKey<?> key) {
+		// check if same instance is created / updated / deleted  by the transaction
+		if (elements.stream().filter(
+				elt -> elt.getId().longValue() == key.id() && 
+				elt.getAlias().equals(key.alias())				
+				).findAny().isPresent()) {
+			throw new RuntimeException("Duplicate instance key in transaction: " + key);
+		}
+	}
 	
 
 	
@@ -152,6 +169,9 @@ public final class Transaction implements TransactionEvent {
 	 */
 	public void delete(PersistentObjectVersionKey<?> key) {
 		Objects.requireNonNull(key);
+
+		duplicateInstanceKeyCheck(Keys.key(key));
+		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<Companion<?>> companion = (Optional) companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
@@ -169,7 +189,19 @@ public final class Transaction implements TransactionEvent {
 		addElement(elt);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T extends AbstractPersistentObject> T update(PersistentObjectKey<T> key) {
+		Optional<TransactionElement<?>> existingElt = elements.stream().filter(elt -> elt.targetsKey(key)).findAny();
+		if (existingElt.isPresent()) {
+			if (existingElt.get().type() == InstanceEventType.Delete) {
+				throw new RuntimeException("Already deleted instance key in transaction: " + key);
+			} else if (existingElt.get().getVersion() != null) {
+				throw new RuntimeException("Attempt to update instance again, now without version: " + key);
+			} else {	
+				return (T) existingElt.get().getRecordInstance();
+			}
+		}
+		
 		Optional<Companion<T>> companion = companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid key entity: " + key);
@@ -191,6 +223,21 @@ public final class Transaction implements TransactionEvent {
 	}
 	
 	public <T extends AbstractPersistentObject> T update(PersistentObjectVersionKey<T> key) {
+		PersistentObjectKey<T> unversionedKey = Keys.key(key);
+		Optional<TransactionElement<?>> existingElt = elements.stream().filter(elt -> elt.targetsKey(unversionedKey)).findAny();
+		if (existingElt.isPresent()) {
+			if (existingElt.get().type() == InstanceEventType.Delete) {
+				throw new RuntimeException("Already deleted instance key in transaction: " + key);
+			} else  if(existingElt.get().type() == InstanceEventType.Create) {
+				throw new RuntimeException("Attempt to update newly created instance with version: " + key);
+			} else if (existingElt.get().getVersion() == null || 
+					existingElt.get().getVersion().intValue() != key.version()) {
+				throw new RuntimeException("Attempt to update instance with different versiuon key: " + key);
+			} else {	
+				return (T) existingElt.get().getRecordInstance();
+			}
+		}
+
 		Optional<Companion<T>> companion = companionSet.companionByKey(key);
 		if (companion.isEmpty()) {
 			throw new RuntimeException("Invalid key entity: " + key);
@@ -251,7 +298,7 @@ public final class Transaction implements TransactionEvent {
 	}
 
 	List<TransactionElement<?>> elements() {
-		return Collections.unmodifiableList(elements);
+		return elements;
 	}
 
 	@Override

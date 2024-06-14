@@ -1,12 +1,13 @@
 package de.protubero.beanstore.entity;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * The <i>complete</i> key of an instance, consisting of the entity alias and the id. 
  *
  */
-public interface PersistentObjectKey<T extends AbstractPersistentObject> {
+public interface PersistentObjectKey<T extends AbstractPersistentObject> extends Predicate<T> {
 
 	/**
 	 * The entity alias. 
@@ -28,7 +29,8 @@ public interface PersistentObjectKey<T extends AbstractPersistentObject> {
 	}
 
 	static <T extends AbstractEntity> PersistentObjectKey<T> of(Class<T> entityClass, long id) {
-		return new PersistentObjectKeyImpl<>(entityClass, null, id);
+		String alias = CompanionRegistry.getEntityCompanionByClass(entityClass).get().alias();
+		return new PersistentObjectKeyImpl<>(entityClass, alias, id);
 	}
 
 	static <T extends AbstractPersistentObject> PersistentObjectKey<T> of(T instance) {
@@ -45,6 +47,10 @@ public interface PersistentObjectKey<T extends AbstractPersistentObject> {
 
 	default boolean isKeyOfNewObject() {
 		return id() < 0;
+	}
+
+	static <T extends AbstractEntity> PersistentObjectKey<T> of(Class<T> entityClass, String alias, long id) {
+		return new PersistentObjectKeyImpl<>(entityClass, alias, id);
 	}
 	
 	

@@ -38,6 +38,11 @@ public class SearchResult implements PersistentObjectKey<AbstractPersistentObjec
 	public Class<AbstractPersistentObject> entityClass() {
 		return null;
 	}
+
+	@Override
+	public boolean test(AbstractPersistentObject t) {
+		return t.id().longValue() == id && t.alias().equals(type);
+	}
 	
 	
 }

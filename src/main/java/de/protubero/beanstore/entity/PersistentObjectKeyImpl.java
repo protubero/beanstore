@@ -52,5 +52,10 @@ public final class PersistentObjectKeyImpl<T extends AbstractPersistentObject> i
 		return ((PersistentObjectKey<?>) obj).id() == id()
 				&& ((PersistentObjectKey<?>) obj).alias().equals(alias());
 	}
+
+	@Override
+	public boolean test(T t) {
+		return t.id().longValue() == id && t.alias().equals(alias);
+	}
 	
 }

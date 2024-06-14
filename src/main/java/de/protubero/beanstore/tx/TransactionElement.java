@@ -5,6 +5,8 @@ import java.util.Objects;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.Companion;
+import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.entity.PersistentObjectVersionKey;
 import de.protubero.beanstore.persistence.api.KeyValuePair;
 
 public class TransactionElement<T extends AbstractPersistentObject> implements InstanceTransactionEvent<T> {
@@ -121,6 +123,15 @@ public class TransactionElement<T extends AbstractPersistentObject> implements I
 	public boolean equals(Object obj) {
 		return ((TransactionElement) obj).id.equals(id) &&
 				((TransactionElement) obj).getAlias().equals(getAlias());
+	}
+	
+	public boolean targetsKey(PersistentObjectKey<?> key) {
+		return key.id() == id.longValue() && key.alias().equals(getAlias());
+	}
+
+	public boolean targetsKey(PersistentObjectVersionKey<?> key) {
+		return version != null && version.intValue() == key.version() &&
+				key.id() == id.longValue() && key.alias().equals(getAlias());
 	}
 	
 	@Override

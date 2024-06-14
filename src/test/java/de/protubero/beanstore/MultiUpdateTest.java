@@ -1,12 +1,14 @@
 package de.protubero.beanstore;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import de.protubero.beanstore.api.BeanStoreTransactionResult;
 import de.protubero.beanstore.entity.Keys;
 import de.protubero.beanstore.model.Employee;
 
@@ -29,10 +31,18 @@ public class MultiUpdateTest extends AbstractBeanStoreTest {
 		
 		var toni = readAccess.stream().filter(obj -> obj.getEmployeeNumber() == 1).findAny().get();
 		var tx = store.transaction();
-		tx.update(Keys.key(toni)).setAge(101);
-		tx.update(Keys.key(toni)).setLastName("Tuareg");
-		BeanStoreTransactionResult result = tx.execute();
-		// assertEquals(1, result.getInstanceEvents().size());
+		var firstRec = tx.update(Keys.key(toni));
+		firstRec.setAge(101);
+		var secondRec = tx.update(Keys.key(toni));
+		assertSame(firstRec, secondRec);
+		secondRec.setLastName("Tuareg");
+		tx.execute();
+		
+		var toni2 = store.get(toni);
+		assertEquals(101, toni2.getAge().intValue());
+		assertEquals("Tuareg", toni2.getLastName());
+		
+//		assertThrows(Exception.class, null) BeanStoreTransactionResult result = tx.execute();
 	}
 	
 }

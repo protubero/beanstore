@@ -72,9 +72,12 @@ public class LinkTest {
 		assertSame(snapshot.get(newNote2), link.source());
 		assertSame(snapshot.get(newNote1), link.target());
 				
+		assertEquals(1, snapshot.get(newNote2).getLinks().size());
 		tx = store.transaction();
 		tx.delete(Keys.key(newNote1));
 		tx.execute();
+		
+		assertEquals(0, store.snapshot().get(newNote2).getLinks().size());
 		
 	}
 	
