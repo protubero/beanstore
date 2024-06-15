@@ -165,7 +165,5 @@ public interface BeanStoreSnapshot extends Iterable<EntityStoreSnapshot<?>> {
 	
 	<T extends AbstractPersistentObject> T get(PersistentObjectKey<T> key);
 	
-
-	
 	Links links();
 }

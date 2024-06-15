@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import de.protubero.beanstore.api.EntityStoreSnapshot;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
+import de.protubero.beanstore.linksandlabels.Links;
 import de.protubero.beanstore.store.EntityStore;
 
 public class EntityStoreSnapshotImpl<T extends AbstractPersistentObject> implements EntityStoreSnapshot<T> {

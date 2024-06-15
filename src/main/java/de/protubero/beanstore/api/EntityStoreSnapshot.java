@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import de.protubero.beanstore.entity.AbstractPersistentObject;
 import de.protubero.beanstore.entity.BeanStoreEntity;
 import de.protubero.beanstore.entity.PersistentObjectKey;
+import de.protubero.beanstore.linksandlabels.Links;
 
 /**
  * Read operations related to a single entity.
@@ -91,5 +92,6 @@ public interface EntityStoreSnapshot<T extends AbstractPersistentObject> extends
 	default List<T> asList() {
 		return stream().collect(Collectors.toList());
 	}
+	
 
 }
