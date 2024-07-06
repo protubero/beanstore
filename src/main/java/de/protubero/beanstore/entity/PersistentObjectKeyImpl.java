@@ -13,10 +13,7 @@ public final class PersistentObjectKeyImpl<T extends AbstractPersistentObject> i
 		if (alias == null && entityClass == null) {
 			throw new AssertionError(); 
 		}
-		if (alias != null && entityClass != null) {
-			throw new AssertionError(); 
-		}
-		
+
 		this.alias = alias;
 		this.id = id;
 		this.entityClass = entityClass;

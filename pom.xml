@@ -31,29 +31,31 @@
 		<tag>HEAD</tag>
 	</scm>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<version.lucene>9.9.1</version.lucene>
+        <version.lucene>9.9.1</version.lucene>
 
-		<version.slf4j>2.0.11</version.slf4j>
-		<version.junit-jupiter>5.10.1</version.junit-jupiter>
-		<version.kryo>5.5.0</version.kryo>
+        <version.slf4j>2.0.11</version.slf4j>
+        <version.junit-jupiter>5.10.1</version.junit-jupiter>
+        <version.kryo>5.5.0</version.kryo>
 
-		<version.jackson>2.16.1</version.jackson>
-		<version.hamcrest>2.2</version.hamcrest>
-		<version.pcollections>4.0.1</version.pcollections>
+        <version.jackson>2.16.1</version.jackson>
+        <version.hamcrest>2.2</version.hamcrest>
+        <version.pcollections>4.0.1</version.pcollections>
 
-		<version.beanutils>1.9.4</version.beanutils>
-		<version.byte-buddy>1.14.11</version.byte-buddy>
-		<version.collections4>4.4</version.collections4>
+        <version.beanutils>1.9.4</version.beanutils>
+        <version.byte-buddy>1.14.11</version.byte-buddy>
+        <version.collections4>4.4</version.collections4>
 
-		<version.logback>1.4.14</version.logback>
-		<version.rxjava>3.1.8</version.rxjava>
-		<version.jakarta-el>4.0.2</version.jakarta-el>
-		<version.hibernate-validator>8.0.0.Final</version.hibernate-validator>
-		<version.archunit>0.23.1</version.archunit>
-	</properties>
+        <version.logback>1.4.14</version.logback>
+        <version.rxjava>3.1.8</version.rxjava>
+        <version.jakarta-el>4.0.2</version.jakarta-el>
+        <version.hibernate-validator>8.0.0.Final</version.hibernate-validator>
+        <version.archunit>1.3.0</version.archunit>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
 
 
 	<dependencies>
@@ -291,10 +293,10 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.12.1</version>
-					<configuration>
+					<!--configuration>
 						<source>11</source>
 						<target>11</target>
-					</configuration>
+					</configuration-->
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
